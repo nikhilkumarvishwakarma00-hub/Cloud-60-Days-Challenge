@@ -38,3 +38,11 @@ Include:
 
 ## Conclusion
 Engineered prompts generate more detailed and valuable outputs than lazy prompts.
+
+## Screenshots
+
+### Lazy Prompt Output
+Screenshots are available in the `LazyPrompt` folder.
+
+### Engineered Prompt Output
+Screenshots are available in the `EngineeredPrompt` folder.
