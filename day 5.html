@@ -1,0 +1,206 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1.5rem 0;display:flex;flex-direction:column;gap:2rem}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:.5rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.card.featured{border:2px solid var(--color-border-info)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:var(--border-radius-md);margin-bottom:.75rem}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.badge-info{background:var(--color-background-info);color:var(--color-text-info)}
+.card h2{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem}
+.card .sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.5}
+.week-block{margin-bottom:1rem}
+.week-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.4rem;display:flex;align-items:center;gap:6px}
+.week-badge{font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.week-badge.w1{background:#E6F1FB;color:#0C447C}
+.week-badge.w2{background:#EAF3DE;color:#27500A}
+.week-badge.w3{background:#FAEEDA;color:#633806}
+.week-badge.w4{background:#EEEDFE;color:#3C3489}
+ul.tasks{list-style:none;padding:0}
+ul.tasks li{font-size:13px;color:var(--color-text-secondary);line-height:1.6;padding-left:1rem;position:relative}
+ul.tasks li::before{content:"·";position:absolute;left:0;color:var(--color-text-tertiary)}
+.resource-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5rem}
+.res-tag{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.outcome-box{margin-top:1rem;padding:.75rem 1rem;border-radius:var(--border-radius-md);background:var(--color-background-secondary)}
+.outcome-box p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:.5rem 0}
+.comparison-section{}
+.cmp-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;display:flex;flex-direction:column;gap:.75rem}
+.cmp-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.q{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem}
+.verdict{font-size:13px;color:var(--color-text-secondary);line-height:1.6;padding:.6rem .9rem;border-radius:var(--border-radius-md);border-left:3px solid}
+.verdict.b{border-color:#1D9E75;background:#E1F5EE}
+.verdict.a{border-color:#888780;background:var(--color-background-secondary)}
+.verdict strong{font-weight:500}
+.key-insight{background:#EEEDFE;border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-top:1rem}
+.key-insight p{font-size:13px;color:#3C3489;line-height:1.6}
+.key-insight strong{font-weight:500}
+</style>
+<div class="wrap">
+  <h2 style="sr-only">30-day learning roadmap: Prompt A vs Prompt B comparison</h2>
+
+  <div>
+    <div class="section-label">Side-by-side roadmaps</div>
+    <div class="two-col">
+
+      <!-- PROMPT A -->
+      <div class="card">
+        <span class="badge badge-gray">Prompt A — no context</span>
+        <h2>Generic 30-day roadmap</h2>
+        <p class="sub">For: anyone • Goal: unspecified • Time: unspecified</p>
+
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge w1">Week 1</span> Foundation</div>
+          <ul class="tasks">
+            <li>Pick a skill to learn</li>
+            <li>Set SMART goals</li>
+            <li>Find online courses</li>
+            <li>Read introductory material</li>
+            <li>Set up learning environment</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w2">Week 2</span> Core concepts</div>
+          <ul class="tasks">
+            <li>Complete beginner modules</li>
+            <li>Take notes daily</li>
+            <li>Join a community/forum</li>
+            <li>Do practice exercises</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w3">Week 3</span> Practice</div>
+          <ul class="tasks">
+            <li>Build a small project</li>
+            <li>Apply concepts learned</li>
+            <li>Review weak areas</li>
+            <li>Seek feedback</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w4">Week 4</span> Consolidate</div>
+          <ul class="tasks">
+            <li>Complete a final project</li>
+            <li>Review all notes</li>
+            <li>Share your work</li>
+            <li>Plan next 30 days</li>
+          </ul>
+        </div>
+        <div class="resource-row">
+          <span class="res-tag">YouTube</span>
+          <span class="res-tag">Coursera</span>
+          <span class="res-tag">Reddit</span>
+          <span class="res-tag">Books</span>
+        </div>
+        <div class="outcome-box" style="margin-top:.75rem">
+          <p>Outcome: Some skills learned. Vague project completed. General improvement.</p>
+        </div>
+      </div>
+
+      <!-- PROMPT B -->
+      <div class="card featured">
+        <span class="badge badge-info">Prompt B — with context</span>
+        <h2>Your personalised roadmap</h2>
+        <p class="sub">For: CS student • Goal: Web dev + Prompt Eng • 3 hrs/day</p>
+
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge w1">Week 1</span> HTML, CSS & Git basics</div>
+          <ul class="tasks">
+            <li>Days 1–2: HTML5 structure, semantic tags (freeCodeCamp)</li>
+            <li>Days 3–4: CSS Flexbox + Grid via video tutorials</li>
+            <li>Day 5: Git & GitHub crash course</li>
+            <li>Days 6–7: Build a personal portfolio page</li>
+            <li>Milestone: Deployed static site on GitHub Pages</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w2">Week 2</span> JavaScript + Python → Flask</div>
+          <ul class="tasks">
+            <li>Days 8–10: JS fundamentals (leveraging your Python base)</li>
+            <li>Days 11–12: Intro Flask — routes, templates, MySQL connect</li>
+            <li>Days 13–14: Mini CRUD app (Student grade tracker)</li>
+            <li>Milestone: Full-stack mini app using your MySQL skills</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w3">Week 3</span> Prompt Engineering</div>
+          <ul class="tasks">
+            <li>Days 15–17: Prompting basics — zero-shot, few-shot, chain-of-thought</li>
+            <li>Days 18–19: Anthropic + OpenAI prompt guides (reading)</li>
+            <li>Days 20–21: Build AI-powered study Q&A tool (Flask + API)</li>
+            <li>Milestone: Working chatbot project in portfolio</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="week-block" style="margin-top:.75rem">
+          <div class="week-title"><span class="week-badge w4">Week 4</span> Polish + deploy</div>
+          <ul class="tasks">
+            <li>Days 22–25: Responsive design, improve portfolio UX</li>
+            <li>Days 26–27: Write a Prompt Engineering case study (Word/PPT — your strength)</li>
+            <li>Days 28–30: Deploy final project, write README, update LinkedIn</li>
+            <li>Milestone: Shareable portfolio + 2 live projects</li>
+          </ul>
+        </div>
+        <div class="resource-row">
+          <span class="res-tag">freeCodeCamp videos</span>
+          <span class="res-tag">The Odin Project</span>
+          <span class="res-tag">Flask docs</span>
+          <span class="res-tag">Anthropic guides</span>
+          <span class="res-tag">CS50W</span>
+        </div>
+        <div class="outcome-box" style="margin-top:.75rem">
+          <p>Outcome: Deployed portfolio site, full-stack CRUD app, AI chatbot project, prompt engineering case study — all ready to show employers.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPARISON ANALYSIS -->
+  <div>
+    <div class="section-label">Analysis</div>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+
+      <div class="cmp-card">
+        <p class="q">1. Which roadmap feels more personalised?</p>
+        <div class="cmp-row">
+          <div class="verdict a"><strong>Prompt A</strong> — Could be for a chef, a musician, or anyone. No connection to your actual life, goals, or existing skills.</div>
+          <div class="verdict b"><strong>Prompt B</strong> — Builds on your Python knowledge, uses your MySQL skills in Week 2, incorporates your comfort with Word/PPT. Feels written for you.</div>
+        </div>
+      </div>
+
+      <div class="cmp-card">
+        <p class="q">2. Which roadmap would you actually follow?</p>
+        <div class="cmp-row">
+          <div class="verdict a"><strong>Prompt A</strong> — Hard to follow. Day 1 says "pick a skill" — you'd spend days just setting up, not learning. High abandonment risk.</div>
+          <div class="verdict b"><strong>Prompt B</strong> — Easy to start immediately. Day 1 task is clear: open freeCodeCamp, do HTML5. 3-hour daily blocks fit your schedule. Low friction.</div>
+        </div>
+      </div>
+
+      <div class="cmp-card">
+        <p class="q">3. What role did context play in improving the result?</p>
+        <ul class="tasks" style="display:flex;flex-direction:column;gap:.4rem">
+          <li><strong style="font-weight:500">Existing skills</strong> — Python + MySQL knowledge was reused, not ignored. Week 2 skips Python basics entirely.</li>
+          <li><strong style="font-weight:500">Dual goal clarity</strong> — Web dev AND prompt engineering are both addressed with a logical sequence, not crammed together.</li>
+          <li><strong style="font-weight:500">Time constraint</strong> — 3 hrs/day made daily tasks realistic and scoped, not overwhelming.</li>
+          <li><strong style="font-weight:500">Learning style</strong> — Resources match videos + projects + reading preference (no textbook-only recommendations).</li>
+          <li><strong style="font-weight:500">Level awareness</strong> — Beginner/intermediate split means Week 1 doesn't insult you with "what is a computer?"</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="key-insight">
+      <p><strong>The core lesson:</strong> Context transforms a prompt from a search query into a brief. Prompt A asked Claude to guess everything. Prompt B gave Claude the constraints needed to make real decisions — what to skip, what to prioritise, and how to connect your existing knowledge to your target goal. The quality gap isn't subtle; Prompt B is roughly 5× more actionable.</p>
+    </div>
+  </div>
+
+</div>
