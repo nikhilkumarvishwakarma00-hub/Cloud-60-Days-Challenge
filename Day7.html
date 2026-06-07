@@ -1,0 +1,192 @@
+
+<style>
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; }
+  .badge-teal { background: #E1F5EE; color: #0F6E56; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-coral { background: #FAECE7; color: #993C1D; }
+  .badge-blue { background: #E6F1FB; color: #0C447C; }
+  .model-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .model-card.recommended { border: 2px solid #1D9E75; }
+  .model-name { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .model-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .effort-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .effort-row:last-child { border-bottom: none; }
+  .effort-label { font-size: 13px; font-weight: 500; min-width: 72px; color: var(--color-text-primary); }
+  .effort-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .task-row { display: grid; grid-template-columns: 2fr 1.2fr 1.1fr 2fr; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+  .task-row:last-child { border-bottom: none; }
+  .task-row.header { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+  .mistake-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .mistake-item:last-child { border-bottom: none; }
+  .mistake-icon { font-size: 16px; color: #D85A30; margin-top: 2px; }
+  .mistake-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .mistake-text strong { color: var(--color-text-primary); font-weight: 500; }
+  .hero { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 14px; }
+  .hero-icon { font-size: 32px; color: #1D9E75; }
+  .hero-name { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .hero-sub { font-size: 13px; color: var(--color-text-secondary); }
+  .final-box { background: #E1F5EE; border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; border: 0.5px solid #9FE1CB; }
+  .final-box p { font-size: 14px; color: #0F6E56; line-height: 1.7; margin: 0; }
+  .final-box strong { color: #085041; font-weight: 500; }
+  @media (prefers-color-scheme: dark) {
+    .badge-teal { background: #085041; color: #9FE1CB; }
+    .badge-purple { background: #26215C; color: #CECBF6; }
+    .badge-amber { background: #412402; color: #FAC775; }
+    .badge-coral { background: #4A1B0C; color: #F5C4B3; }
+    .badge-blue { background: #042C53; color: #B5D4F4; }
+    .final-box { background: #085041; border-color: #0F6E56; }
+    .final-box p { color: #9FE1CB; }
+    .final-box strong { color: #E1F5EE; }
+    .model-card.recommended { border-color: #1D9E75; }
+  }
+</style>
+
+<h2 class="sr-only">Nikhil's personalized Claude usage strategy based on BCA student profile with coding, research, and career prep needs</h2>
+
+<div class="hero">
+  <i class="ti ti-user-check hero-icon" aria-hidden="true"></i>
+  <div>
+    <div class="hero-name">Nikhil Kumar Vishwakarma</div>
+    <div class="hero-sub">BCA Student · Python · Web Dev · Prompt Engineering · Daily Claude User</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Recommended primary model</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+    <div class="model-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span class="model-name">Haiku</span><span class="badge badge-teal">Fast</span></div>
+      <div class="model-desc">Quick definitions, syntax lookups, small code snippets, flashcard-style Q&A</div>
+    </div>
+    <div class="model-card recommended">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span class="model-name">Sonnet ⭐</span><span class="badge badge-purple">Your Primary</span></div>
+      <div class="model-desc">Your everyday workhorse — coding help, concept explanations, resume review, research summaries. Best balance of depth and speed.</div>
+    </div>
+    <div class="model-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span class="model-name">Opus</span><span class="badge badge-amber">Deep Work</span></div>
+      <div class="model-desc">Complex project architecture, job interview strategy, deep algorithmic reasoning</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Effort level guide</div>
+  <div class="card">
+    <div class="effort-row">
+      <span class="effort-label"><span class="badge badge-teal">Low</span></span>
+      <span class="effort-desc">Syntax questions, concept definitions, quick debugging (e.g. "what does .append() do in Python?")</span>
+    </div>
+    <div class="effort-row">
+      <span class="effort-label"><span class="badge badge-blue">Standard</span></span>
+      <span class="effort-desc">Explaining algorithms, building small features, resume bullet rewriting, summarising research topics</span>
+    </div>
+    <div class="effort-row">
+      <span class="effort-label"><span class="badge badge-purple">High</span></span>
+      <span class="effort-desc">Full project code review, interview prep with mock questions, writing cover letters, debugging complex Flask routes</span>
+    </div>
+    <div class="effort-row">
+      <span class="effort-label"><span class="badge badge-amber">Max</span></span>
+      <span class="effort-desc">Designing your full-stack project architecture, crafting a professional portfolio strategy, planning your career path beyond BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Personalized workflow table</div>
+  <div class="card">
+    <div class="task-row header">
+      <span>Task</span><span>Model</span><span>Effort</span><span>Reason</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Debug Python / Flask errors</span>
+      <span><span class="badge badge-teal">Sonnet</span></span>
+      <span><span class="badge badge-blue">Standard</span></span>
+      <span style="color:var(--color-text-secondary);">Fast context reasoning; understands your Flask stack</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Learn new CS concept</span>
+      <span><span class="badge badge-teal">Sonnet</span></span>
+      <span><span class="badge badge-blue">Standard</span></span>
+      <span style="color:var(--color-text-secondary);">Sonnet explains with examples; use "explain like I'm a BCA student"</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Resume bullet rewriting</span>
+      <span><span class="badge badge-teal">Sonnet</span></span>
+      <span><span class="badge badge-purple">High</span></span>
+      <span style="color:var(--color-text-secondary);">More effort = sharper language; critical for job applications</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Build a new project feature</span>
+      <span><span class="badge badge-teal">Sonnet</span></span>
+      <span><span class="badge badge-purple">High</span></span>
+      <span style="color:var(--color-text-secondary);">Needs planning + working code; worth the extra depth</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Research a topic fast</span>
+      <span><span class="badge badge-coral">Haiku</span></span>
+      <span><span class="badge badge-teal">Low</span></span>
+      <span style="color:var(--color-text-secondary);">Quick scan of a topic before going deeper</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Mock technical interview</span>
+      <span><span class="badge badge-amber">Opus</span></span>
+      <span><span class="badge badge-amber">Max</span></span>
+      <span style="color:var(--color-text-secondary);">Needs rigorous, realistic questions for SDE/web dev roles</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Plan your next project</span>
+      <span><span class="badge badge-amber">Opus</span></span>
+      <span><span class="badge badge-amber">Max</span></span>
+      <span style="color:var(--color-text-secondary);">Architecture decisions need maximum reasoning quality</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Write cover letter / LinkedIn bio</span>
+      <span><span class="badge badge-teal">Sonnet</span></span>
+      <span><span class="badge badge-purple">High</span></span>
+      <span style="color:var(--color-text-secondary);">Personal branding needs careful, polished language</span>
+    </div>
+    <div class="task-row">
+      <span style="color:var(--color-text-primary);font-weight:500;">Quick syntax lookup</span>
+      <span><span class="badge badge-coral">Haiku</span></span>
+      <span><span class="badge badge-teal">Low</span></span>
+      <span style="color:var(--color-text-secondary);">Fastest response; no deep reasoning needed</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Biggest mistakes to avoid</div>
+  <div class="card">
+    <div class="mistake-item">
+      <i class="ti ti-alert-triangle mistake-icon" aria-hidden="true"></i>
+      <div class="mistake-text"><strong>Using Opus for every task</strong> — it's slower and overkill for quick lookups. Reserve it for high-stakes decisions.</div>
+    </div>
+    <div class="mistake-item">
+      <i class="ti ti-alert-triangle mistake-icon" aria-hidden="true"></i>
+      <div class="mistake-text"><strong>Vague prompts like "help me code"</strong> — always give your tech stack (Flask + MySQL + Python) and the exact error or goal.</div>
+    </div>
+    <div class="mistake-item">
+      <i class="ti ti-alert-triangle mistake-icon" aria-hidden="true"></i>
+      <div class="mistake-text"><strong>Copying code without understanding it</strong> — ask Claude to explain every block so you actually learn, not just ship.</div>
+    </div>
+    <div class="mistake-item">
+      <i class="ti ti-alert-triangle mistake-icon" aria-hidden="true"></i>
+      <div class="mistake-text"><strong>Using Claude only for coding</strong> — your resume needs serious work for 2026 job market. Use High effort Sonnet for career content regularly.</div>
+    </div>
+    <div class="mistake-item">
+      <i class="ti ti-alert-triangle mistake-icon" aria-hidden="true"></i>
+      <div class="mistake-text"><strong>Starting new chats for the same project</strong> — always paste relevant context (your code, error, stack) at the top of each session for best results.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Final recommendation</div>
+  <div class="final-box">
+    <p>If you could use only ONE model and ONE effort level: <strong>Claude Sonnet at Standard effort</strong>. It handles 80% of your daily needs — coding, learning, resume work, and research — at the right speed and depth for a BCA student in active development. When you have something important (a job application, a complex feature, interview prep), bump to <strong>High effort or switch to Opus</strong>. That one switch will make a real difference on outcomes that matter.</p>
+  </div>
+</div>
