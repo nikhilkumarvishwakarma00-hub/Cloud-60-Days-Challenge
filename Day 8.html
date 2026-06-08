@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 Personal Environmental Health Analyzer — Kanpur</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2235;
+    --bg4: #1e2d45;
+    --card: #141d2e;
+    --border: rgba(99,179,255,0.12);
+    --border2: rgba(99,179,255,0.22);
+    --text: #e8f0fe;
+    --text2: #8ba3c7;
+    --text3: #4d6480;
+    --accent: #4f9eff;
+    --accent2: #00e5b4;
+    --accent3: #f5a623;
+    --good: #22c55e;
+    --moderate: #eab308;
+    --poor: #f97316;
+    --vpoor: #ef4444;
+    --severe: #dc2626;
+    --satisfactory: #84cc16;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --glow: 0 0 20px rgba(79,158,255,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.6; min-height: 100vh; }
+  
+  /* HEADER */
+  .header { background: linear-gradient(135deg, #0d1b35 0%, #0a0e1a 60%, #0d1d30 100%); border-bottom: 1px solid var(--border); padding: 28px 32px 24px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .header-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #1a3a6b, #0f4d8a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border2); }
+  .header-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .header-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+  .badge-blue { background: rgba(79,158,255,0.12); color: #63b3ff; border: 1px solid rgba(79,158,255,0.25); }
+  .badge-green { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+  .badge-orange { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+  .source-tag { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  
+  /* NAV TABS */
+  .nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .tab { padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  
+  /* MAIN LAYOUT */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  
+  /* GRIDS */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .card:hover { border-color: var(--border2); box-shadow: var(--glow); transition: all 0.25s; }
+  .card-title { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  
+  /* METRIC CARDS */
+  .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+  .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .metric-card.blue::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .metric-card.green::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .metric-card.orange::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .metric-card.red::before { background: linear-gradient(90deg, #ef4444, transparent); }
+  .metric-card.purple::before { background: linear-gradient(90deg, #a855f7, transparent); }
+  .metric-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .metric-value { font-size: 36px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+  .metric-sub { font-size: 12px; color: var(--text2); margin-top: 6px; }
+  .metric-trend { font-size: 11px; color: var(--accent2); margin-top: 4px; }
+  
+  /* CHART CONTAINERS */
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .chart-title { font-size: 15px; font-weight: 600; }
+  .chart-subtitle { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  
+  /* AQI BADGE */
+  .aqi-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .aqi-good { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .aqi-satisfactory { background: rgba(132,204,22,0.15); color: #a3e635; }
+  .aqi-moderate { background: rgba(234,179,8,0.15); color: #fbbf24; }
+  .aqi-poor { background: rgba(249,115,22,0.15); color: #fb923c; }
+  .aqi-vpoor { background: rgba(239,68,68,0.15); color: #f87171; }
+  .aqi-severe { background: rgba(220,38,38,0.15); color: #fca5a5; }
+  
+  /* RISK INDICATORS */
+  .risk-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-label { font-size: 13px; color: var(--text2); }
+  .risk-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .low { color: #4ade80; } .low .risk-dot { background: #22c55e; }
+  .moderate2 { color: #fbbf24; } .moderate2 .risk-dot { background: #eab308; }
+  .high2 { color: #f87171; } .high2 .risk-dot { background: #ef4444; }
+  
+  /* SCORE RING */
+  .score-ring { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+  .score-ring svg { width: 130px; height: 130px; transform: rotate(-90deg); }
+  .score-ring .ring-bg { fill: none; stroke: var(--bg3); stroke-width: 10; }
+  .score-ring .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); }
+  .score-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-num { font-size: 28px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+  .score-out { font-size: 11px; color: var(--text3); }
+  
+  /* CITY CARDS */
+  .city-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; cursor: pointer; transition: all 0.2s; }
+  .city-card:hover, .city-card.selected { border-color: var(--accent); box-shadow: 0 0 16px rgba(79,158,255,0.18); }
+  .city-card.selected { background: rgba(79,158,255,0.06); }
+  .city-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .city-state { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+  .city-aqi-big { font-size: 38px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+  .city-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .city-stat { background: var(--bg3); border-radius: 8px; padding: 8px 10px; }
+  .city-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .city-stat-val { font-size: 16px; font-weight: 600; font-family: var(--mono); }
+  
+  /* HEALTH IMPACT */
+  .impact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .impact-card { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px; border-left: 3px solid; }
+  .impact-card.risk-low { border-left-color: #22c55e; }
+  .impact-card.risk-mod { border-left-color: #eab308; }
+  .impact-card.risk-high { border-left-color: #ef4444; }
+  .impact-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .impact-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
+  .filter-label { font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  select, input[type=range] { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: var(--font); outline: none; cursor: pointer; }
+  select:focus { border-color: var(--accent); }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.18s; border: 1px solid var(--border2); background: var(--bg3); color: var(--text2); font-family: var(--font); }
+  .btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  
+  /* RECOMMENDATIONS */
+  .rec-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .rec-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+  .rec-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .rec-list { list-style: none; }
+  .rec-list li { font-size: 12px; color: var(--text2); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 8px; }
+  .rec-list li:last-child { border-bottom: none; }
+  .rec-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+  
+  /* REPORT CARD */
+  .grade-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-align: center; }
+  .grade-letter { font-size: 64px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+  .grade-A { color: #4ade80; } .grade-B { color: #a3e635; } .grade-C { color: #fbbf24; } .grade-D { color: #fb923c; } .grade-F { color: #f87171; }
+  .grade-label { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  
+  /* INSIGHT CARDS */
+  .insight-card { background: linear-gradient(135deg, var(--bg3), var(--card)); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .insight-num { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-bottom: 8px; }
+  .insight-text { font-size: 14px; font-weight: 500; line-height: 1.5; }
+  .insight-meta { font-size: 11px; color: var(--text3); margin-top: 8px; }
+  
+  /* PROGRESS BAR */
+  .progress-bar { background: var(--bg3); border-radius: 6px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+  
+  /* SECTION HEADER */
+  .section-header { margin-bottom: 24px; }
+  .section-header h2 { font-size: 20px; font-weight: 700; }
+  .section-header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  
+  /* RANKING TABLE */
+  .rank-table { width: 100%; border-collapse: collapse; }
+  .rank-table th { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .rank-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .rank-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .rank-num { font-family: var(--mono); font-size: 12px; color: var(--text3); }
+  
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  
+  /* ALERT BOX */
+  .alert { border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px; }
+  .alert-warn { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.25); color: #fbbf24; }
+  .alert-info { background: rgba(79,158,255,0.1); border: 1px solid rgba(79,158,255,0.25); color: #93c5fd; }
+  .alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+  
+  /* WATER QUALITY TABLE */
+  .wq-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .wq-row:last-child { border-bottom: none; }
+  .wq-label { font-size: 13px; }
+  .wq-value { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .wq-bar-wrap { width: 120px; }
+  
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .main { padding: 16px; }
+    .header { padding: 16px; }
+    .nav { padding: 0 16px; }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .impact-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .header-title { font-size: 16px; }
+  }
+  
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  
+  /* COMPARE MODE */
+  .compare-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 20px; }
+  
+  /* ANIMATE */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .section.active { animation: fadeIn 0.3s ease; }
+  
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  
+  /* FOOTER */
+  .footer { text-align: center; padding: 28px 32px; font-size: 12px; color: var(--text3); border-top: 1px solid var(--border); margin-top: 40px; }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-icon">🌍</div>
+      <div>
+        <div class="header-title">Personal Environmental Health Analyzer</div>
+        <div class="header-sub">📍 Kanpur, Uttar Pradesh, India — Live Data Dashboard</div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-orange">AQI 99 · Moderate</span>
+      <span class="badge badge-blue">10 Cities Analyzed</span>
+      <span class="badge badge-green">Updated June 2026</span>
+    </div>
+  </div>
+  <div style="margin-top:10px; font-size:11px; color:var(--text3);">
+    Sources: CPCB · IQAir · AQI.in · aqicn.org · ResearchGate Water Quality Study · WHO Guidelines
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav" id="mainNav">
+  <div class="tab active" onclick="showSection('dashboard', this)">📊 Dashboard</div>
+  <div class="tab" onclick="showSection('cities', this)">🏙 City Explorer</div>
+  <div class="tab" onclick="showSection('health', this)">🫁 Health Impact</div>
+  <div class="tab" onclick="showSection('water', this)">💧 Water Quality</div>
+  <div class="tab" onclick="showSection('report', this)">📋 Report Card</div>
+  <div class="tab" onclick="showSection('insights', this)">💡 Insights</div>
+  <div class="tab" onclick="showSection('recommendations', this)">🌿 Recommendations</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- ====== DASHBOARD ====== -->
+<div class="section active" id="dashboard">
+  <div class="section-header">
+    <h2>Environmental Health Overview</h2>
+    <p>Real-time air quality and pollution metrics for Kanpur and major Indian cities — June 2026</p>
+  </div>
+
+  <div class="alert alert-warn">
+    <span>⚠</span>
+    <span><strong>Kanpur Alert:</strong> PM2.5 is 9.7× WHO annual guideline. Peak AQI reached 191 (Unhealthy) overnight. Sensitive groups should limit outdoor exposure and use N95 masks.</span>
+  </div>
+
+  <!-- KEY METRICS -->
+  <div class="grid-4" style="margin-bottom:24px;">
+    <div class="metric-card blue">
+      <div class="metric-label">Current AQI (Kanpur)</div>
+      <div class="metric-value" style="color:var(--accent3);">99</div>
+      <div class="metric-sub">Moderate — US EPA Scale</div>
+      <div class="metric-trend">↑ 24h peak: 191 (Unhealthy)</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Avg AQI (10 Cities)</div>
+      <div class="metric-value" style="color:var(--accent);">78</div>
+      <div class="metric-sub">Moderate range overall</div>
+      <div class="metric-trend">↔ Seasonal June baseline</div>
+    </div>
+    <div class="metric-card orange">
+      <div class="metric-label">Highest AQI City</div>
+      <div class="metric-value" style="color:#ef4444;">137</div>
+      <div class="metric-sub">Kolkata — Unhealthy for SG</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">Cleanest City</div>
+      <div class="metric-value" style="color:#a855f7;">33</div>
+      <div class="metric-sub">Bangalore — Good ✓</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">AQI Comparison — Major Cities</div>
+          <div class="chart-subtitle">Current real-time AQI values (US EPA scale)</div>
+        </div>
+        <span class="aqi-pill aqi-moderate">Live Data</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Good (0-50)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#84cc16"></div>Satisfactory (51-100)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>Moderate (101-150)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Unhealthy (151+)</div>
+      </div>
+      <div style="position:relative;height:300px;">
+        <canvas id="aqiBarChart" role="img" aria-label="Bar chart of AQI values across 10 Indian cities">AQI data for 10 Indian cities ranging from 33 (Bangalore) to 137 (Kolkata).</canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">PM2.5 Comparison</div>
+          <div class="chart-subtitle">Fine particulate matter (µg/m³) — WHO limit: 15 µg/m³ annual</div>
+        </div>
+      </div>
+      <div style="position:relative;height:300px;">
+        <canvas id="pm25Chart" role="img" aria-label="Bar chart of PM2.5 values across 10 Indian cities">PM2.5 levels across Indian cities.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">PM10 Comparison</div>
+          <div class="chart-subtitle">Coarse particulate matter (µg/m³) — WHO limit: 45 µg/m³ annual</div>
+        </div>
+      </div>
+      <div style="position:relative;height:280px;">
+        <canvas id="pm10Chart" role="img" aria-label="Bar chart of PM10 values across Indian cities">PM10 levels across Indian cities.</canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">AQI Distribution</div>
+          <div class="chart-subtitle">Cities by AQI category</div>
+        </div>
+      </div>
+      <div style="position:relative;height:280px;">
+        <canvas id="aqiDonut" role="img" aria-label="Donut chart showing AQI category distribution">Distribution of cities across AQI categories.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CITY RANKING -->
+  <div class="chart-wrap" style="margin-bottom:20px;">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">City Environmental Health Ranking</div>
+        <div class="chart-subtitle">Composite score (Air Quality + Water Quality) — lower rank = healthier</div>
+      </div>
+    </div>
+    <div style="position:relative;height:340px;">
+      <canvas id="rankChart" role="img" aria-label="Horizontal bar chart ranking cities by environmental health score">City ranking by environmental health composite score.</canvas>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="card">
+    <div class="card-title">Executive Summary</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.8;">
+      Analysis of <strong style="color:var(--text)">10 major Indian cities</strong> reveals significant variation in environmental health, with a mean AQI of <strong style="color:var(--accent3)">78</strong> across the dataset. 
+      <strong style="color:var(--text)">Kanpur</strong> sits at AQI 99 (Moderate), with PM2.5 at <strong style="color:var(--accent3)">34 µg/m³</strong> — approximately <strong style="color:var(--vpoor)">9.7× the WHO annual guideline</strong>. 
+      The cleanest city is <strong style="color:var(--good)">Bangalore</strong> at AQI 33, while <strong style="color:var(--vpoor)">Kolkata</strong> ranks most polluted at 137.
+      Water quality in Kanpur shows a TDS of ~500–700 mg/L (safe limit: 100 mg/L) with hardness of 175 mg/L, posing moderate-to-high risk for hair and skin health.
+      The most surprising observation: despite being June (post-monsoon onset), Kanpur's overnight AQI spiked to 191 — suggesting persistent industrial and vehicular emissions are overwhelming seasonal dilution effects.
+    </div>
+  </div>
+</div>
+
+<!-- ====== CITY EXPLORER ====== -->
+<div class="section" id="cities">
+  <div class="section-header">
+    <h2>City Explorer</h2>
+    <p>Browse, filter, and compare cities across environmental parameters</p>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <select id="aqiFilter" onchange="filterCities()">
+      <option value="all">All AQI Levels</option>
+      <option value="good">Good (0–50)</option>
+      <option value="satisfactory">Satisfactory (51–100)</option>
+      <option value="moderate">Moderate (101–150)</option>
+      <option value="unhealthy">Unhealthy (151+)</option>
+    </select>
+    <select id="sortFilter" onchange="filterCities()">
+      <option value="aqi">Sort by AQI</option>
+      <option value="pm25">Sort by PM2.5</option>
+      <option value="score">Sort by Health Score</option>
+    </select>
+    <button class="btn" id="compareBtn" onclick="toggleCompare()">Compare Mode</button>
+    <span id="compareCount" style="font-size:12px;color:var(--text2);"></span>
+  </div>
+
+  <div class="grid-auto" id="cityGrid" style="margin-bottom:24px;"></div>
+
+  <div class="compare-panel" id="comparePanel" style="display:none;">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">City Comparison</div>
+        <div class="chart-subtitle">Select up to 4 cities above to compare</div>
+      </div>
+      <button class="btn" onclick="clearCompare()">Clear Selection</button>
+    </div>
+    <div style="position:relative;height:300px;">
+      <canvas id="compareChart" role="img" aria-label="Comparison chart for selected cities">City comparison chart.</canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ====== HEALTH IMPACT ====== -->
+<div class="section" id="health">
+  <div class="section-header">
+    <h2>Environmental Health Impact</h2>
+    <p>How Kanpur's air and water quality affects your body — based on current AQI 99 & PM2.5 34 µg/m³</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title">🫁 Air Quality Health Impacts</div>
+      <div class="risk-row">
+        <span class="risk-label">Lung Health (PM2.5 exposure)</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Sleep Quality</span>
+        <span class="moderate2"><span class="risk-dot"></span>🟡 Moderate Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Energy Levels / Fatigue</span>
+        <span class="moderate2"><span class="risk-dot"></span>🟡 Moderate Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Outdoor Exercise Performance</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Long-term Cardiovascular Health</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Eye & Nasal Irritation</span>
+        <span class="moderate2"><span class="risk-dot"></span>🟡 Moderate Risk</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💧 Water Quality Health Impacts</div>
+      <div class="risk-row">
+        <span class="risk-label">Hair Fall (High hardness 175 mg/L)</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Hair Dryness & Brittleness</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Scalp Health (mineral buildup)</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Skin Dryness (high TDS 500–700)</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Acne / Clogged Pores</span>
+        <span class="moderate2"><span class="risk-dot"></span>🟡 Moderate Risk</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Sensitive Skin Flare-ups</span>
+        <span class="high2"><span class="risk-dot"></span>🔴 High Risk</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="impact-grid" style="margin-bottom:24px;">
+    <div class="impact-card risk-high">
+      <div class="impact-title">🫁 Lung & Respiratory Health</div>
+      <div class="impact-text">At PM2.5 = 34 µg/m³ (9.7× WHO limit), fine particles penetrate deep into lung alveoli. Long-term exposure increases risk of COPD, asthma exacerbations, and reduced lung function. Kanpur's industrial belt is a key source.</div>
+    </div>
+    <div class="impact-card risk-mod">
+      <div class="impact-title">😴 Sleep Quality</div>
+      <div class="impact-text">Air pollutants trigger inflammatory responses affecting sleep architecture. Studies show PM2.5 above 35 µg/m³ correlates with reduced REM sleep and increased nighttime awakenings. Use an air purifier in the bedroom.</div>
+    </div>
+    <div class="impact-card risk-high">
+      <div class="impact-title">⚡ Energy & Fatigue</div>
+      <div class="impact-text">Chronic low-level PM exposure impairs oxygen efficiency in red blood cells. Citizens of Kanpur may experience persistent fatigue, reduced cognitive performance, and difficulty concentrating — especially during peak pollution hours (5–8 AM).</div>
+    </div>
+    <div class="impact-card risk-high">
+      <div class="impact-title">🏃 Exercise & Sports Performance</div>
+      <div class="impact-text">Exercising at AQI 99+ dramatically increases pollutant intake. Indoor exercise is strongly recommended. If outdoors, avoid 5–9 AM (peak hours), use N95 masks, and limit intensity. Wait for AQI to drop below 50 for vigorous outdoor activity.</div>
+    </div>
+    <div class="impact-card risk-high">
+      <div class="impact-title">💆 Hair & Scalp</div>
+      <div class="impact-text">Kanpur's hard water (175 mg/L hardness, TDS 500–700) deposits calcium and magnesium on hair shafts, breaking disulfide bonds. This leads to thinning, breakage, dandruff, and scalp irritation. Chelating shampoos are highly recommended.</div>
+    </div>
+    <div class="impact-card risk-high">
+      <div class="impact-title">🌸 Skin Health</div>
+      <div class="impact-text">PM2.5 particles smaller than 2.5µm penetrate skin pores, generating oxidative stress and accelerating aging. Hard water disrupts skin's natural acid mantle (pH 4.5–5.5), worsening eczema, acne, and dryness. Double-cleanse and use a pH-balanced toner.</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-header">
+      <div class="chart-title">Pollutant Breakdown — Kanpur (NSI Kalyanpur Station, CPCB)</div>
+    </div>
+    <div style="position:relative;height:260px;">
+      <canvas id="pollutantRadar" role="img" aria-label="Radar chart showing pollutant levels for Kanpur">Pollutant breakdown for Kanpur: PM2.5 162, PM10 90, NO2 9, SO2 5, O3 7, CO 8.</canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ====== WATER QUALITY ====== -->
+<div class="section" id="water">
+  <div class="section-header">
+    <h2>Water Quality Analysis</h2>
+    <p>Kanpur groundwater & municipal supply analysis — BIS IS 10500:2012 standards</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <span>🚨</span>
+    <span><strong>Critical:</strong> Kanpur tap water TDS ranges 500–700 mg/L (safe limit: 100 mg/L for drinking). Hardness at 175 mg/L. Industrial heavy metal contamination (chromium, lead) reported near Jajmau. Do NOT drink tap water without RO+UV treatment.</span>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title">Physicochemical Parameters</div>
+      <div class="wq-row">
+        <span class="wq-label">pH Level</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--good);"></div></div></div>
+        <span class="wq-value" style="color:var(--good);">7.2–7.6</span>
+      </div>
+      <div class="wq-row">
+        <span class="wq-label">TDS (mg/L)</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--vpoor);"></div></div></div>
+        <span class="wq-value" style="color:var(--vpoor);">500–700</span>
+      </div>
+      <div class="wq-row">
+        <span class="wq-label">Hardness (mg/L)</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--poor);"></div></div></div>
+        <span class="wq-value" style="color:var(--poor);">175</span>
+      </div>
+      <div class="wq-row">
+        <span class="wq-label">Alkalinity (mg/L)</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--good);"></div></div></div>
+        <span class="wq-value" style="color:var(--good);">70.6</span>
+      </div>
+      <div class="wq-row">
+        <span class="wq-label">Chloride (mg/L)</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:28%;background:var(--satisfactory);"></div></div></div>
+        <span class="wq-value" style="color:var(--satisfactory);">30–50</span>
+      </div>
+      <div class="wq-row">
+        <span class="wq-label">Turbidity (NTU)</span>
+        <div class="wq-bar-wrap"><div class="progress-bar"><div class="progress-fill" style="width:8%;background:var(--good);"></div></div></div>
+        <span class="wq-value" style="color:var(--good);">&lt;1.0</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">BIS Standards Compliance (IS 10500:2012)</div>
+      <div style="position:relative;height:280px;">
+        <canvas id="waterChart" role="img" aria-label="Bar chart comparing Kanpur water parameters to BIS standards">Water quality comparison to BIS standards for Kanpur.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">🪣 Ganga River Water Quality</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+        Kanpur's segment of the Ganga shows highest average BOD (3.83 ppm) in the entire river, ahead of Varanasi and Prayagraj. Industrial discharge from tanneries in Jajmau is the primary contributor. The river stretch Kanpur–Prayagraj is classified as heavily polluted. Not suitable for direct use.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚗ Industrial Contamination Risk</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+        Heavy metals including chromium, lead, and arsenic have been detected near Jajmau industrial zone. Groundwater within 3 km of tannery clusters shows elevated toxic metal concentrations exceeding BIS permissible limits. NABL-accredited testing is strongly recommended.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔬 Recommended Water Treatment</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+        For drinking: RO + UV + Carbon filter (minimum). For bathing/hair: Shower filter with KDF media. For laundry: Water softener. Check for BIS-certified systems. Test water annually for heavy metals, especially if near industrial areas.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== REPORT CARD ====== -->
+<div class="section" id="report">
+  <div class="section-header">
+    <h2>Personal Environmental Report Card</h2>
+    <p>Your environmental health scorecard for Kanpur, Uttar Pradesh</p>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:28px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:24px;flex-wrap:wrap;">
+    <div class="score-ring">
+      <svg viewBox="0 0 130 130">
+        <circle class="ring-bg" cx="65" cy="65" r="55"/>
+        <circle class="ring-fill" cx="65" cy="65" r="55" stroke="#f97316" id="overallRing"
+          stroke-dasharray="345.57" stroke-dashoffset="138"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-num" style="color:#f97316;">40</div>
+        <div class="score-out">/ 100</div>
+      </div>
+    </div>
+    <div style="flex:1;min-width:220px;">
+      <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Overall Environmental Score</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">Grade: <strong style="color:#f97316;font-size:20px;">D</strong> — Concerning. Significant environmental stressors present.</div>
+      <div style="font-size:13px;color:var(--text2);">Kanpur ranks among the more challenging cities in India for environmental health. Both air quality and water quality present measurable risks to long-term wellbeing. Protective measures are strongly recommended.</div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:24px;">
+    <div class="grade-card">
+      <div class="grade-letter grade-D">D</div>
+      <div style="font-size:15px;font-weight:600;margin-top:8px;">Air Quality</div>
+      <div class="grade-label">Score: 42/100</div>
+      <div class="grade-label">PM2.5 9.7× WHO</div>
+    </div>
+    <div class="grade-card">
+      <div class="grade-letter grade-D">D</div>
+      <div style="font-size:15px;font-weight:600;margin-top:8px;">Water Quality</div>
+      <div class="grade-label">Score: 38/100</div>
+      <div class="grade-label">TDS 500–700 mg/L</div>
+    </div>
+    <div class="grade-card">
+      <div class="grade-letter grade-C">C</div>
+      <div style="font-size:15px;font-weight:600;margin-top:8px;">Hair Risk</div>
+      <div class="grade-label">Score: 45/100</div>
+      <div class="grade-label">Hard water damage</div>
+    </div>
+    <div class="grade-card">
+      <div class="grade-letter grade-D">D</div>
+      <div style="font-size:15px;font-weight:600;margin-top:8px;">Skin Risk</div>
+      <div class="grade-label">Score: 35/100</div>
+      <div class="grade-label">PM2.5 + hard water</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Score Breakdown</div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Air Quality Score</span><span style="font-family:var(--mono);color:var(--accent3);">42</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--accent3);"></div></div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Water Quality Score</span><span style="font-family:var(--mono);color:var(--vpoor);">38</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:38%;background:var(--vpoor);"></div></div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Hair Health Score</span><span style="font-family:var(--mono);color:var(--moderate);">45</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--moderate);"></div></div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Skin Health Score</span><span style="font-family:var(--mono);color:var(--vpoor);">35</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:35%;background:var(--vpoor);"></div></div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;margin-bottom:8px;"><span>Overall Score</span><span style="font-family:var(--mono);color:var(--poor);">40/100</span></div>
+        <div class="progress-bar" style="height:12px;"><div class="progress-fill" style="width:40%;background:linear-gradient(90deg,var(--vpoor),var(--poor));"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Score Context — Cities Comparison</div>
+      <div style="position:relative;height:250px;">
+        <canvas id="scoreRadar" role="img" aria-label="Radar chart comparing environmental scores of selected cities">Environmental score comparison between cities.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== INSIGHTS ====== -->
+<div class="section" id="insights">
+  <div class="section-header">
+    <h2>Key Insights & Analysis</h2>
+    <p>Data-driven observations from 10-city environmental analysis</p>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--good);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">🟢 Top 3 Cleanest Cities</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="insight-card"><div class="insight-num">#1</div><div class="insight-text">Bangalore — AQI 33</div><div class="insight-meta">Good · Coastal winds + greenery</div></div>
+        <div class="insight-card"><div class="insight-num">#2</div><div class="insight-text">Mumbai — AQI 58</div><div class="insight-meta">Moderate · Sea breeze dispersion</div></div>
+        <div class="insight-card"><div class="insight-num">#3</div><div class="insight-text">Pune — AQI 65</div><div class="insight-meta">Moderate · Better urban planning</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--vpoor);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">🔴 Top 3 Most Polluted</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="insight-card"><div class="insight-num">#1</div><div class="insight-text">Kolkata — AQI 137</div><div class="insight-meta">Unhealthy SG · Industrial + vehicle</div></div>
+        <div class="insight-card"><div class="insight-num">#2</div><div class="insight-text">Lucknow — AQI 152</div><div class="insight-meta">Unhealthy · Gangetic plain trap</div></div>
+        <div class="insight-card"><div class="insight-num">#3</div><div class="insight-text">Kanpur — AQI 99</div><div class="insight-meta">Moderate · Industrial tanneries</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">💡 Special Observations</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="insight-card" style="border-left:3px solid var(--accent3);">
+          <div class="insight-num">Biggest Anomaly</div>
+          <div class="insight-text">Kanpur AQI spiked to 191 overnight (5:31 AM) despite current moderate levels — a 94-point swing in &lt;12 hours.</div>
+        </div>
+        <div class="insight-card" style="border-left:3px solid #a855f7;">
+          <div class="insight-num">Most Surprising</div>
+          <div class="insight-text">Bangalore's AQI of 33 is comparable to European cities — remarkable for a metro of 14 million people.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trend Analysis & Anomaly Detection</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px;">North vs South Divide</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px;">
+          Northern cities (Kanpur, Lucknow, Kolkata, Delhi) average AQI of <strong style="color:var(--poor)">105</strong> vs Southern/Coastal cities (Bangalore, Chennai, Mumbai, Pune, Hyderabad) averaging <strong style="color:var(--good)">62</strong>. The Gangetic plain geography traps pollutants like a bowl, especially in monsoon onset when winds are weak.
+        </div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Seasonal Context (June)</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+          June typically sees improved air quality as pre-monsoon rains wash pollutants. Yet Kanpur maintains elevated readings, indicating year-round industrial pollution from leather tanneries, thermal power plants, and unregulated manufacturing is overpowering seasonal relief.
+        </div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px;">PM2.5 WHO Exceedance</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Kanpur (34 µg/m³)</span><span style="color:var(--vpoor);">9.7× WHO</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--vpoor);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Kolkata (45 µg/m³)</span><span style="color:var(--vpoor);">12.8× WHO</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--vpoor);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Delhi (25 µg/m³)</span><span style="color:var(--poor);">7.1× WHO</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:71%;background:var(--poor);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Mumbai (18 µg/m³)</span><span style="color:var(--moderate);">5.1× WHO</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:51%;background:var(--moderate);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;"><span>Bangalore (10 µg/m³)</span><span style="color:var(--satisfactory);">2.9× WHO</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:29%;background:var(--satisfactory);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== RECOMMENDATIONS ====== -->
+<div class="section" id="recommendations">
+  <div class="section-header">
+    <h2>Personalized Recommendations</h2>
+    <p>Evidence-based actions for Kanpur residents to protect their health</p>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(239,68,68,0.15);">🌬</div>
+      <div class="rec-title">Daily Air Actions</div>
+      <ul class="rec-list">
+        <li>Check AQI every morning before outdoor activity (aqi.in or IQAir app)</li>
+        <li>Avoid 5–9 AM outdoors — peak pollution window in Kanpur</li>
+        <li>Wear N95/FFP2 mask when AQI exceeds 100</li>
+        <li>Keep windows closed during peak pollution hours</li>
+        <li>Use car cabin air filter, replace every 3–6 months</li>
+        <li>Indoor plants (spider plant, pothos) help modestly with VOCs</li>
+      </ul>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(79,158,255,0.15);">🏠</div>
+      <div class="rec-title">Indoor Air Improvements</div>
+      <ul class="rec-list">
+        <li>HEPA air purifier in bedroom (min. CADR 200+ for 150 sqft)</li>
+        <li>Keep bedroom AQI below 25 for quality sleep</li>
+        <li>Use exhaust fans while cooking; cook with LPG, not biomass</li>
+        <li>Vacuum with HEPA filter weekly to capture PM2.5 settled dust</li>
+        <li>Seal gaps in windows during high-pollution days</li>
+        <li>Monitor indoor air with a sensor (Airthings, IQAir AirVisual)</li>
+      </ul>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(34,197,94,0.15);">🏋</div>
+      <div class="rec-title">Outdoor Activity Guidance</div>
+      <ul class="rec-list">
+        <li>Best outdoor window: 6–8 PM when AQI dips (post-afternoon)</li>
+        <li>Avoid strenuous exercise (running, cycling) outdoors above AQI 100</li>
+        <li>Move gym/yoga sessions indoors with air purification</li>
+        <li>After outdoor exposure, rinse nasal passage with saline</li>
+        <li>Hydrate extra on high pollution days — pollutants dry airways</li>
+        <li>Take antioxidant foods: amla, turmeric, ginger, green tea</li>
+      </ul>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(245,166,35,0.15);">💆</div>
+      <div class="rec-title">Hair Care (Hard Water)</div>
+      <ul class="rec-list">
+        <li>Install shower filter (KDF+GAC type) — reduces hardness by 70%</li>
+        <li>Use chelating shampoo (EDTA-based) weekly to remove mineral buildup</li>
+        <li>Apple cider vinegar rinse (1 tbsp in 1L water) after every wash</li>
+        <li>Deep condition with coconut or argan oil bi-weekly</li>
+        <li>Avoid hot water showers — warm water opens cuticles less</li>
+        <li>Drink filtered water; dehydration worsens hair loss</li>
+      </ul>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(168,85,247,0.15);">🌸</div>
+      <div class="rec-title">Skin Care</div>
+      <ul class="rec-list">
+        <li>Double-cleanse nightly to remove PM2.5 particles from pores</li>
+        <li>Use pH-balanced toner (4.5–5.5 pH) after washing with hard water</li>
+        <li>Niacinamide serum strengthens skin barrier against pollutants</li>
+        <li>SPF 50+ sunscreen daily — pollutants amplify UV damage</li>
+        <li>Vitamin C serum (morning) neutralises free radicals from pollution</li>
+        <li>Use micellar water for cleansing on high-pollution days</li>
+      </ul>
+    </div>
+    <div class="rec-card">
+      <div class="rec-icon" style="background:rgba(0,229,180,0.15);">💧</div>
+      <div class="rec-title">Water Quality Solutions</div>
+      <ul class="rec-list">
+        <li>Install RO+UV+TDS controller — brings TDS below 150 mg/L</li>
+        <li>Get water tested at NABL-accredited lab annually (costs ~₹800–1500)</li>
+        <li>Store filtered water in food-grade glass or SS containers</li>
+        <li>Boil water before RO if microbial contamination suspected</li>
+        <li>Clean storage tank quarterly to prevent recontamination</li>
+        <li>Check for govt. water quality reports from Kanpur Municipal Corp.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Priority Action Plan for Kanpur Residents</div>
+    <div class="grid-3">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--vpoor);margin-bottom:10px;">🚨 Immediate (This Week)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+          ✓ Buy N95 masks (ISI certified)<br>
+          ✓ Install RO water purifier if not done<br>
+          ✓ Add HEPA air purifier in bedroom<br>
+          ✓ Download AQI monitoring app
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--accent3);margin-bottom:10px;">⚡ Short-term (This Month)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+          ✓ Install shower filter<br>
+          ✓ Switch to chelating shampoo<br>
+          ✓ Get water tested at lab<br>
+          ✓ Start antioxidant diet routine
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--good);margin-bottom:10px;">🌱 Long-term (3–6 Months)</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;">
+          ✓ Consider relocating workspace if WFH possible<br>
+          ✓ Plant trees in housing society<br>
+          ✓ Advocate for CPCB monitoring expansion<br>
+          ✓ Annual health check: lung function, skin allergy test
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  <div style="margin-bottom:8px;">
+    📊 <strong>Personal Environmental Health Analyzer</strong> — Kanpur, UP, India
+  </div>
+  <div>
+    Data Sources: <a href="https://www.aqi.in" target="_blank">AQI.in</a> · 
+    <a href="https://aqicn.org" target="_blank">aqicn.org (CPCB)</a> · 
+    <a href="https://www.iqair.com" target="_blank">IQAir</a> · 
+    ResearchGate Water Quality Study (2024) · WHO Air Quality Guidelines 2021
+  </div>
+  <div style="margin-top:6px;color:var(--text3);">Last updated: June 2026 · For informational purposes only. Consult healthcare professionals for medical decisions.</div>
+</div>
+
+<script>
+const cities = [
+  { name:'Kanpur', state:'Uttar Pradesh', aqi:99, pm25:34, pm10:41, cat:'moderate', score:40, water:38, color:'#f97316' },
+  { name:'New Delhi', state:'Delhi', aqi:79, pm25:25, pm10:36, cat:'moderate', score:48, water:45, color:'#eab308' },
+  { name:'Bangalore', state:'Karnataka', aqi:33, pm25:10, pm10:18, cat:'good', score:78, water:72, color:'#22c55e' },
+  { name:'Mumbai', state:'Maharashtra', aqi:58, pm25:18, pm10:26, cat:'satisfactory', score:65, water:68, color:'#84cc16' },
+  { name:'Chennai', state:'Tamil Nadu', aqi:44, pm25:13, pm10:20, cat:'good', score:72, water:65, color:'#22c55e' },
+  { name:'Hyderabad', state:'Telangana', aqi:68, pm25:21, pm10:30, cat:'satisfactory', score:60, water:60, color:'#84cc16' },
+  { name:'Kolkata', state:'West Bengal', aqi:137, pm25:45, pm10:62, cat:'moderate', score:32, water:40, color:'#ef4444' },
+  { name:'Pune', state:'Maharashtra', aqi:65, pm25:20, pm10:28, cat:'satisfactory', score:62, water:63, color:'#84cc16' },
+  { name:'Lucknow', state:'Uttar Pradesh', aqi:152, pm25:50, pm10:70, cat:'unhealthy', score:28, water:35, color:'#dc2626' },
+  { name:'Jaipur', state:'Rajasthan', aqi:114, pm25:38, pm10:55, cat:'moderate', score:38, water:42, color:'#f97316' }
+];
+
+const catLabel = { good:'Good', satisfactory:'Satisfactory', moderate:'Moderate', unhealthy:'Unhealthy for SG' };
+const catClass = { good:'aqi-good', satisfactory:'aqi-satisfactory', moderate:'aqi-moderate', unhealthy:'aqi-vpoor' };
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+let selectedCities = [];
+let compareMode = false;
+let compareChartInst = null;
+
+function filterCities() {
+  const aqiF = document.getElementById('aqiFilter').value;
+  const sortF = document.getElementById('sortFilter').value;
+  let filtered = [...cities];
+  if (aqiF === 'good') filtered = filtered.filter(c => c.aqi <= 50);
+  else if (aqiF === 'satisfactory') filtered = filtered.filter(c => c.aqi > 50 && c.aqi <= 100);
+  else if (aqiF === 'moderate') filtered = filtered.filter(c => c.aqi > 100 && c.aqi <= 150);
+  else if (aqiF === 'unhealthy') filtered = filtered.filter(c => c.aqi > 150);
+  if (sortF === 'aqi') filtered.sort((a,b) => a.aqi - b.aqi);
+  else if (sortF === 'pm25') filtered.sort((a,b) => a.pm25 - b.pm25);
+  else if (sortF === 'score') filtered.sort((a,b) => b.score - a.score);
+  renderCityGrid(filtered);
+}
+
+function renderCityGrid(list) {
+  const grid = document.getElementById('cityGrid');
+  grid.innerHTML = list.map(c => `
+    <div class="city-card ${selectedCities.includes(c.name)?'selected':''}" onclick="selectCity('${c.name}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="city-name">${c.name} ${c.name==='Kanpur'?'📍':''}</div>
+          <div class="city-state">${c.state}</div>
+        </div>
+        <span class="aqi-pill ${catClass[c.cat]}">${catLabel[c.cat]}</span>
+      </div>
+      <div class="city-aqi-big" style="color:${c.color}">${c.aqi}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;">AQI (US EPA)</div>
+      <div class="city-stats">
+        <div class="city-stat">
+          <div class="city-stat-label">PM2.5</div>
+          <div class="city-stat-val" style="color:${c.color}">${c.pm25} <span style="font-size:10px;color:var(--text3);">µg/m³</span></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">PM10</div>
+          <div class="city-stat-val" style="color:${c.color}">${c.pm10} <span style="font-size:10px;color:var(--text3);">µg/m³</span></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Env. Score</div>
+          <div class="city-stat-val" style="color:${c.color}">${c.score}<span style="font-size:10px;color:var(--text3);">/100</span></div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Water Score</div>
+          <div class="city-stat-val" style="color:${c.color}">${c.water}<span style="font-size:10px;color:var(--text3);">/100</span></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectCity(name) {
+  if (!compareMode) return;
+  const i = selectedCities.indexOf(name);
+  if (i > -1) selectedCities.splice(i, 1);
+  else if (selectedCities.length < 4) selectedCities.push(name);
+  filterCities();
+  const cnt = document.getElementById('compareCount');
+  cnt.textContent = selectedCities.length > 0 ? `${selectedCities.length} selected` : '';
+  if (selectedCities.length > 1) renderCompareChart();
+}
+
+function toggleCompare() {
+  compareMode = !compareMode;
+  const btn = document.getElementById('compareBtn');
+  const panel = document.getElementById('comparePanel');
+  btn.classList.toggle('active', compareMode);
+  btn.textContent = compareMode ? 'Exit Compare' : 'Compare Mode';
+  panel.style.display = compareMode ? 'block' : 'none';
+  if (!compareMode) { selectedCities = []; filterCities(); }
+}
+
+function clearCompare() { selectedCities = []; filterCities(); document.getElementById('compareCount').textContent = ''; }
+
+function renderCompareChart() {
+  const sel = cities.filter(c => selectedCities.includes(c.name));
+  const ctx = document.getElementById('compareChart').getContext('2d');
+  if (compareChartInst) compareChartInst.destroy();
+  compareChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sel.map(c => c.name),
+      datasets: [
+        { label: 'AQI', data: sel.map(c => c.aqi), backgroundColor: sel.map(c => c.color+'cc'), borderRadius: 6 },
+        { label: 'PM2.5 (µg/m³)', data: sel.map(c => c.pm25), backgroundColor: sel.map(c => c.color+'66'), borderRadius: 6 },
+        { label: 'Env. Score', data: sel.map(c => c.score), backgroundColor: '#4f9eff66', borderRadius: 6 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' } }, y: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' } } } }
+  });
+}
+
+renderCityGrid(cities);
+
+// Chart colors
+const aqiColors = cities.map(c => c.color + 'dd');
+const labels = cities.map(c => c.name);
+
+// AQI Bar Chart
+new Chart(document.getElementById('aqiBarChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ label: 'AQI', data: cities.map(c => c.aqi), backgroundColor: aqiColors, borderRadius: 8, borderSkipped: false }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      annotation: {}
+    },
+    scales: {
+      x: { ticks: { color: '#8ba3c7', font: { size: 11 } }, grid: { color: '#1a2235' } },
+      y: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' }, min: 0, max: 180 }
+    }
+  }
+});
+
+// PM2.5 Chart
+new Chart(document.getElementById('pm25Chart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ label: 'PM2.5 (µg/m³)', data: cities.map(c => c.pm25), backgroundColor: aqiColors, borderRadius: 8 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#8ba3c7', font: { size: 11 } }, grid: { color: '#1a2235' } },
+      y: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' }, title: { display: true, text: 'µg/m³', color: '#4d6480' } }
+    }
+  }
+});
+
+// PM10 Chart
+new Chart(document.getElementById('pm10Chart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ label: 'PM10 (µg/m³)', data: cities.map(c => c.pm10), backgroundColor: aqiColors, borderRadius: 8 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#8ba3c7', font: { size: 11 } }, grid: { color: '#1a2235' } },
+      y: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' } }
+    }
+  }
+});
+
+// AQI Donut
+new Chart(document.getElementById('aqiDonut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Good (0-50)', 'Satisfactory (51-100)', 'Moderate (101-150)', 'Unhealthy (151+)'],
+    datasets: [{ data: [2, 3, 4, 1], backgroundColor: ['#22c55e', '#84cc16', '#f97316', '#dc2626'], borderWidth: 0 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#8ba3c7', padding: 16, font: { size: 11 }, usePointStyle: true, pointStyleWidth: 10 } }
+    },
+    cutout: '62%'
+  }
+});
+
+// City Ranking (horizontal bar)
+const sorted = [...cities].sort((a,b) => b.score - a.score);
+new Chart(document.getElementById('rankChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: sorted.map(c => c.name),
+    datasets: [
+      { label: 'Air Quality Score', data: sorted.map(c => c.score), backgroundColor: sorted.map(c => c.color+'bb'), borderRadius: 6 },
+      { label: 'Water Quality Score', data: sorted.map(c => c.water), backgroundColor: '#4f9eff55', borderRadius: 6 }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' }, max: 100 },
+      y: { ticks: { color: '#8ba3c7', font: { size: 12 } }, grid: { display: false } }
+    }
+  }
+});
+
+// Pollutant Radar (Kanpur)
+new Chart(document.getElementById('pollutantRadar').getContext('2d'), {
+  type: 'radar',
+  data: {
+    labels: ['PM2.5', 'PM10', 'NO2', 'SO2', 'O3', 'CO'],
+    datasets: [
+      {
+        label: 'Kanpur (AQI)',
+        data: [162, 90, 9, 5, 7, 8],
+        fill: true,
+        backgroundColor: 'rgba(249,115,22,0.15)',
+        borderColor: '#f97316',
+        pointBackgroundColor: '#f97316',
+        pointBorderColor: '#0a0e1a'
+      },
+      {
+        label: 'WHO Guideline',
+        data: [15, 45, 25, 20, 60, 4],
+        fill: true,
+        backgroundColor: 'rgba(34,197,94,0.08)',
+        borderColor: '#22c55e66',
+        pointBackgroundColor: '#22c55e',
+        borderDash: [5,5]
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#8ba3c7', font: { size: 12 } } } },
+    scales: {
+      r: {
+        ticks: { color: '#4d6480', backdropColor: 'transparent', font: { size: 10 } },
+        grid: { color: '#1a2235' },
+        angleLines: { color: '#1a2235' },
+        pointLabels: { color: '#8ba3c7', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+// Water Quality Chart
+new Chart(document.getElementById('waterChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['pH (×10)', 'TDS (÷10)', 'Hardness (÷5)', 'Alkalinity', 'Chloride'],
+    datasets: [
+      { label: 'Kanpur Actual', data: [74, 60, 35, 70.6, 40], backgroundColor: '#f9731688', borderRadius: 6 },
+      { label: 'BIS Safe Limit', data: [85, 50, 60, 120, 125], backgroundColor: '#22c55e44', borderRadius: 6, borderDash: [5,5] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#8ba3c7', font: { size: 11 } }, position: 'bottom' } },
+    scales: {
+      x: { ticks: { color: '#8ba3c7', font: { size: 10 } }, grid: { color: '#1a2235' } },
+      y: { ticks: { color: '#8ba3c7' }, grid: { color: '#1a2235' } }
+    }
+  }
+});
+
+// Score Radar for Report Card
+new Chart(document.getElementById('scoreRadar').getContext('2d'), {
+  type: 'radar',
+  data: {
+    labels: ['Air Quality', 'Water Quality', 'Hair Health', 'Skin Health', 'Overall'],
+    datasets: [
+      { label: 'Kanpur', data: [42,38,45,35,40], fill: true, backgroundColor: 'rgba(249,115,22,0.18)', borderColor: '#f97316', pointBackgroundColor: '#f97316' },
+      { label: 'Bangalore', data: [78,72,75,80,78], fill: true, backgroundColor: 'rgba(34,197,94,0.1)', borderColor: '#22c55e66', pointBackgroundColor: '#22c55e' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#8ba3c7', font: { size: 11 } }, position: 'bottom' } },
+    scales: {
+      r: {
+        ticks: { color: '#4d6480', backdropColor: 'transparent', font: { size: 9 } },
+        grid: { color: '#1a2235' },
+        angleLines: { color: '#1a2235' },
+        pointLabels: { color: '#8ba3c7', font: { size: 11 } },
+        min: 0, max: 100
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
