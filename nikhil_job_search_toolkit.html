@@ -1,0 +1,371 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--color-text-primary); }
+  .toolkit { padding: 1.5rem 0; max-width: 680px; }
+  .nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+  .nav-btn { font-size: 12px; padding: 5px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .section-num { width: 28px; height: 28px; border-radius: 50%; background: var(--color-background-info); color: var(--color-text-info); font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-title { font-size: 16px; font-weight: 500; }
+  .section-sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+  .content-box { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; font-size: 14px; line-height: 1.8; color: var(--color-text-primary); white-space: pre-wrap; word-break: break-word; }
+  .copy-btn { margin-top: 10px; font-size: 13px; padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .copy-btn:hover { background: var(--color-background-secondary); }
+  .copy-btn.copied { color: var(--color-text-success); border-color: var(--color-border-success); }
+  .pill { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; margin: 3px; }
+  .pill-blue { background: #E6F1FB; color: #0C447C; }
+  .pill-teal { background: #E1F5EE; color: #085041; }
+  .pill-amber { background: #FAEEDA; color: #633806; }
+  .pill-red { background: #FCEBEB; color: #791F1F; }
+  .pill-green { background: #EAF3DE; color: #27500A; }
+  .pills-wrap { display: flex; flex-wrap: wrap; gap: 2px; margin: 0.5rem 0; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .mini-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.875rem; border: 0.5px solid var(--color-border-tertiary); }
+  .mini-card-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .mini-card-val { font-size: 14px; font-weight: 500; }
+  .gap-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .gap-row:last-child { border-bottom: none; }
+  .gap-icon { font-size: 16px; margin-top: 2px; flex-shrink: 0; }
+  .gap-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 2px; }
+  .gap-val { font-size: 14px; }
+  .talking-point { background: var(--color-background-secondary); border-left: 3px solid #378ADD; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 0.875rem 1rem; margin-bottom: 8px; font-size: 14px; line-height: 1.7; }
+  .strength-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .strength-item:last-child { border-bottom: none; }
+  .strength-num { font-size: 12px; font-weight: 500; color: var(--color-text-info); background: var(--color-background-info); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .roadmap-step { display: flex; gap: 14px; padding: 10px 0; align-items: flex-start; }
+  .step-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .brand-block { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 10px; }
+  .brand-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .brand-val { font-size: 14px; line-height: 1.7; }
+</style>
+
+<div class="toolkit">
+  <h2 class="sr-only">Job Search & Personal Branding Toolkit for Nikhil Kumar Vishwakarma</h2>
+
+  <div style="margin-bottom: 1.5rem;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#E6F1FB;color:#0C447C;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;">NV</div>
+      <div>
+        <div style="font-size:16px;font-weight:500;">Nikhil Kumar Vishwakarma</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);">Software Developer · Web Developer · Prompt Engineering</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav" id="nav">
+    <button class="nav-btn active" onclick="show(0)">1. Cover Letter</button>
+    <button class="nav-btn" onclick="show(1)">2. Recruiter Email</button>
+    <button class="nav-btn" onclick="show(2)">3. Hiring Manager</button>
+    <button class="nav-btn" onclick="show(3)">4. LinkedIn Request</button>
+    <button class="nav-btn" onclick="show(4)">5. Referral Request</button>
+    <button class="nav-btn" onclick="show(5)">6. Follow-Up Email</button>
+    <button class="nav-btn" onclick="show(6)">7. 30-Sec Intro</button>
+    <button class="nav-btn" onclick="show(7)">8. Job Titles</button>
+    <button class="nav-btn" onclick="show(8)">9. Key Strengths</button>
+    <button class="nav-btn" onclick="show(9)">10. Skill Gap</button>
+    <button class="nav-btn" onclick="show(10)">11. Personal Brand</button>
+    <button class="nav-btn" onclick="show(11)">12. Interview Prep</button>
+  </div>
+
+  <!-- SECTION 1: Cover Letter -->
+  <div class="section active" id="s0">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div><div class="section-title">ATS-Friendly Cover Letter</div><div class="section-sub">Tailored for Prompt Engineering Developer role at SISNOLABS</div></div>
+    </div>
+    <div class="content-box" id="cl-text">Nikhil Kumar Vishwakarma
+nikhilvish.nkv@gmail.com | 9653076367 | Kanpur, Uttar Pradesh
+linkedin.com/in/nikhil-kumar-vishwakarma-392221385/
+
+[Date]
+
+Hiring Team
+SISNOLABS
+
+Dear Hiring Manager,
+
+I am writing to apply for the Prompt Engineering Developer position at SISNOLABS. As a BCA student at Maharana Pratap College of Professional Studies, CSJM University, with hands-on experience in AI prompting, LLM interaction, and full-stack web development, I am excited about the opportunity to bridge human creativity and AI intelligence at your organization.
+
+My practical experience with AI tools — including ChatGPT, prompt design, and AI-driven workflows — positions me well to design, test, and refine prompts that optimize outputs from large language models like GPT, Claude, and Gemini. I completed a dedicated AI Tools and ChatGPT Workshop, an Artificial Intelligence Internship, and the TCS iON Career Edge – Young Professional program, which deepened my understanding of responsible and effective AI application.
+
+As the sole developer of the Hogwarts Bank Management System, I built a full-stack banking web application using Flask, Python, HTML, CSS, JavaScript, and MySQL. This project required me to think systematically about user experience, data accuracy, and functional output — skills that translate directly into crafting precise, accurate, and engaging AI prompts. The application included an EMI calculator, loan module, transaction history, and a "Need Help" assistant section, showcasing my ability to design user-centered, AI-adjacent solutions independently.
+
+Beyond technical skills, I have actively pursued networking and professional development through SISNOLABS-relevant programs: Google Student Ambassador, CodeAlpha, HP LIFE, be10x, and Professional Networking for Career Growth. I maintain a CGPA of 7.0 while consistently participating in AI, Python, and Web Development workshops — demonstrating both commitment and the continuous learning mindset your team values.
+
+I would welcome the opportunity to contribute to SISNOLABS's AI-driven solutions and grow alongside your team. Thank you for your time and consideration.
+
+Sincerely,
+Nikhil Kumar Vishwakarma</div>
+    <button class="copy-btn" id="copy0" onclick="copyText('cl-text','copy0')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 2: Recruiter Email -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div><div class="section-title">Recruiter Outreach Email</div><div class="section-sub">Cold outreach to a recruiter at SISNOLABS or similar company</div></div>
+    </div>
+    <div class="content-box" id="re-text">Subject: BCA Fresher | Prompt Engineering + Python + Flask | Open to Opportunities
+
+Hi [Recruiter's Name],
+
+I came across your profile while exploring opportunities in AI and prompt engineering. I am Nikhil Kumar Vishwakarma, a final-year BCA student at CSJM University (graduating 2027), currently seeking an entry-level role as a Prompt Engineering Developer or Software Developer.
+
+Here's a quick snapshot of my profile:
+
+• AI & Prompt Engineering: Certified in AI Tools and ChatGPT Workshop, TCS iON Career Edge, and completed an AI Internship
+• Full-Stack Project: Built a banking web app (Hogwarts Bank Management System) using Flask, Python, JavaScript, and MySQL — independently, end to end
+• Certifications: TCS iON, be10x, Google Student Ambassador, HP LIFE, CodeAlpha, Scaler
+• CGPA: 7.0 (consistent while managing multiple projects and workshops)
+
+I am eager to apply my skills in a dynamic team environment and contribute to AI-driven product development. I have attached my resume for your reference.
+
+Would you be open to a 10-minute call to discuss if there's a fit?
+
+Best regards,
+Nikhil Kumar Vishwakarma
+nikhilvish.nkv@gmail.com | 9653076367
+linkedin.com/in/nikhil-kumar-vishwakarma-392221385/</div>
+    <button class="copy-btn" id="copy1" onclick="copyText('re-text','copy1')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 3: Hiring Manager Email -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div><div class="section-title">Hiring Manager Email</div><div class="section-sub">Direct outreach to a decision-maker at SISNOLABS</div></div>
+    </div>
+    <div class="content-box" id="hm-text">Subject: Prompt Engineering Developer Application – Nikhil Kumar Vishwakarma
+
+Dear [Hiring Manager's Name],
+
+I recently came across the Prompt Engineering Developer opening at SISNOLABS and I believe my background aligns closely with what your team is building.
+
+I am a BCA student at CSJM University with practical experience in AI prompting, Python (Flask), full-stack web development, and LLM tools. At a time when most students are still learning theory, I independently built and deployed a complete banking management system — the Hogwarts Bank Management System — that handles account operations, EMI calculations, loan applications, and a user feedback module, all backed by MySQL and a responsive Flask interface.
+
+What draws me specifically to SISNOLABS is the opportunity to work at the intersection of prompt design and real-world AI application. I have hands-on exposure to ChatGPT, AI workflow design, and have completed certifications with TCS iON, be10x, Google, and HP LIFE — giving me both the theoretical foundation and practical mindset to contribute from day one.
+
+I would love to discuss how I can support your team's goals. I am available for a call at your convenience.
+
+Thank you for your consideration.
+
+Warm regards,
+Nikhil Kumar Vishwakarma
+nikhilvish.nkv@gmail.com | 9653076367
+linkedin.com/in/nikhil-kumar-vishwakarma-392221385/</div>
+    <button class="copy-btn" id="copy2" onclick="copyText('hm-text','copy2')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 4: LinkedIn Connection Request -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div><div class="section-title">LinkedIn Connection Request</div><div class="section-sub">Max 300 characters — ready to send</div></div>
+    </div>
+    <div class="content-box" id="li-text">Hi [Name], I'm Nikhil — a BCA student specializing in Prompt Engineering, Flask, and AI tools. I admire SISNOLABS's work in AI and would love to connect and learn from your journey. Open to any opportunities on your team!</div>
+    <button class="copy-btn" id="copy3" onclick="copyText('li-text','copy3')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+    <div style="margin-top:8px;font-size:12px;color:var(--color-text-secondary);">Character count: ~227 / 300</div>
+  </div>
+
+  <!-- SECTION 5: Referral Request -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div><div class="section-title">Referral Request Message</div><div class="section-sub">For a known contact or senior who can refer you internally</div></div>
+    </div>
+    <div class="content-box" id="rr-text">Hi [Name],
+
+Hope you're doing well! I wanted to reach out because I recently applied for the Prompt Engineering Developer role at SISNOLABS and I know you have a connection there.
+
+I've been working hard to build relevant skills — I built a full-stack banking application using Flask and Python, completed an AI internship, and earned certifications from TCS iON, be10x, and Google. I'm genuinely excited about the kind of AI work SISNOLABS does.
+
+If you're comfortable, a referral or a word to the hiring team would mean a great deal to me. I've attached my resume so you have everything you need.
+
+No pressure at all — I completely understand if it's not something you're able to do right now. Either way, I'd love to catch up soon!
+
+Thank you so much,
+Nikhil Kumar Vishwakarma
+nikhilvish.nkv@gmail.com | 9653076367</div>
+    <button class="copy-btn" id="copy4" onclick="copyText('rr-text','copy4')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 6: Follow-Up Email -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div><div class="section-title">Follow-Up Email</div><div class="section-sub">Send exactly 5 days after initial application if no response</div></div>
+    </div>
+    <div class="content-box" id="fu-text">Subject: Following Up – Prompt Engineering Developer Application | Nikhil Kumar Vishwakarma
+
+Dear [Hiring Manager's / Recruiter's Name],
+
+I wanted to follow up on my application for the Prompt Engineering Developer role at SISNOLABS, which I submitted on [Date].
+
+I remain very enthusiastic about this opportunity. My background in AI prompting, Python/Flask development, and LLM tools like ChatGPT aligns well with the role's requirements, and I am confident I can contribute meaningfully to your team from day one.
+
+Please let me know if you need any additional information or if there is a good time to speak. I am flexible and available at your convenience.
+
+Thank you again for your time. I look forward to hearing from you.
+
+Best regards,
+Nikhil Kumar Vishwakarma
+nikhilvish.nkv@gmail.com | 9653076367
+linkedin.com/in/nikhil-kumar-vishwakarma-392221385/</div>
+    <button class="copy-btn" id="copy5" onclick="copyText('fu-text','copy5')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 7: 30-Sec Intro -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div><div class="section-title">30-Second Professional Introduction</div><div class="section-sub">For interviews, networking events, and career fairs</div></div>
+    </div>
+    <div class="content-box" id="intro-text">Hi, I'm Nikhil Kumar Vishwakarma — a final-year BCA student from CSJM University, Kanpur, specializing in Prompt Engineering, Python, and full-stack web development.
+
+I've built a complete banking management system using Flask, MySQL, and JavaScript — handling everything from account operations to loan applications — completely independently. On the AI side, I've completed certifications with TCS iON, be10x, and Google, and I've done a dedicated AI and ChatGPT internship.
+
+What drives me is the intersection of AI and real-world product design — specifically, how well-crafted prompts can make AI systems more accurate, useful, and human. I'm looking for an entry-level role where I can work with LLMs, contribute to AI-driven solutions, and grow fast.
+
+I'd love to learn more about what your team is working on.</div>
+    <button class="copy-btn" id="copy6" onclick="copyText('intro-text','copy6')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+  </div>
+
+  <!-- SECTION 8: Job Titles -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div><div class="section-title">Top 10 Job Titles Best Suited for Your Profile</div><div class="section-sub">Ranked by fit with your current skills and projects</div></div>
+    </div>
+    <div style="display:grid;gap:8px;margin-top:0.5rem;">
+      <div class="mini-card"><div class="mini-card-label">Best fit</div><div class="mini-card-val">1. Prompt Engineering Developer</div></div>
+      <div class="mini-card"><div class="mini-card-label">Strong fit</div><div class="mini-card-val">2. Junior Software Developer (Python/Flask)</div></div>
+      <div class="mini-card"><div class="mini-card-label">Strong fit</div><div class="mini-card-val">3. Junior Web Developer</div></div>
+      <div class="mini-card"><div class="mini-card-label">Strong fit</div><div class="mini-card-val">4. AI/ML Tools Associate</div></div>
+      <div class="mini-card"><div class="mini-card-label">Good fit</div><div class="mini-card-val">5. Python Developer Intern / Fresher</div></div>
+      <div class="mini-card"><div class="mini-card-label">Good fit</div><div class="mini-card-val">6. Full-Stack Developer (Junior)</div></div>
+      <div class="mini-card"><div class="mini-card-label">Good fit</div><div class="mini-card-val">7. AI Content & Prompt Specialist</div></div>
+      <div class="mini-card"><div class="mini-card-label">Good fit</div><div class="mini-card-val">8. Chatbot Developer (Junior)</div></div>
+      <div class="mini-card"><div class="mini-card-label">Emerging fit</div><div class="mini-card-val">9. LLM Quality & Testing Analyst</div></div>
+      <div class="mini-card"><div class="mini-card-label">Emerging fit</div><div class="mini-card-val">10. Technical Content Writer (AI/Tech)</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 9: Key Strengths -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div><div class="section-title">Key Strengths Recruiters Will Notice</div><div class="section-sub">Your standout differentiators as a fresher candidate</div></div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;">
+      <div class="strength-item"><div class="strength-num">1</div><div><b>Independent full-stack project ownership</b> — Built and deployed an entire banking web app solo, demonstrating initiative beyond coursework.</div></div>
+      <div class="strength-item"><div class="strength-num">2</div><div><b>AI-specific certifications at fresher level</b> — TCS iON, be10x AI workshop, ChatGPT training, and an AI internship set you apart from typical BCA graduates.</div></div>
+      <div class="strength-item"><div class="strength-num">3</div><div><b>Multi-stack technical breadth</b> — Python, Flask, MySQL, HTML/CSS/JS is a rare and complete web stack for a student profile.</div></div>
+      <div class="strength-item"><div class="strength-num">4</div><div><b>Strong professional networking footprint</b> — Google Student Ambassador, CodeAlpha, HP LIFE, Scaler — shows ambition and market awareness.</div></div>
+      <div class="strength-item"><div class="strength-num">5</div><div><b>Consistent academic performance</b> — CGPA 7.0 maintained while balancing projects, internships, and workshops simultaneously.</div></div>
+      <div class="strength-item"><div class="strength-num">6</div><div><b>Prompt engineering as a specialized, in-demand skill</b> — Few freshers claim this as a primary competency. It's your clearest differentiator.</div></div>
+      <div class="strength-item"><div class="strength-num">7</div><div><b>Demonstrated soft skills through leadership roles</b> — Participation in coding challenges, Pitch Night Edition, and student communities signals coachability and communication ability.</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 10: Skill Gap -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div><div class="section-title">Skill Gap Analysis</div><div class="section-sub">Where you stand today, what's missing, and how to close the gap</div></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Current strengths</div>
+      <div class="pills-wrap">
+        <span class="pill pill-teal">Python (Flask)</span>
+        <span class="pill pill-teal">MySQL</span>
+        <span class="pill pill-teal">HTML/CSS/JS</span>
+        <span class="pill pill-teal">AI Prompting</span>
+        <span class="pill pill-teal">ChatGPT workflow</span>
+        <span class="pill pill-teal">MS Office Suite</span>
+        <span class="pill pill-teal">Problem solving</span>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Skills to add for Prompt Engineering roles</div>
+      <div class="pills-wrap">
+        <span class="pill pill-red">LangChain / LlamaIndex</span>
+        <span class="pill pill-red">OpenAI API (direct usage)</span>
+        <span class="pill pill-red">Prompt chaining & few-shot design</span>
+        <span class="pill pill-red">Git / GitHub</span>
+        <span class="pill pill-red">REST APIs</span>
+        <span class="pill pill-amber">React.js basics</span>
+        <span class="pill pill-amber">Hugging Face models</span>
+        <span class="pill pill-amber">RAG pipelines</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;">Recommended 90-day learning roadmap</div>
+      <div class="roadmap-step"><div class="step-dot" style="background:#1D9E75;"></div><div><div style="font-size:13px;font-weight:500;">Weeks 1–2: Git & GitHub</div><div style="font-size:13px;color:var(--color-text-secondary);">Learn version control, push your Hogwarts project to GitHub with a strong README.</div></div></div>
+      <div class="roadmap-step"><div class="step-dot" style="background:#378ADD;"></div><div><div style="font-size:13px;font-weight:500;">Weeks 3–5: OpenAI API + Prompt Engineering patterns</div><div style="font-size:13px;color:var(--color-text-secondary);">Study few-shot, chain-of-thought, and role prompting. Build 2–3 mini AI projects.</div></div></div>
+      <div class="roadmap-step"><div class="step-dot" style="background:#BA7517;"></div><div><div style="font-size:13px;font-weight:500;">Weeks 6–8: LangChain basics</div><div style="font-size:13px;color:var(--color-text-secondary);">Build a simple RAG chatbot using LangChain + a PDF knowledge base. Add to portfolio.</div></div></div>
+      <div class="roadmap-step"><div class="step-dot" style="background:#D4537E;"></div><div><div style="font-size:13px;font-weight:500;">Weeks 9–12: REST APIs + deploy a project</div><div style="font-size:13px;color:var(--color-text-secondary);">Deploy your Flask app on Render or Railway. Build a simple API endpoint. Add to resume.</div></div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 11: Personal Brand -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <div><div class="section-title">Personal Brand Summary</div><div class="section-sub">Your positioning as a candidate in the AI/dev job market</div></div>
+    </div>
+    <div class="brand-block"><div class="brand-label">Unique value proposition</div><div class="brand-val">A self-driven BCA student who doesn't just learn AI tools — he builds with them. With a full-stack project already live, AI certifications across 10+ programs, and a specialty in prompt engineering, Nikhil brings the mindset of a developer and the curiosity of an AI researcher to entry-level roles.</div></div>
+    <div class="brand-block"><div class="brand-label">Professional positioning statement</div><div class="brand-val">I help AI teams build smarter, more human interactions by designing precise, testable prompts — backed by a full-stack technical foundation in Python, Flask, and MySQL, and a track record of delivering end-to-end projects independently.</div></div>
+    <div class="brand-block"><div class="brand-label">LinkedIn headline (copy-paste ready)</div><div class="brand-val" style="font-weight:500;">BCA Student | Prompt Engineering · Python (Flask) · AI Tools | Built Full-Stack Banking App | TCS iON · be10x · Google Certified</div></div>
+  </div>
+
+  <!-- SECTION 12: Interview Prep -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <div><div class="section-title">Interview Talking Points</div><div class="section-sub">Your best stories, achievements, and likely questions</div></div>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Most impressive achievements to mention</div>
+      <div class="talking-point">Built the Hogwarts Bank Management System end-to-end — "I independently developed a fully functional banking web application with account creation, balance check, money transfer, EMI calculator, and loan application. It handled real user flows using Flask, Python, and MySQL."</div>
+      <div class="talking-point">10+ certifications as a student — "While maintaining a 7.0 CGPA, I completed programs from TCS iON, be10x, Google, HP LIFE, and CodeAlpha, and also did a dedicated AI and prompt engineering internship — all to stay ahead of the industry."</div>
+      <div class="talking-point">Google Student Ambassador role — "Being selected as a Google Student Ambassador gave me exposure to professional networking, campus leadership, and developer communities, which shaped how I approach teamwork and communication."</div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Questions recruiters at SISNOLABS are likely to ask you</div>
+      <div class="pills-wrap">
+        <span class="pill pill-blue">Why SISNOLABS specifically?</span>
+        <span class="pill pill-blue">What is prompt engineering to you?</span>
+        <span class="pill pill-blue">Walk me through your Flask project</span>
+        <span class="pill pill-blue">How do you test prompt quality?</span>
+        <span class="pill pill-blue">Are you from Nagpur?</span>
+        <span class="pill pill-blue">Do you know anyone at SISNOLABS?</span>
+        <span class="pill pill-blue">Difference between GPT, Claude, and Gemini?</span>
+        <span class="pill pill-blue">Where do you see yourself in 2 years?</span>
+      </div>
+      <div style="margin-top:12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;font-size:13px;line-height:1.7;">
+        <b>Suggested answer for "Are you from Nagpur?"</b><br>
+        "I'm currently based in Kanpur, Uttar Pradesh. I'm fully open to relocating for the right opportunity and I'm specifically excited about SISNOLABS's work in AI and prompt engineering — that's what drew me to apply regardless of location."
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(i) {
+  document.querySelectorAll('.section').forEach((s,idx) => s.classList.toggle('active', idx === i));
+  document.querySelectorAll('.nav-btn').forEach((b,idx) => b.classList.toggle('active', idx === i));
+}
+function copyText(id, btnId) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i> Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
