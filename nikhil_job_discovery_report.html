@@ -1,0 +1,326 @@
+
+<h2 class="sr-only">Job discovery and analysis report for Nikhil Kumar Vishwakarma, showing top matching roles, skill gap analysis, and market insights.</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 2rem 0 0.75rem;
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.85rem 1rem; }
+.metric-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.metric-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.job-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; }
+.job-card.top { border: 2px solid #185FA5; }
+.job-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.job-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.job-company { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+.score-badge { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: var(--border-radius-md); white-space: nowrap; flex-shrink: 0; }
+.score-high { background: #EAF3DE; color: #27500A; }
+.score-mid { background: #FAEEDA; color: #633806; }
+.score-low { background: #F1EFE8; color: #444441; }
+.job-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.meta-tag { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px; }
+.job-why { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 8px; }
+.job-footer { display: flex; justify-content: space-between; align-items: center; }
+.ctc-tag { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.apply-btn { font-size: 12px; padding: 5px 14px; border-radius: var(--border-radius-md); background: var(--color-background-info); color: var(--color-text-info); border: 0.5px solid var(--color-border-info); cursor: pointer; text-decoration: none; display: inline-block; }
+.top-badge { display: inline-block; font-size: 11px; font-weight: 500; background: #E6F1FB; color: #0C447C; padding: 3px 10px; border-radius: var(--border-radius-md); margin-bottom: 6px; }
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+.skill-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; }
+.skill-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.skill-bar-wrap { background: var(--color-border-tertiary); border-radius: 4px; height: 5px; }
+.skill-bar { height: 5px; border-radius: 4px; }
+.skill-freq { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+.gap-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.gap-card { border-radius: var(--border-radius-md); padding: 0.85rem 1rem; border: 0.5px solid var(--color-border-tertiary); }
+.gap-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.gap-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.reco-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+.reco-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.reco-num { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); min-width: 20px; }
+.reco-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+.reco-text strong { font-weight: 500; }
+.fit-bar-wrap { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.fit-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.fit-label { font-size: 13px; color: var(--color-text-secondary); min-width: 120px; }
+.fit-track { flex: 1; background: var(--color-border-tertiary); border-radius: 4px; height: 8px; }
+.fit-fill { height: 8px; border-radius: 4px; }
+.fit-pct { font-size: 12px; font-weight: 500; color: var(--color-text-primary); min-width: 36px; text-align: right; }
+</style>
+
+<div style="padding: 1rem 0 0.5rem;">
+
+<div class="metric-row">
+  <div class="metric">
+    <div class="metric-label">Jobs found</div>
+    <div class="metric-value">47+</div>
+    <div class="metric-sub">Active postings</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Top matches</div>
+    <div class="metric-value">6</div>
+    <div class="metric-sub">High-fit roles</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Market CTC range</div>
+    <div class="metric-value">₹2.5–5</div>
+    <div class="metric-sub">LPA for freshers</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Profile fit</div>
+    <div class="metric-value">72%</div>
+    <div class="metric-sub">Across target roles</div>
+  </div>
+</div>
+
+<div class="section-label">Top matching opportunities</div>
+
+<div class="job-card top">
+  <div class="top-badge">Best match</div>
+  <div class="job-header">
+    <div>
+      <div class="job-title">GenAI / Python Full Stack Trainee</div>
+      <div class="job-company">Impressico Business Solutions · Noida</div>
+    </div>
+    <span class="score-badge score-high">92% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> Noida (Onsite)</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Posted this month</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> Full-time (after probation)</span>
+  </div>
+  <div class="job-why">Directly matches your Flask/Python/MySQL project. Final-year students graduating 2026–27 are eligible. 6-month probation at ₹20K/month stipend converts to full-time Trainee Engineer.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹4.0 LPA (post-probation) · ₹2.4L stipend during training</span>
+    <a class="apply-btn" href="https://internshala.com/fresher-jobs/python-django-jobs-in-noida/" target="_blank">Apply on Internshala</a>
+  </div>
+</div>
+
+<div class="job-card">
+  <div class="job-header">
+    <div>
+      <div class="job-title">Junior Python / Web Developer</div>
+      <div class="job-company">SproutXP · Remote</div>
+    </div>
+    <span class="score-badge score-high">85% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> Remote (Work from Home)</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Active listing</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> Entry-level</span>
+  </div>
+  <div class="job-why">Backend API development using Python, REST APIs, and MySQL — exactly your Hogwarts Bank project stack. Explicitly welcomes freshers, fast learning environment.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹2.5–3.5 LPA</span>
+    <a class="apply-btn" href="https://internshala.com/jobs/web-development-jobs-in-kanpur/work-from-home/" target="_blank">Apply on Internshala</a>
+  </div>
+</div>
+
+<div class="job-card">
+  <div class="job-header">
+    <div>
+      <div class="job-title">AI Tools & Prompt Engineering Intern</div>
+      <div class="job-company">CodifixSolutions / OrbitXII · Remote</div>
+    </div>
+    <span class="score-badge score-high">83% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> 100% Remote</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Posted June 2026</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> Internship (3–6 months)</span>
+  </div>
+  <div class="job-why">Directly targets your AI Prompting + ChatGPT skill set. Work on real AI/ML models. Final-year students explicitly welcome. Bridges to your prompt engineering career goal.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹5K–15K/month stipend</span>
+    <a class="apply-btn" href="https://in.indeed.com/q-ai-engineer-internship-l-remote-jobs.html" target="_blank">Apply on Indeed</a>
+  </div>
+</div>
+
+<div class="job-card">
+  <div class="job-header">
+    <div>
+      <div class="job-title">Software Developer (AI-assisted)</div>
+      <div class="job-company">OBLYTECH / BYOT Consultancy · Remote/Kanpur</div>
+    </div>
+    <span class="score-badge score-mid">78% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> Remote / UP-based</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Founded March 2026 — actively hiring</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> Full-time</span>
+  </div>
+  <div class="job-why">Seeks freshers who've used AI tools during college. Your TCS iON, be10x, CodeAlpha certifications and ChatGPT skills are directly highlighted. Python + AI workflows in focus.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹3.0–4.5 LPA</span>
+    <a class="apply-btn" href="https://internshala.com/fresher-jobs/web-development-jobs/" target="_blank">Apply on Internshala</a>
+  </div>
+</div>
+
+<div class="job-card">
+  <div class="job-header">
+    <div>
+      <div class="job-title">Web Developer (HTML/CSS/JS + Flask)</div>
+      <div class="job-company">Foodsure / CodeAegis · Noida</div>
+    </div>
+    <span class="score-badge score-mid">75% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> Noida (Onsite)</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Active on Indeed</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> Full-time, fresher-friendly</span>
+  </div>
+  <div class="job-why">Core stack matches your project portfolio. Requires HTML, CSS, JS, Python, Flask, and MySQL — your exact Hogwarts Bank project technologies. UI/UX design skills also valued.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹2.5–3.5 LPA</span>
+    <a class="apply-btn" href="https://in.indeed.com/q-hiring-python-fresher-l-noida,-uttar-pradesh-jobs.html" target="_blank">Apply on Indeed</a>
+  </div>
+</div>
+
+<div class="job-card">
+  <div class="job-header">
+    <div>
+      <div class="job-title">AI Product Intern (Bootcamp track)</div>
+      <div class="job-company">Multiple startups via Internshala · Remote</div>
+    </div>
+    <span class="score-badge score-mid">70% match</span>
+  </div>
+  <div class="job-meta">
+    <span class="meta-tag"><i class="ti ti-map-pin" aria-hidden="true"></i> Remote</span>
+    <span class="meta-tag"><i class="ti ti-clock" aria-hidden="true"></i> Rolling applications</span>
+    <span class="meta-tag"><i class="ti ti-briefcase" aria-hidden="true"></i> 3-month bootcamp → full-time</span>
+  </div>
+  <div class="job-why">3-month evaluation bootcamp that converts to AI Engineer or Product roles. Targets freshers who build with AI tools — your prompt engineering background is a differentiator here.</div>
+  <div class="job-footer">
+    <span class="ctc-tag">₹3.5–5.0 LPA (post-bootcamp)</span>
+    <a class="apply-btn" href="https://internshala.com/fresher-jobs/artificial-intelligence-ai-jobs/" target="_blank">Apply on Internshala</a>
+  </div>
+</div>
+
+<div class="section-label">Most demanded skills across these roles</div>
+<div class="skills-grid">
+  <div class="skill-item">
+    <div class="skill-name">Python (Flask/Django)</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:95%; background:#185FA5;"></div></div>
+    <div class="skill-freq">95% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">HTML / CSS / JS</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:90%; background:#185FA5;"></div></div>
+    <div class="skill-freq">90% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">MySQL / SQL</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:88%; background:#185FA5;"></div></div>
+    <div class="skill-freq">88% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">REST API development</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:80%; background:#0F6E56;"></div></div>
+    <div class="skill-freq">80% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">Git / version control</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:75%; background:#0F6E56;"></div></div>
+    <div class="skill-freq">75% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">React / Next.js</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:65%; background:#854F0B;"></div></div>
+    <div class="skill-freq">65% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">AI / LLM tools</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:60%; background:#854F0B;"></div></div>
+    <div class="skill-freq">60% of postings</div>
+  </div>
+  <div class="skill-item">
+    <div class="skill-name">Docker / deployment</div>
+    <div class="skill-bar-wrap"><div class="skill-bar" style="width:45%; background:#993C1D;"></div></div>
+    <div class="skill-freq">45% of postings</div>
+  </div>
+</div>
+
+<div class="section-label">Skill gap analysis</div>
+<div class="gap-row">
+  <div class="gap-card" style="background:#FCEBEB; border-color:#F09595;">
+    <div class="gap-title" style="color:#A32D2D;">Critical gaps</div>
+    <div class="gap-desc" style="color:#791F1F;">Git/GitHub not listed on resume. REST API design experience not explicitly shown. No Django exposure (Flask only).</div>
+  </div>
+  <div class="gap-card" style="background:#FAEEDA; border-color:#FAC775;">
+    <div class="gap-title" style="color:#854F0B;">Gaps to address soon</div>
+    <div class="gap-desc" style="color:#633806;">React.js missing (65% of jobs want it). No cloud/deployment exposure (AWS/GCP basics). No public GitHub portfolio to show work.</div>
+  </div>
+  <div class="gap-card" style="background:#EAF3DE; border-color:#C0DD97;">
+    <div class="gap-title" style="color:#3B6D11;">Your strengths</div>
+    <div class="gap-desc" style="color:#27500A;">Python + Flask + MySQL stack is a strong match. AI Prompting is a rising differentiator. Full project (Hogwarts Bank) demonstrates real-world skills.</div>
+  </div>
+</div>
+
+<div class="section-label">Overall fit assessment</div>
+<div class="fit-bar-wrap">
+  <div class="fit-row">
+    <span class="fit-label">Web Developer</span>
+    <div class="fit-track"><div class="fit-fill" style="width:85%; background:#185FA5;"></div></div>
+    <span class="fit-pct">85%</span>
+  </div>
+  <div class="fit-row">
+    <span class="fit-label">Python Developer</span>
+    <div class="fit-track"><div class="fit-fill" style="width:78%; background:#185FA5;"></div></div>
+    <span class="fit-pct">78%</span>
+  </div>
+  <div class="fit-row">
+    <span class="fit-label">Prompt Engineer</span>
+    <div class="fit-track"><div class="fit-fill" style="width:72%; background:#1D9E75;"></div></div>
+    <span class="fit-pct">72%</span>
+  </div>
+  <div class="fit-row">
+    <span class="fit-label">Full Stack Developer</span>
+    <div class="fit-track"><div class="fit-fill" style="width:55%; background:#BA7517;"></div></div>
+    <span class="fit-pct">55%</span>
+  </div>
+  <div class="fit-row">
+    <span class="fit-label">Salary goal (₹3–4 LPA)</span>
+    <div class="fit-track"><div class="fit-fill" style="width:80%; background:#1D9E75;"></div></div>
+    <span class="fit-pct">Realistic</span>
+  </div>
+</div>
+
+<div class="section-label">Recommendations to improve interview chances</div>
+<div class="reco-list">
+  <div class="reco-item">
+    <span class="reco-num">1</span>
+    <span class="reco-text"><strong>Upload your project to GitHub.</strong> Create a public repo for Hogwarts Bank with a detailed README. 75% of job postings ask for it and it's your strongest proof of skills.</span>
+  </div>
+  <div class="reco-item">
+    <span class="reco-num">2</span>
+    <span class="reco-text"><strong>Learn Git basics in 1 week.</strong> Git/GitHub is required in ~75% of roles and is absent from your resume. Add it fast — it's low effort, high return.</span>
+  </div>
+  <div class="reco-item">
+    <span class="reco-num">3</span>
+    <span class="reco-text"><strong>Add a Django mini-project.</strong> Flask is good but Django is asked for far more frequently. Build a simple blog or API in Django and add it to GitHub — this bridges a critical gap.</span>
+  </div>
+  <div class="reco-item">
+    <span class="reco-num">4</span>
+    <span class="reco-text"><strong>Highlight AI prompting as a USP.</strong> 60% of 2026 startups want AI tool users. Reframe "AI Prompting" on your resume as "AI-assisted development (ChatGPT, Claude, Cursor)" — this is currently a differentiator for freshers.</span>
+  </div>
+  <div class="reco-item">
+    <span class="reco-num">5</span>
+    <span class="reco-text"><strong>Apply to Impressico immediately.</strong> Their trainee role is your best fit — final-year BCA students are explicitly eligible, your exact tech stack matches, and it converts to a full-time role after 6 months.</span>
+  </div>
+  <div class="reco-item">
+    <span class="reco-num">6</span>
+    <span class="reco-text"><strong>Start learning React basics.</strong> It appears in 65% of full-stack listings. Even basic knowledge (components, props, state) makes you eligible for many more roles within 4–6 weeks of study.</span>
+  </div>
+</div>
+
+</div>

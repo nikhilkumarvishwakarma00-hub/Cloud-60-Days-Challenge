@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nikhil Kumar Vishwakarma — Professional Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0D1B3E; --blue: #1A3A7C; --accent: #2F7EFF;
+      --sky: #C8DEFF; --white: #F5F8FF; --gray: #8A96AA;
+      --light: #EEF3FC; --text: #1C2438;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--text); min-height: 100vh; }
+
+    .hero {
+      background: var(--navy); padding: 64px 40px 56px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; width: 520px; height: 520px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(47,126,255,.18) 0%, transparent 70%);
+      top: -120px; right: -100px; pointer-events: none;
+    }
+    .avatar {
+      width: 90px; height: 90px; border-radius: 50%; background: var(--blue);
+      border: 3px solid var(--accent); display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      color: var(--sky); margin-bottom: 24px; position: relative; z-index: 1;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800; color: #fff; letter-spacing: -0.5px; line-height: 1.1;
+      position: relative; z-index: 1;
+    }
+    .roles { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; position: relative; z-index: 1; }
+    .role-tag {
+      background: rgba(47,126,255,.18); border: 1px solid rgba(47,126,255,.4);
+      color: var(--sky); font-size: .78rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 999px;
+    }
+    .meta { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; margin-top: 22px; position: relative; z-index: 1; }
+    .meta-item { color: var(--gray); font-size: .86rem; display: flex; align-items: center; gap: 6px; }
+    .meta-item a { color: var(--sky); text-decoration: none; }
+    .meta-item a:hover { text-decoration: underline; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .section { margin-bottom: 48px; }
+    .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .section-label .icon {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--light);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .section-label h2 {
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .1em; color: var(--navy);
+    }
+
+    .summary-card {
+      background: var(--light); border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0; padding: 20px 24px;
+      font-size: .96rem; line-height: 1.75; color: var(--text);
+    }
+
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .info-card { background: var(--light); border-radius: 12px; padding: 18px 20px; }
+    .info-card .label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+    .info-card .value { font-size: .95rem; font-weight: 600; color: var(--navy); line-height: 1.4; }
+
+    .skills-block { margin-bottom: 20px; }
+    .skills-block h3 { font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); margin-bottom: 10px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { background: var(--navy); color: var(--sky); font-size: .8rem; font-weight: 500; padding: 5px 14px; border-radius: 999px; }
+    .tag.soft { background: var(--light); color: var(--blue); border: 1px solid #CBD8F0; }
+
+    .project-card { background: var(--light); border-radius: 14px; padding: 22px 24px; border: 1px solid #D5E2F7; }
+    .project-card h3 { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+    .tech-stack { font-size: .78rem; font-weight: 600; letter-spacing: .05em; color: var(--gray); text-transform: uppercase; margin-bottom: 14px; }
+    .project-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .project-card ul li { font-size: .9rem; line-height: 1.6; color: var(--text); padding-left: 16px; position: relative; }
+    .project-card ul li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-size: .8rem; top: 2px; }
+    .outcome { margin-top: 14px; background: rgba(47,126,255,.08); border-radius: 8px; padding: 10px 14px; font-size: .85rem; color: var(--blue); font-weight: 500; }
+    .outcome strong { color: var(--accent); }
+
+    .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .cert-item { background: var(--light); border-radius: 10px; padding: 12px 16px; font-size: .88rem; font-weight: 500; color: var(--navy); display: flex; align-items: center; gap: 10px; border: 1px solid #D5E2F7; }
+    .cert-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    .edu-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 16px 0; border-bottom: 1px solid #E2EAF8; }
+    .edu-item:last-child { border-bottom: none; }
+    .edu-item h3 { font-size: .98rem; font-weight: 700; color: var(--navy); }
+    .edu-item p { font-size: .85rem; color: var(--gray); margin-top: 3px; }
+    .edu-year { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 800; color: var(--accent); white-space: nowrap; padding-top: 2px; }
+
+    .achieve-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .achieve-list li { display: flex; align-items: flex-start; gap: 12px; font-size: .92rem; line-height: 1.6; }
+    .achieve-list li .bullet { width: 24px; height: 24px; border-radius: 6px; background: var(--light); border: 1px solid #CBD8F0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .7rem; color: var(--accent); font-weight: 700; }
+
+    footer { background: var(--navy); text-align: center; padding: 28px 24px; color: var(--gray); font-size: .83rem; }
+    footer span { color: var(--sky); font-weight: 600; }
+
+    @media (max-width: 600px) {
+      .hero { padding: 44px 20px 40px; }
+      .container { padding: 32px 16px 60px; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="avatar">NV</div>
+  <h1>Nikhil Kumar Vishwakarma</h1>
+  <div class="roles">
+    <span class="role-tag">Software Developer</span>
+    <span class="role-tag">Web Developer</span>
+    <span class="role-tag">Prompt Engineer</span>
+  </div>
+  <div class="meta">
+    <span class="meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.08 4.18 2 2 0 0 1 5.07 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 23 17z"/></svg>
+      9653076367
+    </span>
+    <span class="meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      nikhilvish.nkv@gmail.com
+    </span>
+    <span class="meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Kanpur, Uttar Pradesh, India
+    </span>
+    <span class="meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      <a href="https://www.linkedin.com/in/nikhil-kumar-vishwakarma-392221385/" target="_blank">LinkedIn Profile</a>
+    </span>
+  </div>
+</header>
+
+<div class="container">
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <h2>Professional Summary</h2>
+    </div>
+    <div class="summary-card">
+      Motivated Bachelor of Computer Applications (BCA) student with foundational knowledge of Python, MySQL, Web Development, and AI Prompt Engineering. Skilled in building academic projects using Flask, HTML, CSS, JavaScript, and MySQL. Strong problem-solving ability, analytical thinking, and teamwork — with a passion for developing innovative solutions. Seeking entry-level opportunities as a Software Developer, Web Developer, or Prompt Engineer to contribute and grow in a dynamic organization.
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <h2>Profile at a Glance</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Current Role</div><div class="value">BCA Student &amp; Aspiring Developer</div></div>
+      <div class="info-card"><div class="label">Experience</div><div class="value">Fresher (Academic Projects)</div></div>
+      <div class="info-card"><div class="label">Industry / Domain</div><div class="value">Web Development · AI / Prompt Eng.</div></div>
+      <div class="info-card"><div class="label">Institution</div><div class="value">Maharana Pratap College, CSJM University</div></div>
+      <div class="info-card"><div class="label">Location</div><div class="value">Kanpur, Uttar Pradesh, India</div></div>
+      <div class="info-card"><div class="label">CGPA</div><div class="value">7.0 (ongoing)</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <h2>Skills &amp; Technologies</h2>
+    </div>
+    <div class="skills-block">
+      <h3>Languages &amp; Frameworks</h3>
+      <div class="tag-row"><span class="tag">Python</span><span class="tag">Flask</span><span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag">JavaScript</span></div>
+    </div>
+    <div class="skills-block">
+      <h3>Database</h3>
+      <div class="tag-row"><span class="tag">MySQL</span><span class="tag">PyMySQL</span></div>
+    </div>
+    <div class="skills-block">
+      <h3>AI &amp; Tools</h3>
+      <div class="tag-row"><span class="tag">AI Prompting</span><span class="tag">ChatGPT</span><span class="tag">MS Word</span><span class="tag">MS Excel</span><span class="tag">MS PowerPoint</span></div>
+    </div>
+    <div class="skills-block">
+      <h3>Soft Skills</h3>
+      <div class="tag-row">
+        <span class="tag soft">Problem Solving</span><span class="tag soft">Analytical Thinking</span>
+        <span class="tag soft">Teamwork</span><span class="tag soft">Leadership</span>
+        <span class="tag soft">Communication</span><span class="tag soft">Adaptability</span>
+        <span class="tag soft">Time Management</span><span class="tag soft">Continuous Learning</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <h2>Notable Project</h2>
+    </div>
+    <div class="project-card">
+      <h3>Hogwarts Bank Management System</h3>
+      <div class="tech-stack">HTML · CSS · JavaScript · Python (Flask, PyMySQL) · MySQL</div>
+      <ul>
+        <li>Built a full-stack banking web app enabling account creation, balance check, money transfer, and transaction history.</li>
+        <li>Integrated a loan application module, EMI calculator, and guided "Need Help" section for new users.</li>
+        <li>Designed a clean, secure, and responsive UI for a professional user experience.</li>
+        <li>Used MySQL for secure storage and retrieval of all customer data.</li>
+      </ul>
+      <div class="outcome"><strong>Key Outcome:</strong> Improved user interaction, ensured data security, and delivered a responsive professional web application.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+      <h2>Certifications &amp; Workshops</h2>
+    </div>
+    <div class="cert-grid">
+      <div class="cert-item"><div class="cert-dot"></div>TCS iON Career Edge – Young Professional</div>
+      <div class="cert-item"><div class="cert-dot"></div>AI Tools and ChatGPT Workshop</div>
+      <div class="cert-item"><div class="cert-dot"></div>Artificial Intelligence Internship</div>
+      <div class="cert-item"><div class="cert-dot"></div>Python Mania 3.0</div>
+      <div class="cert-item"><div class="cert-dot"></div>C++ Course: Learn the Essentials</div>
+      <div class="cert-item"><div class="cert-dot"></div>Professional Networking for Career Growth</div>
+      <div class="cert-item"><div class="cert-dot"></div>Pitch Night Edition</div>
+      <div class="cert-item"><div class="cert-dot"></div>Google Student Ambassador</div>
+      <div class="cert-item"><div class="cert-dot"></div>CodeAlpha</div>
+      <div class="cert-item"><div class="cert-dot"></div>HP LIFE</div>
+      <div class="cert-item"><div class="cert-dot"></div>be10x</div>
+      <div class="cert-item"><div class="cert-dot"></div>Scaler</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg></div>
+      <h2>Education</h2>
+    </div>
+    <div class="edu-item">
+      <div><h3>Bachelor of Computer Applications (BCA)</h3><p>Maharana Pratap College of Professional Studies, CSJM University</p></div>
+      <div class="edu-year">2027</div>
+    </div>
+    <div class="edu-item">
+      <div><h3>Intermediate</h3><p>B.S.S Education Centre, CBSE Board</p></div>
+      <div class="edu-year">2024</div>
+    </div>
+    <div class="edu-item">
+      <div><h3>High School</h3><p>Gyan Niketan High School, UP Board</p></div>
+      <div class="edu-year">2022</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">
+      <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A3A7C" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h2>Achievements</h2>
+    </div>
+    <ul class="achieve-list">
+      <li><div class="bullet">✦</div>Active participant in coding challenges and technical quizzes at college level.</li>
+      <li><div class="bullet">✦</div>Completed multiple workshops on AI, Python, and Web Development — demonstrating a consistent drive for upskilling.</li>
+      <li><div class="bullet">✦</div>Consistently maintained a CGPA of 7.0 while balancing academics with live projects and extracurriculars.</li>
+      <li><div class="bullet">✦</div>Active member of student communities, college events, and technical fests — recognized as Google Student Ambassador.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <p>Profile of <span>Nikhil Kumar Vishwakarma</span> &nbsp;·&nbsp; nikhilvish.nkv@gmail.com &nbsp;·&nbsp; Kanpur, India</p>
+</footer>
+
+</body>
+</html>
