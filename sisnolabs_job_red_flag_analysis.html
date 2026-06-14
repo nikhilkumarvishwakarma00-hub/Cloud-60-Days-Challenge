@@ -1,0 +1,148 @@
+
+<h2 class="sr-only">Job red flag analysis for SISNOLABS Prompt Engineering Developer role</h2>
+
+<style>
+  .wrap { padding: 1rem 0; font-family: var(--font-sans); color: var(--color-text-primary); }
+  .section-title { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin: 1.5rem 0 0.75rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .flag-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .flag-row:last-child { border-bottom: none; }
+  .sev { font-size: 12px; font-weight: 500; border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+  .sev-high { background: #FCEBEB; color: #A32D2D; }
+  .sev-med { background: #FAEEDA; color: #854F0B; }
+  .sev-low { background: #EAF3DE; color: #3B6D11; }
+  .flag-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.5; }
+  .flag-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .score-ring-wrap { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 0.5rem; }
+  .score-meta { }
+  .score-num { font-size: 42px; font-weight: 500; line-height: 1; }
+  .score-sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .verdict { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); margin-bottom: 0.75rem; font-size: 15px; font-weight: 500; }
+  .verdict-caution { background: #FAEEDA; color: #854F0B; border: 0.5px solid #EF9F27; }
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .risk-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; }
+  .risk-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .risk-bar-bg { background: var(--color-border-tertiary); border-radius: 4px; height: 6px; }
+  .risk-bar { border-radius: 4px; height: 6px; }
+  .risk-level { font-size: 12px; font-weight: 500; margin-top: 4px; }
+  .positive-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; font-size: 14px; color: var(--color-text-primary); }
+  .q-item { padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 14px; color: var(--color-text-primary); line-height: 1.5; }
+  .q-item:last-child { border-bottom: none; }
+  .q-num { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 2px; }
+  .resume-gap { background: #FCEBEB; border: 0.5px solid #F09595; border-radius: var(--border-radius-md); padding: 0.75rem 1rem; margin-bottom: 0.75rem; }
+  .resume-gap-title { font-size: 13px; font-weight: 500; color: #A32D2D; margin-bottom: 4px; }
+  .resume-gap-text { font-size: 13px; color: #791F1F; line-height: 1.5; }
+</style>
+
+<div class="wrap">
+
+  <div class="card" style="display:flex; align-items:center; gap:1.5rem;">
+    <div>
+      <div style="font-size:13px; color:var(--color-text-secondary); margin-bottom:4px;">Overall risk score</div>
+      <div style="font-size:48px; font-weight:500; color:#BA7517; line-height:1;">62</div>
+      <div style="font-size:13px; color:var(--color-text-secondary);">Medium-High Risk</div>
+    </div>
+    <div style="flex:1;">
+      <div style="background:var(--color-background-secondary); border-radius:8px; height:10px; overflow:hidden;">
+        <div style="width:62%; height:100%; background:#EF9F27; border-radius:8px;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--color-text-secondary); margin-top:4px;">
+        <span>0 – Safe</span><span>100 – Avoid</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict verdict-caution">
+    <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:20px;"></i>
+    ⚠️ Apply with Caution — serious experience gap exists
+  </div>
+
+  <div class="resume-gap">
+    <div class="resume-gap-title"><i class="ti ti-user-x" aria-hidden="true"></i> Critical resume mismatch</div>
+    <div class="resume-gap-text">The JD requires <strong>at least 2 years</strong> of professional Prompt Engineering experience. Nikhil is a <strong>current BCA student</strong> (graduating 2027) with no listed work experience — only certifications and academic projects. This is the single biggest risk factor for your application.</div>
+  </div>
+
+  <div class="section-title">Top red flags</div>
+  <div class="card">
+    <div class="flag-row">
+      <div><span class="sev sev-high">9/10</span></div>
+      <div><div class="flag-text">2 years experience required — you have 0</div><div class="flag-label">Unrealistic requirement for current students</div></div>
+    </div>
+    <div class="flag-row">
+      <div><span class="sev sev-high">8/10</span></div>
+      <div><div class="flag-text">No salary information disclosed</div><div class="flag-label">Major hiring red flag — common in low-budget or exploitative roles</div></div>
+    </div>
+    <div class="flag-row">
+      <div><span class="sev sev-med">6/10</span></div>
+      <div><div class="flag-text">"At the moment, we do not have any available positions" note at top</div><div class="flag-label">May be collecting resumes for a non-existent or future role — ghost listing risk</div></div>
+    </div>
+    <div class="flag-row">
+      <div><span class="sev sev-med">5/10</span></div>
+      <div><div class="flag-text">Asks "Are you from Nagpur?" — strong local preference</div><div class="flag-label">Hidden office/location requirement despite no mention of office in JD</div></div>
+    </div>
+    <div class="flag-row">
+      <div><span class="sev sev-med">5/10</span></div>
+      <div><div class="flag-text">Requires LangChain, OpenAI API, Python proficiency + LLM depth simultaneously</div><div class="flag-label">Broad skill stack for a single mid-level role</div></div>
+    </div>
+    <div class="flag-row">
+      <div><span class="sev sev-low">3/10</span></div>
+      <div><div class="flag-text">Asks for personal references and internal connections upfront</div><div class="flag-label">Unusual in formal hiring — may rely heavily on word-of-mouth network</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Positive signals</div>
+  <div class="card">
+    <div class="positive-item"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11; font-size:16px; margin-top:2px;"></i> Clear job title and structured JD with defined skill categories</div>
+    <div class="positive-item"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11; font-size:16px; margin-top:2px;"></i> Company established since 2007 — not a brand-new startup with instability risk</div>
+    <div class="positive-item"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11; font-size:16px; margin-top:2px;"></i> Minimum qualification is only a Bachelor's degree (computer/IT) — matches your BCA</div>
+    <div class="positive-item"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11; font-size:16px; margin-top:2px;"></i> No hustle-culture language ("rockstar", "move fast", "wear many hats") in description</div>
+    <div class="positive-item"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11; font-size:16px; margin-top:2px;"></i> International client base signals growth and real business operations</div>
+  </div>
+
+  <div class="section-title">Risk breakdown</div>
+  <div class="risk-grid">
+    <div class="risk-item">
+      <div class="risk-label">Requirements fit</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:80%; background:#E24B4A;"></div></div>
+      <div class="risk-level" style="color:#A32D2D;">High — experience gap</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-label">Culture signals</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:30%; background:#639922;"></div></div>
+      <div class="risk-level" style="color:#3B6D11;">Low — no toxic signals</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-label">Remote authenticity</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:55%; background:#EF9F27;"></div></div>
+      <div class="risk-level" style="color:#854F0B;">Medium — Nagpur bias</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-label">Hiring transparency</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:70%; background:#E24B4A;"></div></div>
+      <div class="risk-level" style="color:#A32D2D;">High — no salary, ghost listing?</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-label">Company stability</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:25%; background:#639922;"></div></div>
+      <div class="risk-level" style="color:#3B6D11;">Low — 18+ yr old company</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-label">Resume match</div>
+      <div class="risk-bar-bg"><div class="risk-bar" style="width:85%; background:#E24B4A;"></div></div>
+      <div class="risk-level" style="color:#A32D2D;">Very high — skills gap</div>
+    </div>
+  </div>
+
+  <div class="section-title">5 smart interview questions to ask</div>
+  <div class="card">
+    <div class="q-item"><div class="q-num">Q1 — Salary clarity</div>"Could you share the compensation range or structure for this role? I want to ensure alignment before investing further time."</div>
+    <div class="q-item"><div class="q-num">Q2 — Ghost listing check</div>"The listing mentioned no current openings — is this role actively hiring now, or is this for future pipeline consideration?"</div>
+    <div class="q-item"><div class="q-num">Q3 — Location requirement</div>"Is this a fully remote role, hybrid, or office-based? I noticed the question about being from Nagpur."</div>
+    <div class="q-item"><div class="q-num">Q4 — Experience bar</div>"The JD says 2 years experience — are you open to strong freshers or students who can demonstrate hands-on AI prompt work through projects?"</div>
+    <div class="q-item"><div class="q-num">Q5 — Day-to-day reality</div>"What does a typical week look like for the Prompt Engineering team — what LLMs and tools do you primarily work with?"</div>
+  </div>
+
+  <div style="margin-top:1rem; padding:0.75rem 1rem; background:var(--color-background-secondary); border-radius:var(--border-radius-md); font-size:13px; color:var(--color-text-secondary);">
+    <i class="ti ti-bulb" aria-hidden="true"></i> Tip — Your resume highlights certifications and projects well. Consider applying anyway and leading with your project portfolio and AI certifications. The "ghost listing" caveat means many applicants may not follow through — giving you an opening.
+  </div>
+</div>
