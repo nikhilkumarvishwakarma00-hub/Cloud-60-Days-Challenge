@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shark Tank Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        shark: {
+                            900: '#0a1128',
+                            800: '#1c2541',
+                            blue: '#3a506b',
+                            neon: '#00f2fe',
+                            teal: '#4facfe'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a1128 0%, #1c2541 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .neon-border:focus-within {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-bubble {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a1128; }
+        ::-webkit-scrollbar-thumb { background: #3a506b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="p-6 border-b border-white/10 bg-shark-900/50 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-shark-teal to-shark-neon">
+                <i class="fa-solid fa-water mr-2"></i>AI Shark Tank
+            </h1>
+            <button onclick="showLeaderboard()" class="text-sm font-semibold hover:text-shark-neon transition">
+                <i class="fa-solid fa-trophy mr-1"></i> Leaderboard
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 mt-8">
+        
+        <section id="screen-input" class="screen active">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-extrabold mb-4">Pitch Your Startup</h2>
+                <p class="text-gray-400">Step into the tank. Convince the AI judges your idea is worth millions.</p>
+            </div>
+            
+            <form id="pitchForm" class="glass-card p-8 rounded-2xl space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-300">Startup Name</label>
+                        <input type="text" id="startupName" required class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="e.g. Pied Piper">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-300">Funding Ask ($)</label>
+                        <input type="number" id="fundingAsk" required class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="e.g. 500000">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-300">Problem Statement</label>
+                    <textarea id="problem" required rows="2" class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="What problem are you solving?"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-300">Your Solution</label>
+                    <textarea id="solution" required rows="2" class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="How does your product solve it?"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-300">Revenue Model</label>
+                        <input type="text" id="revenue" required class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="SaaS, E-commerce, Ads...">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-300">Target Audience</label>
+                        <input type="text" id="audience" required class="w-full bg-shark-800/50 border border-gray-600 rounded-lg p-3 outline-none neon-border transition" placeholder="Who buys this?">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-shark-teal to-shark-neon text-shark-900 font-bold py-4 rounded-lg hover:shadow-[0_0_20px_rgba(0,242,254,0.4)] transition transform hover:-translate-y-1 mt-4">
+                    Enter the Tank <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+        </section>
+
+        <section id="screen-pitch" class="screen">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-shark-neon" id="displayStartupName">Startup</h2>
+                    <p class="text-sm text-gray-400">Asking for $<span id="displayAsk"></span></p>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-purple-900 flex items-center justify-center border-2 border-purple-500" title="Venture Capitalist"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center border-2 border-blue-500" title="Founder"><i class="fa-solid fa-rocket"></i></div>
+                    <div class="w-10 h-10 rounded-full bg-green-900 flex items-center justify-center border-2 border-green-500" title="Customer"><i class="fa-solid fa-users"></i></div>
+                    <div class="w-10 h-10 rounded-full bg-yellow-900 flex items-center justify-center border-2 border-yellow-500 text-yellow-200" title="Angel Investor"><i class="fa-solid fa-coins"></i></div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl flex flex-col h-[600px]">
+                <div id="chatWindow" class="flex-1 overflow-y-auto p-6 space-y-4">
+                    </div>
+                
+                <div class="p-4 border-t border-white/10 bg-shark-900/50 rounded-b-2xl">
+                    <form id="answerForm" class="flex gap-2">
+                        <input type="text" id="answerInput" autocomplete="off" required class="flex-1 bg-shark-800 border border-gray-600 rounded-lg p-3 outline-none focus:border-shark-neon transition" placeholder="Type your answer...">
+                        <button type="submit" class="bg-shark-teal hover:bg-shark-neon text-shark-900 font-bold px-6 py-3 rounded-lg transition">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-results" class="screen">
+            <div id="reportContent" class="p-8 glass-card rounded-2xl relative overflow-hidden">
+                <div id="decisionBanner" class="absolute top-0 left-0 w-full py-3 text-center font-bold text-xl uppercase tracking-widest text-shark-900">
+                    Decision
+                </div>
+
+                <div class="mt-12 text-center border-b border-white/10 pb-8">
+                    <h2 class="text-4xl font-extrabold mb-2" id="resStartupName">Startup Name</h2>
+                    <p class="text-xl text-gray-300" id="resDecisionText">You got a deal!</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 mb-8 text-center">
+                    <div class="bg-shark-800/50 p-4 rounded-xl border border-white/5">
+                        <div class="text-sm text-gray-400 mb-1">Final Score</div>
+                        <div class="text-3xl font-bold text-shark-neon" id="resScore">0/100</div>
+                    </div>
+                    <div class="bg-shark-800/50 p-4 rounded-xl border border-white/5">
+                        <div class="text-sm text-gray-400 mb-1">Valuation</div>
+                        <div class="text-2xl font-bold text-green-400" id="resValuation">$0</div>
+                    </div>
+                    <div class="bg-shark-800/50 p-4 rounded-xl border border-white/5">
+                        <div class="text-sm text-gray-400 mb-1">Offered Amount</div>
+                        <div class="text-2xl font-bold text-blue-400" id="resAmount">$0</div>
+                    </div>
+                    <div class="bg-shark-800/50 p-4 rounded-xl border border-white/5">
+                        <div class="text-sm text-gray-400 mb-1">Equity Taken</div>
+                        <div class="text-2xl font-bold text-purple-400" id="resEquity">0%</div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <h3 class="font-bold text-lg border-b border-white/10 pb-2">Score Breakdown</h3>
+                    <div id="scoreBars" class="space-y-3">
+                        </div>
+                </div>
+
+                <div class="bg-shark-800/50 p-6 rounded-xl border border-white/5">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-gavel text-shark-teal mr-2"></i>The Board's Reasoning</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed" id="resReasoning"></p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mt-6 justify-center">
+                <button onclick="downloadPDF()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition flex justify-center items-center">
+                    <i class="fa-solid fa-file-pdf mr-2"></i> Download Pitch PDF
+                </button>
+                <button onclick="shareResult()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition flex justify-center items-center">
+                    <i class="fa-solid fa-share-nodes mr-2"></i> Share Result
+                </button>
+                <button onclick="resetApp()" class="flex-1 bg-shark-teal hover:bg-shark-neon text-shark-900 font-bold py-3 px-6 rounded-lg transition flex justify-center items-center">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Pitch Again
+                </button>
+            </div>
+        </section>
+
+        <div id="leaderboardModal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center backdrop-blur-sm">
+            <div class="glass-card w-full max-w-md p-6 rounded-2xl m-4 relative">
+                <button onclick="closeLeaderboard()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 class="text-2xl font-bold text-center mb-6 text-shark-neon"><i class="fa-solid fa-trophy mr-2"></i>Hall of Fame</h3>
+                <div id="leaderboardList" class="space-y-3 max-h-80 overflow-y-auto">
+                    </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let startupData = {};
+        let currentQuestionIndex = 0;
+        let questionsList = [];
+        let scoreState = {
+            market: 50,
+            innovation: 50,
+            business: 50,
+            execution: 50,
+            investment: 50
+        };
+
+        // Judges Configuration
+        const JUDGES = {
+            VC: { name: 'Valerie (VC)', color: 'bg-purple-900', border: 'border-purple-500', icon: 'fa-chart-line', focus: 'market' },
+            Founder: { name: 'Frank (Founder)', color: 'bg-blue-900', border: 'border-blue-500', icon: 'fa-rocket', focus: 'execution' },
+            Customer: { name: 'Chloe (Customer)', color: 'bg-green-900', border: 'border-green-500', icon: 'fa-users', focus: 'innovation' },
+            Angel: { name: 'Arthur (Angel)', color: 'bg-yellow-900', border: 'border-yellow-500', icon: 'fa-coins', focus: 'business' }
+        };
+
+        // --- CORE FUNCTIONS ---
+
+        // 1. Submit Initial Form
+        document.getElementById('pitchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            startupData = {
+                name: document.getElementById('startupName').value,
+                ask: parseFloat(document.getElementById('fundingAsk').value),
+                problem: document.getElementById('problem').value,
+                solution: document.getElementById('solution').value,
+                revenue: document.getElementById('revenue').value,
+                audience: document.getElementById('audience').value
+            };
+
+            // Setup UI for Screen 2
+            document.getElementById('displayStartupName').innerText = startupData.name;
+            document.getElementById('displayAsk').innerText = startupData.ask.toLocaleString();
+            
+            // Generate Questions (2 per judge = 8 total)
+            generateQuestions();
+            
+            switchScreen('screen-pitch');
+            startPitchRound();
+        });
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // 2. Generate Simulated AI Questions based on inputs
+        function generateQuestions() {
+            questionsList = [
+                // Round 1
+                { judge: 'VC', text: `With ${startupData.audience} as your target, how do you plan to scale this rapidly and capture significant market share?` },
+                { judge: 'Founder', text: `Building a solution for '${startupData.problem.substring(0, 30)}...' isn't easy. What is the hardest technical or operational hurdle you're facing right now?` },
+                { judge: 'Customer', text: `If I'm a potential user, why would I switch to ${startupData.name} instead of sticking to what I currently use?` },
+                { judge: 'Angel', text: `Your revenue model relies on ${revenue.value}. What are your current profit margins, and how will this investment improve them?` },
+                // Round 2
+                { judge: 'VC', text: `I need to see a path to a $100M valuation. How does your $${startupData.ask.toLocaleString()} ask get you to the next major milestone?` },
+                { judge: 'Founder', text: `Execution is everything. Tell me about your team's specific background that makes you uniquely capable to deliver this.` },
+                { judge: 'Customer', text: `What is the number one complaint or feature request you expect from your first 100 users, and how will you handle it?` },
+                { judge: 'Angel', text: `Let's talk burn rate. If I give you this money today, how many months of runway does it buy you before you need to raise again?` }
+            ];
+            currentQuestionIndex = 0;
+            document.getElementById('chatWindow').innerHTML = ''; // Clear chat
+        }
+
+        // 3. Pitch Round Logic
+        function startPitchRound() {
+            // Introduce startup implicitly in chat
+            addChatBubble('System', `<b>${startupData.name}</b> enters the tank seeking $${startupData.ask.toLocaleString()}.`, 'bg-shark-800 text-center text-sm text-gray-400 w-full');
+            
+            setTimeout(() => {
+                askNextQuestion();
+            }, 1000);
+        }
+
+        function askNextQuestion() {
+            if (currentQuestionIndex >= questionsList.length) {
+                concludePitch();
+                return;
+            }
+            
+            const q = questionsList[currentQuestionIndex];
+            const judgeInfo = JUDGES[q.judge];
+            
+            // Simulate typing
+            const typingId = 'typing-' + Date.now();
+            addChatBubble(judgeInfo.name, `<i class="fa-solid fa-ellipsis fa-fade"></i>`, `${judgeInfo.color} ${judgeInfo.border} border`, typingId);
+            
+            setTimeout(() => {
+                document.getElementById(typingId).remove();
+                addChatBubble(judgeInfo.name, q.text, `${judgeInfo.color} ${judgeInfo.border} border`);
+                document.getElementById('answerInput').focus();
+            }, 1200);
+        }
+
+        document.getElementById('answerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('answerInput');
+            const answerText = input.value.trim();
+            if (!answerText) return;
+
+            // Display user answer
+            addChatBubble('You', answerText, 'bg-shark-blue ml-auto border border-shark-teal');
+            input.value = '';
+            
+            // Evaluate answer (Simulated AI Scoring)
+            evaluateAnswer(answerText, questionsList[currentQuestionIndex].judge);
+            
+            currentQuestionIndex++;
+            setTimeout(askNextQuestion, 800);
+        });
+
+        function addChatBubble(sender, text, classes, id = null) {
+            const chat = document.getElementById('chatWindow');
+            const alignRight = sender === 'You';
+            const wrapperClass = alignRight ? 'flex justify-end' : 'flex justify-start';
+            const html = `
+                <div class="${wrapperClass} chat-bubble" ${id ? `id="${id}"` : ''}>
+                    <div class="max-w-[80%] rounded-2xl p-4 ${classes}">
+                        ${sender !== 'System' && !alignRight ? `<span class="text-xs font-bold text-gray-300 block mb-1">${sender}</span>` : ''}
+                        <p class="text-sm md:text-base leading-relaxed">${text}</p>
+                    </div>
+                </div>
+            `;
+            chat.insertAdjacentHTML('beforeend', html);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // 4. Scoring Logic (Simulation)
+        function evaluateAnswer(answer, judgeType) {
+            const lengthBonus = Math.min(answer.length / 10, 15); // Max 15 points based on length/detail
+            
+            // Keyword matching logic (extremely simplified)
+            const lowerAns = answer.toLowerCase();
+            let keywordBonus = 0;
+            
+            if(judgeType === 'VC' && (lowerAns.includes('market') || lowerAns.includes('growth') || lowerAns.includes('scale'))) keywordBonus = 10;
+            if(judgeType === 'Founder' && (lowerAns.includes('team') || lowerAns.includes('build') || lowerAns.includes('test'))) keywordBonus = 10;
+            if(judgeType === 'Customer' && (lowerAns.includes('user') || lowerAns.includes('feedback') || lowerAns.includes('easy'))) keywordBonus = 10;
+            if(judgeType === 'Angel' && (lowerAns.includes('margin') || lowerAns.includes('profit') || lowerAns.includes('cost'))) keywordBonus = 10;
+
+            const totalBoost = lengthBonus + keywordBonus;
+            
+            const focusArea = JUDGES[judgeType].focus;
+            scoreState[focusArea] = Math.min(100, scoreState[focusArea] + totalBoost);
+            
+            // Global investment boost
+            scoreState.investment = Math.min(100, scoreState.investment + (totalBoost / 2));
+        }
+
+        // 5. Conclude & Calculate Results
+        function concludePitch() {
+            addChatBubble('System', `The judges are deliberating...`, 'bg-shark-800 text-center text-sm text-gray-400 w-full');
+            
+            setTimeout(() => {
+                generateResults();
+                switchScreen('screen-results');
+            }, 2000);
+        }
+
+        function generateResults() {
+            // Calculate final average score
+            const categories = ['market', 'innovation', 'business', 'execution', 'investment'];
+            let total = 0;
+            categories.forEach(c => total += scoreState[c]);
+            const finalScore = Math.round(total / 5);
+
+            // Determine Decision
+            let decisionStr = "";
+            let bannerColor = "";
+            let offeredAmount = 0;
+            let valuation = 0;
+            let equity = 0;
+            let reasoning = "";
+
+            if (finalScore >= 80) {
+                decisionStr = "Invest";
+                bannerColor = "bg-green-500";
+                offeredAmount = startupData.ask; // Got full ask
+                valuation = offeredAmount * 5; // 20% equity roughly
+                equity = (offeredAmount / valuation) * 100;
+                reasoning = "Outstanding pitch. The market potential is clear, your execution strategy is solid, and the financials make absolute sense. We are ready to write a check today and scale this to the moon.";
+                triggerConfetti();
+            } else if (finalScore >= 65) {
+                decisionStr = "Acquire / Deal with condition";
+                bannerColor = "bg-blue-500";
+                offeredAmount = startupData.ask * 0.8; // 80% of ask
+                valuation = startupData.ask * 2; // Low valuation
+                equity = (offeredAmount / valuation) * 100;
+                reasoning = "The core technology and innovation are good, but the business model needs work. We are willing to make an offer, but we need a larger piece of the pie to offset the execution risk.";
+            } else if (finalScore >= 50) {
+                decisionStr = "Come Back Later";
+                bannerColor = "bg-yellow-500";
+                offeredAmount = 0;
+                valuation = 0;
+                equity = 0;
+                reasoning = "You're too early for us. Prove your customer acquisition strategy and get some more traction. The foundation is there, but it's not ready for institutional capital yet.";
+            } else {
+                decisionStr = "Reject";
+                bannerColor = "bg-red-500";
+                offeredAmount = 0;
+                valuation = 0;
+                equity = 0;
+                reasoning = "The market size isn't convincing, and the pitch lacked the detailed metrics required to justify this valuation. For those reasons, we are out.";
+            }
+
+            // Update UI
+            document.getElementById('decisionBanner').className = `absolute top-0 left-0 w-full py-3 text-center font-bold text-xl uppercase tracking-widest text-white ${bannerColor}`;
+            document.getElementById('decisionBanner').innerText = decisionStr;
+            
+            document.getElementById('resStartupName').innerText = startupData.name;
+            document.getElementById('resDecisionText').innerText = decisionStr === "Invest" ? "You got a deal!" : "Tough day in the tank.";
+            
+            document.getElementById('resScore').innerText = `${finalScore}/100`;
+            document.getElementById('resScore').className = `text-3xl font-bold ${finalScore >= 65 ? 'text-green-400' : 'text-red-400'}`;
+            
+            document.getElementById('resValuation').innerText = `$${valuation.toLocaleString()}`;
+            document.getElementById('resAmount').innerText = `$${offeredAmount.toLocaleString()}`;
+            document.getElementById('resEquity').innerText = `${Math.round(equity)}%`;
+            document.getElementById('resReasoning').innerText = reasoning;
+
+            // Render Score Bars
+            const barsContainer = document.getElementById('scoreBars');
+            barsContainer.innerHTML = '';
+            categories.forEach(cat => {
+                const val = Math.round(scoreState[cat]);
+                const barHtml = `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1 text-gray-300">
+                            <span class="capitalize">${cat}</span>
+                            <span>${val}%</span>
+                        </div>
+                        <div class="w-full bg-shark-800 rounded-full h-2 border border-white/5">
+                            <div class="bg-shark-teal h-2 rounded-full" style="width: ${val}%"></div>
+                        </div>
+                    </div>
+                `;
+                barsContainer.insertAdjacentHTML('beforeend', barHtml);
+            });
+
+            // Save to Leaderboard
+            saveToLeaderboard(startupData.name, finalScore, decisionStr);
+        }
+
+        // 6. Bonus Features
+
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('reportContent');
+            const opt = {
+                margin:       1,
+                filename:     `${startupData.name.replace(/\s+/g, '_')}_PitchReport.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0a1128' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Temporary styles for PDF rendering readability
+            const originalBorder = element.style.border;
+            element.style.border = 'none';
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.border = originalBorder;
+            });
+        }
+
+        function shareResult() {
+            const finalScore = document.getElementById('resScore').innerText;
+            const text = `I just pitched ${startupData.name} on the AI Shark Tank Simulator and scored ${finalScore}! Try it out!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AI Shark Tank Result',
+                    text: text,
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("Result text copied to clipboard!");
+                });
+            }
+        }
+
+        function resetApp() {
+            document.getElementById('pitchForm').reset();
+            scoreState = { market: 50, innovation: 50, business: 50, execution: 50, investment: 50 };
+            switchScreen('screen-input');
+        }
+
+        // Leaderboard logic (using LocalStorage)
+        function saveToLeaderboard(name, score, decision) {
+            let board = JSON.parse(localStorage.getItem('aiSharkTankLeaderboard') || '[]');
+            board.push({ name, score, decision, date: new Date().toLocaleDateString() });
+            board.sort((a, b) => b.score - a.score); // Highest first
+            board = board.slice(0, 10); // Keep top 10
+            localStorage.setItem('aiSharkTankLeaderboard', JSON.stringify(board));
+        }
+
+        function showLeaderboard() {
+            const board = JSON.parse(localStorage.getItem('aiSharkTankLeaderboard') || '[]');
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            
+            if (board.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-400 py-4">No pitches yet. Be the first!</p>';
+            } else {
+                board.forEach((entry, idx) => {
+                    let medal = '';
+                    if(idx === 0) medal = '🥇';
+                    else if(idx === 1) medal = '🥈';
+                    else if(idx === 2) medal = '🥉';
+                    else medal = `<span class="text-gray-500 text-sm w-5 inline-block text-center">${idx+1}.</span>`;
+
+                    const html = `
+                        <div class="flex items-center justify-between bg-shark-800/50 p-3 rounded-lg border border-white/5">
+                            <div class="flex items-center gap-3">
+                                ${medal}
+                                <div>
+                                    <div class="font-bold">${entry.name}</div>
+                                    <div class="text-xs text-gray-400">${entry.date} • ${entry.decision}</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-shark-neon">${entry.score}</div>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', html);
+                });
+            }
+            
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
