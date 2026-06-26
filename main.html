@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Prior Authorization Workflow Simulator (Gamified)</title>
+<style>
+  /* -------------------------
+     Color palette & base
+     ------------------------- */
+  :root{
+    --bg:#e9f2fb;
+    --panel:#d6eafc;
+    --accent:#1e73be; /* medium blue */
+    --accent-2:#164a80; /* darker blue */
+    --accent-3:#6fb1ff; /* lighter */
+    --muted:#bcdff8;
+    --card:#ffffff;
+    --danger:#ff6b6b;
+    --success:#2ecc71;
+    --text:#000000; /* black text as requested */
+    --glass: rgba(255,255,255,0.6);
+    --shadow: 0 6px 18px rgba(0,0,0,0.08);
+    --radius:12px;
+  }
+  html,body{height:100%; margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,var(--bg), #f5fbff); color:var(--text);}
+  .app{
+    max-width:1200px;
+    margin:20px auto;
+    padding:18px;
+  }
+
+  header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .logo{
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:white;padding:10px 14px;border-radius:10px;font-weight:700;box-shadow:var(--shadow);
+  }
+  h1{font-size:1.05rem;margin:0}
+  .top-controls{margin-left:auto;display:flex;gap:8px;align-items:center;}
+
+  /* progress tracker */
+  .progress{
+    display:flex;gap:8px;align-items:center;margin:12px 0;
+  }
+  .progress-bar{
+    flex:1;height:16px;background:linear-gradient(90deg,var(--muted),transparent);
+    border-radius:10px;padding:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .progress-fill{
+    height:100%; width:0%; background:linear-gradient(90deg,var(--accent-3),var(--accent)); border-radius:8px; transition:width 500ms ease;
+  }
+  .progress-label{min-width:160px;text-align:right;font-size:0.9rem}
+
+  /* scoreboard */
+  .scoreboard{display:flex;gap:10px;align-items:center;margin-bottom:12px;}
+  .stat{
+    background:var(--panel);padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);min-width:120px;
+  }
+  .stat b{display:block;font-size:1.2rem}
+  .controls{display:flex;gap:8px;}
+
+  /* lanes */
+  .board{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  }
+  .lane{
+    background:linear-gradient(180deg,var(--glass),white);padding:12px;border-radius:var(--radius);box-shadow:var(--shadow);
+    min-height:340px;display:flex;flex-direction:column;
+  }
+  .lane h2{margin:0 0 10px 0;font-size:0.95rem;color:var(--accent-2)}
+  .stage{
+    background:linear-gradient(180deg,#fff,#f4fbff);border:2px dashed rgba(30,115,190,0.08);
+    padding:8px;border-radius:10px;min-height:72px;margin-bottom:10px;position:relative;
+  }
+  .stage.small{min-height:48px;padding:6px}
+  .stage-title{font-weight:600;color:var(--accent)}
+  .stage.drop-active{outline:3px solid rgba(30,115,190,0.18)}
+
+  /* card */
+  .case-card{
+    background:var(--card);border-radius:10px;padding:10px;margin:6px 0;box-shadow:0 6px 14px rgba(17,48,78,0.08);
+    cursor:grab; user-select:none; border-left:6px solid var(--accent);
+  }
+  .case-card.dragging{opacity:0.5;cursor:grabbing}
+  .case-title{font-weight:700}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .chip{background:var(--muted);padding:6px 8px;border-radius:999px;font-size:0.85rem}
+
+  /* documents pool */
+  .docs-pool{display:flex;gap:6px;flex-wrap:wrap;padding-top:6px}
+  .doc{background:#fff;border:1px solid var(--muted);padding:6px 8px;border-radius:8px;cursor:grab}
+  .doc.dragging{opacity:0.4}
+
+  /* explanation panel */
+  .explain{
+    margin-top:10px;padding:10px;border-radius:10px;background:linear-gradient(180deg,#f8fdff,#ffffff);border-left:4px solid var(--accent-3);
+    font-size:0.92rem;
+  }
+
+  /* buttons */
+  button{background:var(--accent);color:white;border:0;padding:8px 10px;border-radius:8px;cursor:pointer;box-shadow:0 6px 12px rgba(14,67,115,0.08)}
+  button.ghost{background:transparent;color:var(--accent-2);border:1px solid var(--accent-3);box-shadow:none}
+  button.small{padding:6px 8px;font-size:0.95rem}
+  .danger{background:var(--danger);}
+
+  /* modals & summary */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:1000}
+  .modal{background:white;padding:18px;border-radius:12px;max-width:720px;width:92%;box-shadow:0 18px 40px rgba(10,40,80,0.18)}
+  .modal h3{margin-top:0}
+
+  /* confetti */
+  .confetti-piece{
+    position:fixed;left:50%;top:-10px;width:10px;height:16px;opacity:0;transform:translateX(-50%) rotate(20deg);
+    animation:fall 1600ms linear forwards;
+    z-index:9999;
+  }
+  @keyframes fall{
+    0%{opacity:1; transform:translateY(0) rotate(0) translateX(0) scale(1)}
+    100%{opacity:1; transform:translateY(850px) rotate(720deg) translateX(-200px) scale(0.9)}
+  }
+
+  /* responsive */
+  @media(max-width:880px){
+    .board{grid-template-columns:1fr; }
+    .progress-label{display:none}
+  }
+
+  /* small helper */
+  .muted{color:#345;opacity:0.6;font-size:0.9rem}
+  .center{display:flex;align-items:center;justify-content:center}
+  .log{font-size:0.85rem;margin-top:8px;color:#08325a}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="logo">PA Simulator</div>
+    <div>
+      <h1>Prior Authorization Workflow Simulator</h1>
+      <div class="muted">Interactive, educational drag-and-drop experience simulating the US PA workflow.</div>
+    </div>
+
+    <div class="top-controls">
+      <label for="scenarioSelect" class="muted">Scenario:</label>
+      <select id="scenarioSelect"></select>
+      <div style="width:8px"></div>
+      <button id="newBtn" class="small ghost">New Patient</button>
+      <button id="restartBtn" class="small">Restart</button>
+    </div>
+  </header>
+
+  <!-- Progress tracker -->
+  <div class="progress">
+    <div class="progress-bar" aria-hidden>
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-label">
+      <div style="font-size:0.95rem"><strong id="progressText">0%</strong> complete</div>
+      <div class="muted" style="font-size:0.8rem" id="currentStageLabel">Intake</div>
+    </div>
+  </div>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <div class="stat">
+      Days elapsed
+      <b id="daysCounter">0</b>
+    </div>
+    <div class="stat">
+      Efficiency
+      <b id="effScore">100</b>
+    </div>
+    <div class="stat">
+      Outcome
+      <b id="outcomeLabel">In progress</b>
+    </div>
+    <div style="margin-left:auto" class="controls">
+      <button id="advanceDayBtn" class="small ghost">Advance Day</button>
+      <button id="summaryBtn" class="small ghost">Summary</button>
+    </div>
+  </div>
+
+  <!-- Main board: three lanes -->
+  <div class="board">
+    <!-- Patient lane -->
+    <div class="lane" id="lane-patient">
+      <h2>Patient</h2>
+      <div class="stage" data-stage="intake" id="stage-intake">
+        <div class="stage-title">Intake</div>
+        <div class="muted">Start here: patient provides reason for care.</div>
+        <div id="intake-area"></div>
+      </div>
+
+      <div class="stage small" id="stage-info" data-stage="patient-info">
+        <div class="stage-title">Patient Info</div>
+        <div class="muted" id="patientInfo"></div>
+      </div>
+
+      <div class="explain" id="explainPatient">
+        Welcome! Choose a scenario, then drag the case through the lanes. Explanations appear after every step.
+      </div>
+    </div>
+
+    <!-- Provider lane -->
+    <div class="lane" id="lane-provider">
+      <h2>Provider</h2>
+
+      <div class="stage" data-stage="gather-docs" id="stage-gather-docs">
+        <div class="stage-title">Gather Documents</div>
+        <div class="muted">Drag required documents into the case to collect them.</div>
+        <div class="docs-pool" id="docsPool"></div>
+      </div>
+
+      <div class="stage" data-stage="med-nec" id="stage-med-nec">
+        <div class="stage-title">Medical Necessity Evaluation</div>
+        <div class="muted">Drop the case here to evaluate medical necessity.</div>
+      </div>
+
+      <div class="stage" data-stage="submit" id="stage-submit">
+        <div class="stage-title">PA Form / Submit to Payer</div>
+        <div class="muted">Once documents and evaluation complete, submit to payer.</div>
+        <div style="margin-top:8px">
+          <button id="submitBtn" class="small ghost">Submit to Payer</button>
+        </div>
+      </div>
+
+      <div class="explain" id="explainProvider">Provider tips will appear here.</div>
+    </div>
+
+    <!-- Payer lane -->
+    <div class="lane" id="lane-payer">
+      <h2>Payer</h2>
+
+      <div class="stage" data-stage="payer-review" id="stage-payer-review">
+        <div class="stage-title">Payer Review</div>
+        <div class="muted">Assigned to payer for review. Decision may be Auto Approve, Pend for more info, Deny, or require Appeal/P2P.</div>
+        <div style="margin-top:8px">
+          <button id="autoDecideBtn" class="small">Auto Decide</button>
+        </div>
+      </div>
+
+      <div class="stage" data-stage="decision" id="stage-decision">
+        <div class="stage-title">Decision</div>
+        <div class="muted">Final outcomes: Approval, Pend, Denial, Appeal, Peer-to-Peer.</div>
+        <div id="decisionArea"></div>
+      </div>
+
+      <div class="explain" id="explainPayer">Payer explanations will appear here.</div>
+    </div>
+  </div>
+
+  <!-- Log / Timeline -->
+  <div style="margin-top:14px;display:flex;gap:12px;align-items:flex-start;">
+    <div style="flex:1;background:var(--panel);padding:12px;border-radius:10px;box-shadow:var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700">Case Timeline</div>
+        <div class="muted">Recent events</div>
+      </div>
+      <div id="timeline" class="log"></div>
+    </div>
+
+    <div style="width:320px;background:linear-gradient(180deg,#f8fbff,#fff);padding:12px;border-radius:10px;box-shadow:var(--shadow)">
+      <div style="font-weight:700">Workflow Summary</div>
+      <div id="miniSummary" class="muted" style="margin-top:8px">No events yet.</div>
+      <div style="margin-top:12px">
+        <button id="appealBtn" class="small ghost">File Appeal</button>
+        <button id="p2pBtn" class="small ghost">Request Peer-to-Peer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- overlays -->
+  <div class="overlay" id="modalOverlay">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <!-- confetti container -->
+  <div id="confettiZone"></div>
+</div>
+
+<script>
+/*
+  Prior Authorization Workflow Simulator
+  - Single-file application (HTML + CSS + vanilla JS)
+  - All state managed in memory (no localStorage)
+  - Scenario data near top as editable array
+*/
+
+/* =========================
+   Scenario configuration
+   (Editable by developer/user at top)
+   Each scenario contains:
+     id, name, description, requiredDocs (array), complexity (1-10),
+     baseApprovalChance (0-1) baseline chance,
+     notes
+   ========================= */
+const SCENARIOS = [
+  {
+    id: 'elective-surgery',
+    name: 'Elective Surgery (Knee Arthroscopy)',
+    description: 'Patient requests elective knee arthroscopy for chronic meniscal tear.',
+    requiredDocs: ['Office Notes', 'Imaging Report', 'Operative Consent', 'Procedure Justification'],
+    complexity: 5,
+    baseApprovalChance: 0.6,
+    notes: 'Often requires documentation of conservative therapy attempts.'
+  },
+  {
+    id: 'mri',
+    name: 'MRI (Lumbar Spine)',
+    description: 'MRI for lumbar radiculopathy symptoms.',
+    requiredDocs: ['Referral', 'Symptom Timeline', 'Prior Imaging', 'Physical Exam'],
+    complexity: 3,
+    baseApprovalChance: 0.75,
+    notes: 'Lower complexity; high approval if documented radicular signs.'
+  },
+  {
+    id: 'specialty-med',
+    name: 'Specialty Medication (Injectable Biologic)',
+    description: 'Prior authorization for a specialty biologic medication.',
+    requiredDocs: ['Medication History', 'Diagnosis Codes', 'Failed Alternatives', 'Labs'],
+    complexity: 8,
+    baseApprovalChance: 0.45,
+    notes: 'Specialty meds often need prior trials and lab monitoring.'
+  },
+  {
+    id: 'inpatient-admit',
+    name: 'Inpatient Admission',
+    description: 'Request for inpatient admission for observation and treatment.',
+    requiredDocs: ['ED Notes', 'Admission Orders', 'Vitals/Monitoring', 'Physician Justification'],
+    complexity: 7,
+    baseApprovalChance: 0.5,
+    notes: 'High stakes; often reviewed more rigorously.'
+  }
+];
+
+/* =========================
+   Application state (in-memory)
+   Only one active case at a time for this simulator.
+   ========================= */
+let state = {
+  scenario: null,           // object from SCENARIOS
+  caseCard: null,           // DOM element representing the case
+  docsPool: [],             // docs available to drag
+  collectedDocs: [],        // docs attached
+  medNecApproved: false,
+  daysElapsed: 0,
+  efficiency: 100,
+  history: [],              // timeline events
+  status: 'not-started',    // in-progress, approved, pending, denied, appealed, p2p
+  pendCount: 0,
+  denialCount: 0,
+  appealCount: 0,
+  p2pCount: 0
+};
+
+/* =========================
+   Utility helpers
+   ========================= */
+function $(id){return document.getElementById(id);}
+
+function logEvent(text){
+  const t = document.createElement('div');
+  const time = new Date().toLocaleTimeString();
+  t.textContent = `${time} — ${text}`;
+  $('timeline').prepend(t);
+  state.history.push({time:Date.now(), text});
+  updateMiniSummary();
+}
+
+function updateMiniSummary(){
+  if(state.history.length===0){
+    $('miniSummary').textContent = 'No events yet.';
+  } else {
+    const last = state.history[state.history.length-1].text;
+    $('miniSummary').textContent = last;
+  }
+}
+
+/* =========================
+   Initialize scenario selector and UI
+   ========================= */
+function init(){
+  const select = $('scenarioSelect');
+  SCENARIOS.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    select.appendChild(opt);
+  });
+
+  // Event listeners for controls
+  $('newBtn').addEventListener('click', startNewCase);
+  $('restartBtn').addEventListener('click', () => { location.reload(); });
+  $('advanceDayBtn').addEventListener('click', () => { advanceDays(1, 'Manual day advance'); });
+  $('submitBtn').addEventListener('click', submitToPayer);
+  $('autoDecideBtn').addEventListener('click', payerAutoDecide);
+  $('appealBtn').addEventListener('click', fileAppeal);
+  $('p2pBtn').addEventListener('click', requestP2P);
+  $('summaryBtn').addEventListener('click', showSummary);
+
+  // Drag-drop setup for stages
+  const stages = document.querySelectorAll('.stage');
+  stages.forEach(stage => {
+    stage.addEventListener('dragover', ev => {
+      ev.preventDefault();
+      stage.classList.add('drop-active');
+    });
+    stage.addEventListener('dragleave', () => {
+      stage.classList.remove('drop-active');
+    });
+    stage.addEventListener('drop', ev => {
+      ev.preventDefault();
+      stage.classList.remove('drop-active');
+      handleDrop(stage.dataset.stage, ev);
+    });
+  });
+
+  // Document drag events will be attached when docsPool is rendered
+  // Default: load first scenario selected
+  select.value = SCENARIOS[0].id;
+  startNewCase();
+}
+
+/* =========================
+   Create / Reset a new case
+   ========================= */
+function startNewCase(){
+  // reset state
+  const scenarioId = $('scenarioSelect').value;
+  const scenario = SCENARIOS.find(s=>s.id===scenarioId);
+  state = {
+    scenario,
+    caseCard: null,
+    docsPool: scenario.requiredDocs.slice(), // copy array
+    collectedDocs: [],
+    medNecApproved: false,
+    daysElapsed: 0,
+    efficiency: 100,
+    history: [],
+    status: 'in-progress',
+    pendCount: 0,
+    denialCount: 0,
+    appealCount: 0,
+    p2pCount: 0
+  };
+
+  // Clear UI areas
+  $('intake-area').innerHTML = '';
+  $('decisionArea').innerHTML = '';
+  $('timeline').innerHTML = '';
+  $('docsPool').innerHTML = '';
+  $('miniSummary').textContent = 'No events yet.';
+  $('explainProvider').textContent = 'Provider tips will appear here.';
+  $('explainPatient').textContent = 'Patient info will appear here.';
+  $('explainPayer').textContent = 'Payer explanations will appear here.';
+  $('outcomeLabel').textContent = 'In progress';
+  $('progressText').textContent = '0%';
+  $('progressFill').style.width = '0%';
+  $('currentStageLabel').textContent = 'Intake';
+  $('daysCounter').textContent = '0';
+  $('effScore').textContent = '100';
+
+  // Create the case-card and place in intake
+  createCaseCard();
+
+  // Render required docs pool
+  renderDocsPool();
+
+  logEvent(`New case started: ${scenario.name}`);
+  explain(`Scenario selected: ${scenario.name}. ${scenario.description} Notes: ${scenario.notes}`, 'patient');
+  updateProgress();
+}
+
+/* =========================
+   Create the draggable case card
+   ========================= */
+function createCaseCard(){
+  const card = document.createElement('div');
+  card.className = 'case-card';
+  card.draggable = true;
+  card.id = 'case-card';
+  card.dataset.stage = 'intake';
+  card.innerHTML = `
+    <div class="case-title">${state.scenario.name}</div>
+    <div class="muted" style="font-size:0.9rem">${state.scenario.description}</div>
+    <div class="chips" id="cardChips"></div>
+  `;
+  // drag handlers
+  card.addEventListener('dragstart', ev => {
+    card.classList.add('dragging');
+    ev.dataTransfer.setData('text/plain', 'case'); // simple token
+    // store id of dragged element globally
+    ev.dataTransfer.setData('text/case-id', card.id);
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+  });
+
+  // place into intake stage
+  const intake = $('stage-intake');
+  intake.appendChild(card);
+  state.caseCard = card;
+  updateCardChips();
+}
+
+/* =========================
+   Document pool: draggable docs
+   ========================= */
+function renderDocsPool(){
+  const pool = $('docsPool');
+  pool.innerHTML = '';
+  state.docsPool.forEach((d,i) => {
+    const doc = document.createElement('div');
+    doc.className = 'doc';
+    doc.draggable = true;
+    doc.textContent = d;
+    doc.dataset.doc = d;
+    doc.addEventListener('dragstart', ev => {
+      ev.dataTransfer.setData('text/doc', d);
+      doc.classList.add('dragging');
+    });
+    doc.addEventListener('dragend', () => doc.classList.remove('dragging'));
+    pool.appendChild(doc);
+  });
+
+  // Make attachments area (cardChips) accept doc drops
+  document.addEventListener('dragover', ev => ev.preventDefault());
+  const cardChips = document.getElementById('cardChips');
+  // cardChips may not exist yet -> ensure listener is set after card creation
+  setTimeout(() => {
+    const chips = document.getElementById('cardChips');
+    if(chips){
+      chips.parentElement.addEventListener('dragover', ev => { ev.preventDefault(); });
+      chips.parentElement.addEventListener('drop', ev => {
+        ev.preventDefault();
+        const d = ev.dataTransfer.getData('text/doc');
+        if(d){
+          attachDocToCase(d);
+        }
+      });
+    }
+  }, 80);
+}
+
+/* =========================
+   Attach a document to the case
+   ========================= */
+function attachDocToCase(docName){
+  if(state.collectedDocs.includes(docName)){
+    explain(`Document "${docName}" already attached.`, 'provider');
+    return;
+  }
+  state.collectedDocs.push(docName);
+  // Remove from docsPool visually
+  state.docsPool = state.docsPool.filter(d=>d!==docName);
+  renderDocsPool();
+  updateCardChips();
+  logEvent(`Provider attached document: ${docName}`);
+  explain(`Attached "${docName}". ${remainingDocsText()}`, 'provider');
+  // small penalty for each missing doc reduces efficiency when missing at submission time (calculated later)
+}
+
+/* =========================
+   Update chips shown on card
+   ========================= */
+function updateCardChips(){
+  const chips = document.getElementById('cardChips');
+  if(!chips) return;
+  chips.innerHTML = '';
+  state.collectedDocs.forEach(d=>{
+    const c = document.createElement('div');
+    c.className = 'chip';
+    c.textContent = d;
+    chips.appendChild(c);
+  });
+  if(state.collectedDocs.length===0){
+    chips.innerHTML = '<div class="muted" style="font-size:0.85rem">No documents attached yet. Drag from the pool.</div>';
+  }
+}
+
+/* =========================
+   Helper: remaining docs text for explanations
+   ========================= */
+function remainingDocsText(){
+  const needed = state.scenario.requiredDocs;
+  const missing = needed.filter(d=>!state.collectedDocs.includes(d));
+  if(missing.length===0) return 'All required documents collected.';
+  return `Missing docs: ${missing.join(', ')}`;
+}
+
+/* =========================
+   Handle drop of case or doc on a stage
+   ========================= */
+function handleDrop(stage, ev){
+  // If dropping a case
+  const type = ev.dataTransfer.getData('text/plain') || ev.dataTransfer.getData('text/case-id');
+  const docDropped = ev.dataTransfer.getData('text/doc');
+
+  if(docDropped){
+    // If doc is dropped directly onto a stage, attach it too
+    attachDocToCase(docDropped);
+    return;
+  }
+
+  if(!state.caseCard) return;
+  // move card element to stage area
+  const stageEl = {
+    'intake': $('stage-intake'),
+    'patient-info': $('stage-info'),
+    'gather-docs': $('stage-gather-docs'),
+    'med-nec': $('stage-med-nec'),
+    'submit': $('stage-submit'),
+    'payer-review': $('stage-payer-review'),
+    'decision': $('stage-decision')
+  }[stage];
+
+  if(!stageEl) return;
+
+  stageEl.appendChild(state.caseCard);
+  state.caseCard.dataset.stage = stage;
+
+  // Each stage drop triggers events, days advancement, explanations
+  switch(stage){
+    case 'intake':
+      explain(`Patient intake: ${state.scenario.description}`, 'patient');
+      logEvent('Case placed at intake.');
+      break;
+    case 'gather-docs':
+      explain(`Provider: gather required documents. ${remainingDocsText()}`, 'provider');
+      logEvent('Moved to Gather Documents.');
+      break;
+    case 'med-nec':
+      // Trigger medical necessity evaluation UI
+      explain('Medical Necessity Evaluation: run evaluation now. Use the modal to simulate the evaluation.', 'provider');
+      logEvent('Moved to Medical Necessity Evaluation.');
+      showMedNecModal();
+      break;
+    case 'submit':
+      explain('Provider ready to submit. Click "Submit to Payer" (or drag here and click submit).', 'provider');
+      logEvent('Case ready at Submit area.');
+      break;
+    case 'payer-review':
+      explain('Payer review: click "Auto Decide" to simulate payer logic or wait for provider actions.', 'payer');
+      logEvent('Case in Payer Review.');
+      // Simulate payer reviewing time
+      advanceDays(randomInt(1,3), 'Payer started review');
+      break;
+    case 'decision':
+      explain('Decision box. Payer will place final outcome here.', 'payer');
+      logEvent('Case moved to Decision area.');
+      break;
+  }
+
+  // Every move increments days slightly for administrative transition
+  advanceDays(0.5, `Move to ${stage}`); // half-day increments allowed (we store fractional)
+  updateProgress();
+}
+
+/* =========================
+   Medical Necessity Modal
+   ========================= */
+function showMedNecModal(){
+  showModal(`
+    <h3>Medical Necessity Evaluation</h3>
+    <div class="muted">Simulate clinical review based on scenario complexity and documentation.</div>
+    <div style="margin-top:12px">
+      <div><strong>Scenario:</strong> ${state.scenario.name}</div>
+      <div style="margin-top:8px"><strong>Collected docs:</strong> ${state.collectedDocs.length}/${state.scenario.requiredDocs.length}</div>
+      <div style="margin-top:8px">
+        <label class="muted">Choose evaluation outcome:</label>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="medApprove" class="small">Approve as Medically Necessary</button>
+          <button id="medRequest" class="small ghost">Request More Info / Pend</button>
+        </div>
+      </div>
+    </div>
+  `, true);
+
+  $('medApprove').addEventListener('click', ()=>{
+    state.medNecApproved = true;
+    logEvent('Medical necessity approved by provider/clinic.');
+    explain('Medical necessity approved. You can now submit to payer.', 'provider');
+    closeModal();
+    updateProgress();
+  });
+
+  $('medRequest').addEventListener('click', ()=>{
+    state.medNecApproved = false;
+    state.pendCount += 1;
+    logEvent('Medical necessity evaluator requested more information (Pend).');
+    explain('Medical necessity pend: provider must attach missing documents or clarify clinical notes.', 'provider');
+    closeModal();
+    // Add artificial missing doc to pool to simulate feedback
+    const extra = 'Clarifying Clinical Note';
+    if(!state.docsPool.includes(extra) && !state.collectedDocs.includes(extra)){
+      state.docsPool.push(extra);
+      renderDocsPool();
+      explain(`A new requested document "${extra}" appeared in the docs pool. Attach and resubmit.`, 'provider');
+    }
+    updateProgress();
+  });
+}
+
+/* =========================
+   Submit to payer (button)
+   ========================= */
+function submitToPayer(){
+  // Validate: if medical necessity not approved, warn
+  if(!state.medNecApproved){
+    explain('Warning: Medical necessity not documented as approved. Submission may Pend or be Denied. Consider evaluating first.', 'provider');
+  }
+  // Place card in payer-review stage
+  $('stage-payer-review').appendChild(state.caseCard);
+  state.caseCard.dataset.stage = 'payer-review';
+  logEvent('Provider submitted case to payer.');
+  explain('Case submitted to payer. Use "Auto Decide" to simulate payer response or await manual actions.', 'payer');
+  // Submission itself consumes time
+  advanceDays(1, 'Submission to payer');
+  updateProgress();
+}
+
+/* =========================
+   Payer decision simulation
+   ========================= */
+function payerAutoDecide(){
+  if(!state.caseCard || state.caseCard.dataset.stage !== 'payer-review'){
+    explain('No case in payer review to decide on.', 'payer');
+    return;
+  }
+
+  // Calculate effective approval chance
+  const base = state.scenario.baseApprovalChance;
+  const docCoverage = state.collectedDocs.length / state.scenario.requiredDocs.length;
+  const medFactor = state.medNecApproved ? 0.15 : -0.15; // boost or penalty
+  const docFactor = (docCoverage - 0.5) * 0.4; // range -0.2..+0.2
+  const fatigue = Math.max(0, (state.daysElapsed - 5) * -0.02); // small penalty for long delays
+  let chance = base + medFactor + docFactor + fatigue;
+  chance = Math.min(Math.max(chance, 0.05), 0.97);
+
+  // Random outcome
+  const roll = Math.random();
+  advanceDays(randomInt(1,3), 'Payer making decision');
+
+  if(roll < chance){
+    // Approved
+    finalizeDecision('approved', 'The payer approved the request.');
+  } else if (roll < chance + 0.15){
+    // Pend
+    state.pendCount += 1;
+    finalizeDecision('pending', 'Payer pended the request and requested additional documentation.');
+  } else {
+    // Deny
+    state.denialCount += 1;
+    finalizeDecision('denied', 'Payer denied the request. An appeal or peer-to-peer may be attempted.');
+  }
+}
+
+/* =========================
+   Finalize decision: show outcomes in Decision area and allow follow-ups
+   ========================= */
+function finalizeDecision(outcomeKey, message){
+  // Move card to decision stage
+  $('stage-decision').appendChild(state.caseCard);
+  state.caseCard.dataset.stage = 'decision';
+  $('decisionArea').innerHTML = `<div style="padding:8px;border-radius:8px;background:#fff">${message}</div>`;
+
+  if(outcomeKey === 'approved'){
+    state.status = 'approved';
+    $('outcomeLabel').textContent = 'Approved';
+    logEvent('Payer decision: APPROVED');
+    explain('Congratulations! The request was approved. See summary for details.', 'payer');
+    // Celebrate
+    celebrate();
+    computeEfficiency();
+    showSummary();
+  } else if(outcomeKey === 'pending'){
+    state.status = 'pending';
+    $('outcomeLabel').textContent = 'Pending';
+    logEvent('Payer decision: PENDED (needs more info)');
+    explain('Pended: payer requested additional documentation. Attach the requested docs and resubmit.', 'payer');
+    // Add an extra "Requested Info" doc to pool
+    const req = 'Payer Requested Info';
+    if(!state.docsPool.includes(req) && !state.collectedDocs.includes(req)){
+      state.docsPool.push(req);
+      renderDocsPool();
+      explain(`A payer-requested doc "${req}" is available in the docs pool. Attach it and submit again.`, 'provider');
+    }
+    computeEfficiency();
+  } else if(outcomeKey === 'denied'){
+    state.status = 'denied';
+    $('outcomeLabel').textContent = 'Denied';
+    logEvent('Payer decision: DENIED');
+    explain('Denied: you can file an appeal or request a peer-to-peer review.', 'payer');
+    computeEfficiency();
+    // Offer appeal and peer-to-peer via buttons (already present)
+  }
+
+  updateProgress();
+}
+
+/* =========================
+   Appeal & Peer-to-Peer actions
+   ========================= */
+function fileAppeal(){
+  if(!state.caseCard || state.status !== 'denied'){
+    explain('Appeal can only be filed after denial.', 'provider');
+    return;
+  }
+  state.appealCount += 1;
+  logEvent('Provider filed an appeal.');
+  explain('Appeal filed. Payer will re-evaluate — chance of reversal depends on documentation and P2P history.', 'provider');
+
+  // Simulate appeal resolution
+  advanceDays(3, 'Appeal processing');
+  // Appeal has moderate chance to overturn depending on docs and p2pCount
+  const docRatio = state.collectedDocs.length / state.scenario.requiredDocs.length;
+  const base = 0.35 + (docRatio * 0.3) + (state.p2pCount * 0.15);
+  const roll = Math.random();
+  if(roll < base){
+    finalizeDecision('approved', 'Appeal successful: payer approved on appeal.');
+  } else {
+    finalizeDecision('denied', 'Appeal denied: payer upheld original denial.');
+  }
+}
+
+function requestP2P(){
+  if(!state.caseCard || (state.status!=='denied' && state.status!=='pending' && state.status!=='in-progress')){
+    explain('Peer-to-Peer can be requested if denied or pending.', 'provider');
+    return;
+  }
+  state.p2pCount += 1;
+  state.daysElapsed += 1.5;
+  logEvent('Peer-to-Peer review requested (physician-to-physician).');
+  explain('Peer-to-Peer scheduled. This usually increases chance of approval if clinical rationale is strong.', 'provider');
+  // P2P increases approval chance for next payer decision
+  // Immediately simulate P2P outcome (short)
+  advanceDays(1, 'Peer-to-Peer review performed');
+  const docRatio = state.collectedDocs.length / state.scenario.requiredDocs.length;
+  const chance = 0.45 + (docRatio * 0.35) + (state.p2pCount * 0.1);
+  if(Math.random() < chance){
+    finalizeDecision('approved', 'Peer-to-Peer successful: payer approved after clinician discussion.');
+  } else {
+    finalizeDecision('denied', 'Peer-to-Peer did not change the denial decision.');
+  }
+}
+
+/* =========================
+   Summary modal & compute efficiency
+   ========================= */
+function computeEfficiency(){
+  // Base efficiency 100. Penalize for days, pends, denials, missing docs.
+  let score = 100;
+  score -= Math.floor(state.daysElapsed) * 2;            // per day cost
+  score -= state.pendCount * 8;                         // pend penalty
+  score -= state.denialCount * 15;                      // denial penalty
+  score -= state.appealCount * 6;                       // appeal overhead
+  score -= (state.scenario.requiredDocs.length - state.collectedDocs.length) * 6; // missing docs penalty
+  if(state.medNecApproved) score += 6;
+  score = Math.max(Math.round(score), 5);
+  state.efficiency = score;
+  $('effScore').textContent = score;
+  return score;
+}
+
+function showSummary(){
+  computeEfficiency();
+  const historyHtml = state.history.slice().reverse().map(h=>`<li>${new Date(h.time).toLocaleString()}: ${h.text}</li>`).join('');
+  const summaryHtml = `
+    <h3>Workflow Summary</h3>
+    <div><strong>Scenario:</strong> ${state.scenario.name}</div>
+    <div style="margin-top:6px"><strong>Outcome:</strong> ${$('outcomeLabel').textContent}</div>
+    <div style="margin-top:6px"><strong>Days elapsed:</strong> ${Math.round(state.daysElapsed*10)/10}</div>
+    <div style="margin-top:6px"><strong>Efficiency score:</strong> ${state.efficiency}</div>
+    <div style="margin-top:8px"><strong>Collected documents:</strong> ${state.collectedDocs.join(', ') || 'None'}</div>
+    <div style="margin-top:8px"><strong>Medical necessity approved:</strong> ${state.medNecApproved ? 'Yes' : 'No'}</div>
+    <div style="margin-top:8px"><strong>Events:</strong><ul style="max-height:160px;overflow:auto;padding-left:18px">${historyHtml}</ul></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeSummary" class="small ghost">Close</button>
+      <button id="newCaseFromSummary" class="small">New Patient</button>
+    </div>
+  `;
+  showModal(summaryHtml, true);
+  $('closeSummary').addEventListener('click', closeModal);
+  $('newCaseFromSummary').addEventListener('click', ()=>{
+    closeModal();
+    startNewCase();
+  });
+}
+
+/* =========================
+   Days & progress handling
+   ========================= */
+function advanceDays(n, reason){
+  // accepts fractional days
+  state.daysElapsed += n;
+  state.daysElapsed = Math.round(state.daysElapsed*10)/10;
+  $('daysCounter').textContent = state.daysElapsed;
+  if(reason) logEvent(`${reason} (+${n} days)`);
+  computeEfficiency();
+}
+
+/* =========================
+   Progress tracker: compute based on steps completed
+   ========================= */
+function updateProgress(){
+  // Steps: Intake -> Gather Docs -> MedNec -> Submit -> PayerReview -> Decision
+  const steps = ['intake','gather-docs','med-nec','submit','payer-review','decision'];
+  let completed = 0;
+  const currentStage = state.caseCard ? state.caseCard.dataset.stage : 'intake';
+  const idx = steps.indexOf(currentStage);
+  completed = Math.max(0, idx+1);
+  const percent = Math.round((completed / steps.length) * 100);
+  $('progressFill').style.width = percent + '%';
+  $('progressText').textContent = percent + '%';
+  $('currentStageLabel').textContent = currentStage.replace('-', ' ');
+}
+
+/* =========================
+   Modal utilities
+   ========================= */
+function showModal(html, showClose=true){
+  $('modalContent').innerHTML = html;
+  $('modalOverlay').style.display = 'flex';
+  // if showClose, allow clicking overlay to close
+  if(showClose){
+    document.getElementById('modalOverlay').addEventListener('click', overlayClick);
+  }
+}
+function overlayClick(e){
+  if(e.target.id === 'modalOverlay') closeModal();
+}
+function closeModal(){
+  document.getElementById('modalOverlay').style.display = 'none';
+  document.getElementById('modalContent').innerHTML = '';
+  document.getElementById('modalOverlay').removeEventListener('click', overlayClick);
+}
+
+/* =========================
+   Explain panel content
+   ========================= */
+function explain(text, lane){
+  // lane: patient/provider/payer
+  if(lane==='provider') $('explainProvider').textContent = text;
+  else if(lane==='patient') $('explainPatient').textContent = text;
+  else $('explainPayer').textContent = text;
+}
+
+/* =========================
+   Small helpers
+   ========================= */
+function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+/* =========================
+   Celebration (confetti)
+   ========================= */
+function celebrate(){
+  // create many confetti pieces with random colors and positions
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#9B6BFF','#FF8C69'];
+  const zone = $('confettiZone');
+  for(let i=0;i<40;i++){
+    const d = document.createElement('div');
+    d.className = 'confetti-piece';
+    const w = Math.random()*10+6;
+    d.style.width = w+'px';
+    d.style.height = (w*1.4)+'px';
+    d.style.background = colors[Math.floor(Math.random()*colors.length)];
+    d.style.left = (20 + Math.random()*60) + '%';
+    d.style.top = (-10 - Math.random()*10) + 'px';
+    d.style.opacity = 1;
+    d.style.transform = `rotate(${Math.random()*360}deg)`;
+    d.style.animationDuration = (1200 + Math.random()*1200) + 'ms';
+    zone.appendChild(d);
+    // remove after animation
+    setTimeout(()=>zone.removeChild(d), 3000);
+  }
+  // small celebratory modal prompt
+  showModal(`<h3>Approved! 🎉</h3><div>The payer approved the request. Great job!</div><div style="margin-top:10px"><button id="closeCelebrate" class="small">Close</button></div>`, true);
+  document.getElementById('closeCelebrate').addEventListener('click', closeModal);
+}
+
+/* =========================
+   Initialize app on load
+   ========================= */
+window.addEventListener('load', init);
+
+/* =========================
+   Additional touch: allow double-click on decision to re-open for manual actions (dev/testing)
+   ========================= */
+$('stage-decision').addEventListener('dblclick', ()=> {
+  showSummary();
+});
+
+/* =========================
+   End of script
+   ========================= */
+</script>
+</body>
+</html>
