@@ -1,0 +1,94 @@
+# Day 33 - Media Integrity Analyzer
+
+## Objective
+
+Build an AI-powered Media Integrity Analyzer to evaluate news headlines, detect emotional manipulation, and improve media literacy through interactive challenges.
+
+---
+
+## Features
+
+- Theme Selection
+- Headline Detective Challenge
+- AI Headline Analysis
+- Headline Rewriting
+- Emotion Detector
+- Emotional Manipulation Analysis
+- Live Media Integrity Metrics
+- Final Media Integrity Dashboard
+- Randomized News Scenarios
+
+---
+
+## Workflow
+
+1. Started the simulator.
+2. Selected a preferred color theme.
+3. Completed the Headline Detective challenge.
+4. Reviewed AI-generated headline analysis.
+5. Compared the rewritten neutral headline.
+6. Completed the Emotion Detector challenge.
+7. Studied emotional manipulation techniques.
+8. Observed live Media Integrity metrics.
+9. Reviewed the final dashboard.
+10. Replayed different randomized scenarios.
+
+---
+
+## Challenges Completed
+
+### Headline Detective
+
+- Identified clickbait
+- Detected misleading wording
+- Evaluated headline credibility
+
+### Emotion Detector
+
+- Fear-based language
+- Curiosity gaps
+- Urgency cues
+- Positive framing
+- Negative framing
+
+---
+
+## Dashboard Metrics
+
+- Media Integrity Score
+- Bias Level
+- Emotional Manipulation Score
+- Credibility Rating
+- Critical Thinking Score
+
+---
+
+## Key Learnings
+
+- Headlines can strongly influence perception.
+- Emotional wording affects reader decisions.
+- Clickbait often sacrifices accuracy for attention.
+- AI helps identify bias and manipulation.
+- Critical thinking is essential when consuming online content.
+
+---
+
+## Technologies Used
+
+- HTML
+- CSS
+- JavaScript
+
+---
+
+## Files Included
+
+- media-integrity-analyzer.html
+- Screenshots
+- Media Integrity Report
+
+---
+
+## Outcome
+
+Successfully built and tested an AI-powered Media Integrity Analyzer that evaluates headlines, detects emotional manipulation, and promotes responsible media consumption.
