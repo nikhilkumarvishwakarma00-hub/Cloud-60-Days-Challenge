@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🧩 Prompt Puzzle — Master AI Prompting Through Play</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0a0e1a; --bg2:#0f1526; --card:#131a2e; --card2:#1a2340;
+  --blue:#1a56ff; --teal:#00c2a8; --purple:#7c5cff; --gold:#ffb020;
+  --red:#ff4d6d; --green:#22e0a0; --text:#e8ecf7; --muted:#8a93b8;
+  --border:rgba(255,255,255,0.08);
+  --grad: linear-gradient(135deg, var(--blue), var(--teal));
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background: radial-gradient(circle at 20% 0%, #131b33 0%, var(--bg) 60%);
+  color:var(--text); min-height:100vh; overflow-x:hidden;
+}
+h1,h2,h3,.mono{font-family:'Space Grotesk',system-ui,sans-serif;}
+.mono-data{font-family:'JetBrains Mono',monospace;}
+#app{max-width:1100px; margin:0 auto; padding:24px 20px 80px;}
+.header{text-align:center; margin-bottom:28px;}
+.header h1{font-size:28px; font-weight:700; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:0.5px;}
+.header p{color:var(--muted); margin-top:6px; font-size:14px;}
+
+.panel{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+
+/* Setup screen */
+.setup-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:16px 0;}
+.choice-btn{background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px 10px; text-align:center; cursor:pointer; transition:all .25s; color:var(--text); font-weight:600; font-size:14px;}
+.choice-btn:hover{border-color:var(--teal); transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,194,168,0.2);}
+.choice-btn.active{background:var(--grad); border-color:transparent; color:#fff;}
+.btn{background:var(--grad); border:none; color:#fff; padding:12px 26px; border-radius:10px; font-weight:700; cursor:pointer; font-size:14px; transition:transform .2s, box-shadow .2s;}
+.btn:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,86,255,0.4);}
+.btn:disabled{opacity:0.4; cursor:not-allowed; transform:none;}
+.btn.secondary{background:var(--card2); border:1px solid var(--border);}
+.btn.small{padding:8px 16px; font-size:12px;}
+
+/* HUD */
+.hud{display:flex; gap:12px; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-bottom:16px;}
+.hud-stats{display:flex; gap:10px; flex-wrap:wrap;}
+.stat-chip{background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:8px 14px; font-size:12px; color:var(--muted);}
+.stat-chip b{color:var(--text); font-family:'JetBrains Mono',monospace;}
+.progress-bar{height:6px; background:var(--card2); border-radius:6px; overflow:hidden; margin-bottom:20px;}
+.progress-fill{height:100%; background:var(--grad); transition:width .4s ease;}
+
+/* Scenario */
+.scenario-title{font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:6px;}
+.scenario-desc{font-size:16px; margin-bottom:14px; line-height:1.5;}
+.desired-output{background:var(--bg2); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:12px 16px; font-size:13px; color:var(--muted); margin-bottom:18px;}
+.desired-output b{color:var(--gold);}
+
+.block-area{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media(max-width:700px){.block-area{grid-template-columns:1fr;}}
+.zone{background:var(--bg2); border:1px dashed var(--border); border-radius:12px; padding:14px; min-height:160px;}
+.zone h4{font-size:12px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; letter-spacing:0.5px;}
+.zone.dragover{border-color:var(--teal); background:rgba(0,194,168,0.06);}
+
+.block{
+  background:var(--card2); border:1px solid var(--border); border-radius:8px;
+  padding:10px 12px; margin-bottom:8px; cursor:grab; font-size:13px; line-height:1.4;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.block:hover{border-color:var(--blue); transform:translateX(2px);}
+.block.dragging{opacity:0.4;}
+.block.correct-flash{border-color:var(--green); box-shadow:0 0 0 2px rgba(34,224,160,0.3);}
+.block.wrong-flash{border-color:var(--red); box-shadow:0 0 0 2px rgba(255,77,109,0.3); animation:shake .3s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.block .tag{display:inline-block; font-size:9px; text-transform:uppercase; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; margin-right:6px; color:var(--muted);}
+
+.slot-list{list-style:none;}
+
+/* Choose best prompt */
+.choice-card{background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; cursor:pointer; transition:all .2s;}
+.choice-card:hover{border-color:var(--teal); transform:translateY(-2px);}
+.choice-card.selected{border-color:var(--blue); background:rgba(26,86,255,0.08);}
+.choice-card .label{font-size:11px; text-transform:uppercase; color:var(--muted); margin-bottom:4px;}
+.choice-card pre{white-space:pre-wrap; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text); line-height:1.5;}
+
+/* Clean prompt */
+.dirty-prompt{background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:2; margin-bottom:14px;}
+.dirty-prompt .chunk{display:inline-block; padding:3px 8px; border-radius:6px; margin:2px; cursor:pointer; border:1px solid transparent; transition:all .15s;}
+.dirty-prompt .chunk.flaw{background:rgba(255,77,109,0.12); border-color:rgba(255,77,109,0.3);}
+.dirty-prompt .chunk.flaw:hover{background:rgba(255,77,109,0.25);}
+.dirty-prompt .chunk.removed{opacity:0.25; text-decoration:line-through; cursor:default;}
+.dirty-prompt .chunk.good{opacity:0.9;}
+
+.action-row{display:flex; gap:10px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap;}
+
+/* Notifications */
+#notif-wrap{position:fixed; top:20px; right:20px; z-index:999; display:flex; flex-direction:column; gap:10px;}
+.notif{background:var(--card2); border:1px solid var(--border); border-left:4px solid var(--teal); border-radius:10px; padding:12px 18px; font-size:13px; min-width:220px; box-shadow:0 10px 30px rgba(0,0,0,0.4); animation:slideIn .3s ease, fadeOut .4s ease 2.6s forwards;}
+.notif.bad{border-left-color:var(--red);}
+.notif.good{border-left-color:var(--green);}
+@keyframes slideIn{from{transform:translateX(40px); opacity:0;} to{transform:translateX(0); opacity:1;}}
+@keyframes fadeOut{to{opacity:0; transform:translateX(20px);}}
+
+.score-pop{position:fixed; pointer-events:none; font-weight:800; font-family:'Space Grotesk',sans-serif; font-size:20px; color:var(--green); z-index:1000; animation:popUp 1s ease forwards;}
+@keyframes popUp{0%{opacity:0; transform:translateY(0) scale(0.8);}20%{opacity:1; transform:translateY(-10px) scale(1.1);}100%{opacity:0; transform:translateY(-60px) scale(1);}}
+
+/* Report */
+.report-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+@media(max-width:700px){.report-grid{grid-template-columns:1fr;}}
+.big-score{font-size:52px; font-weight:800; font-family:'Space Grotesk',sans-serif; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.rank-badge{display:inline-block; padding:6px 16px; border-radius:20px; background:var(--grad); font-weight:700; font-size:13px; margin-top:6px;}
+.dna-bars{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+.dna-row{display:flex; align-items:center; gap:10px; font-size:12px;}
+.dna-row .label{width:110px; color:var(--muted); flex-shrink:0;}
+.dna-track{flex:1; height:8px; background:var(--bg2); border-radius:6px; overflow:hidden;}
+.dna-fill{height:100%; border-radius:6px; transition:width 1s ease;}
+.feedback-box{background:var(--bg2); border-radius:10px; padding:14px; font-size:13px; line-height:1.6; margin-top:14px; color:var(--muted);}
+.final-prompt-box{background:var(--bg2); border:1px solid var(--teal); border-radius:10px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.6; margin-top:14px; white-space:pre-wrap;}
+
+.hint-box{background:rgba(255,176,32,0.08); border:1px solid rgba(255,176,32,0.3); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--gold); margin-top:10px; display:none;}
+.principle-box{background:rgba(124,92,255,0.08); border:1px solid rgba(124,92,255,0.3); border-radius:8px; padding:10px 14px; font-size:12px; color:#b3a8ff; margin-top:14px; display:none;}
+.badge-type{display:inline-block; font-size:11px; padding:4px 10px; border-radius:6px; background:var(--card2); color:var(--teal); margin-bottom:10px; font-weight:600; letter-spacing:0.5px;}
+.dots{display:flex; gap:6px; justify-content:center; margin-top:10px;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--card2); transition:background .3s;}
+.dot.done{background:var(--teal);}
+.dot.current{background:var(--blue); box-shadow:0 0 0 3px rgba(26,86,255,0.2);}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--card2); border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div id="notif-wrap"></div>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ DATA ============ */
+const SOFT_ADV = [
+{
+  id:"s1",
+  desired:"A production-grade Python function that safely retries a flaky network call with exponential backoff, proper logging, and typed exceptions.",
+  correct:[
+    {t:"role", text:"Act as a senior Python backend engineer who writes production-grade, well-tested code."},
+    {t:"task", text:"Write a function `fetch_with_retry(url, max_retries=5)` that retries a network GET request on failure using exponential backoff."},
+    {t:"constraint", text:"Use `requests`, raise a custom `MaxRetriesExceededError` after exhausting retries, and log each retry attempt with the `logging` module."},
+    {t:"format", text:"Return only the code in a single Python code block with type hints and a docstring, no explanation."}
+  ],
+  distractors:[
+    {t:"vague", text:"Make it good and clean."},
+    {t:"filler", text:"I've been coding for a while but still learning, please help."},
+    {t:"scope-creep", text:"Also add a full CLI, Docker setup, and unit test suite with 100% coverage."},
+    {t:"contradiction", text:"Keep it under 5 lines total."}
+  ],
+  weak:"write python retry function",
+  optimized:"Act as a senior Python backend engineer. Write a function `fetch_with_retry(url, max_retries=5)` using `requests` that retries a GET request with exponential backoff, raises a custom `MaxRetriesExceededError` after exhausting retries, and logs each attempt via `logging`. Return only the code in a single Python block with type hints and a docstring.",
+  overEngineered:"Act as a world-class 10x senior staff principal Python architect with 20 years of FAANG experience. Write a function that retries network calls, but also include a full CLI wrapper, Docker container, Kubernetes deployment YAML, unit tests with 100% coverage, CI/CD pipeline config, and a 2000-word design document explaining distributed systems theory, then translate the docstring into French and Japanese.",
+  weakOutput:"def fetch_with_retry(url):\n    for i in range(5):\n        try:\n            return requests.get(url)\n        except:\n            pass\n    return None",
+  optimizedOutput:"def fetch_with_retry(url: str, max_retries: int = 5) -> requests.Response:\n    \"\"\"Fetch a URL with exponential backoff retry logic.\"\"\"\n    for attempt in range(1, max_retries + 1):\n        try:\n            response = requests.get(url, timeout=10)\n            response.raise_for_status()\n            return response\n        except requests.RequestException as e:\n            logging.warning(f\"Attempt {attempt} failed: {e}\")\n            time.sleep(2 ** attempt)\n    raise MaxRetriesExceededError(f\"Failed after {max_retries} retries\")",
+  principle:"Specificity + Constraints > Vagueness. Naming the exact function signature, error type, and libraries removes ambiguity and stops the model from guessing — while over-specifying unrelated scope (CLI, Docker, K8s) wastes tokens and dilutes focus.",
+  bestChoices:[
+    {label:"A", text:"write a retry function for api calls", quality:"weak"},
+    {label:"B", text:"Act as a senior Python engineer. Write `fetch_with_retry(url, max_retries=5)` using `requests` with exponential backoff, a custom `MaxRetriesExceededError`, and logging per attempt. Return only typed code with a docstring.", quality:"optimized"},
+    {label:"C", text:"Act as the greatest programmer alive. Build retry logic plus a full microservice architecture, tests, Docker, CI/CD, and a philosophical essay on resilience engineering.", quality:"over"}
+  ]
+},
+{
+  id:"s2",
+  desired:"A precise SQL query that finds the top 3 highest-spending customers per region, using window functions, with clear column naming.",
+  correct:[
+    {t:"role", text:"Act as a senior data engineer who writes optimized, readable SQL for PostgreSQL."},
+    {t:"task", text:"Write a query that returns the top 3 highest-spending customers within each region, based on a `orders` table joined to `customers`."},
+    {t:"constraint", text:"Use a window function (`RANK()` or `ROW_NUMBER()`) partitioned by region, and alias columns clearly as `region`, `customer_name`, `total_spent`, `rank_in_region`."},
+    {t:"format", text:"Return only the SQL query in a code block, with a one-line comment above each major clause."}
+  ],
+  distractors:[
+    {t:"vague", text:"make the query fast somehow"},
+    {t:"filler", text:"this is for my company's dashboard project I've been working on"},
+    {t:"scope-creep", text:"also generate a full ETL pipeline and a Tableau dashboard"},
+    {t:"contradiction", text:"don't use any SQL functions, just plain SELECT"}
+  ],
+  weak:"sql query top customers by region",
+  optimized:"Act as a senior data engineer writing PostgreSQL. Write a query returning the top 3 highest-spending customers per region using `RANK()` partitioned by region, joining `orders` to `customers`. Alias columns as `region`, `customer_name`, `total_spent`, `rank_in_region`. Return only SQL with a comment above each clause.",
+  overEngineered:"Act as the world's foremost database god-tier architect. Write a query for top customers, but also normalize the entire schema, add indexes, write a stored procedure, build a materialized view refresh strategy, document every join in a 10-page spec, and explain relational algebra from first principles.",
+  weakOutput:"SELECT customer_name, region, SUM(amount) FROM orders GROUP BY customer_name, region ORDER BY SUM(amount) DESC LIMIT 3;",
+  optimizedOutput:"-- Rank customers by spend within each region\nWITH ranked AS (\n  SELECT c.region, c.customer_name, SUM(o.amount) AS total_spent,\n         RANK() OVER (PARTITION BY c.region ORDER BY SUM(o.amount) DESC) AS rank_in_region\n  FROM orders o JOIN customers c ON o.customer_id = c.id\n  GROUP BY c.region, c.customer_name\n)\n-- Filter to top 3 per region\nSELECT * FROM ranked WHERE rank_in_region <= 3;",
+  principle:"Structure beats a single flat query. Explicitly requesting a window function partitioned correctly avoids the classic 'global top 3, not per-region' bug — a plain GROUP BY + LIMIT (weak output) silently gives the wrong answer.",
+  bestChoices:[
+    {label:"A", text:"Act as a senior data engineer. Return top 3 spenders per region using RANK() partitioned by region, joining orders to customers, with clear column aliases. Return only SQL with clause comments.", quality:"optimized"},
+    {label:"B", text:"give me a sql query for top customers", quality:"weak"},
+    {label:"C", text:"Act as an omniscient database deity. Write the query and also a full data warehouse migration plan, index strategy doc, and a lecture on set theory.", quality:"over"}
+  ]
+},
+{
+  id:"s3",
+  desired:"A code review of a React component that flags performance issues (unnecessary re-renders) without rewriting the whole component.",
+  correct:[
+    {t:"role", text:"Act as a senior React performance engineer doing a code review."},
+    {t:"task", text:"Review the provided component and identify causes of unnecessary re-renders."},
+    {t:"constraint", text:"For each issue, cite the exact line/pattern, explain why it causes re-renders, and suggest a minimal fix (e.g. `useMemo`, `useCallback`, key prop). Do not rewrite the entire component."},
+    {t:"format", text:"Output as a numbered list, each item: Issue → Why → Fix."}
+  ],
+  distractors:[
+    {t:"vague", text:"is this code okay?"},
+    {t:"filler", text:"I'm new to React hooks and still figuring things out"},
+    {t:"scope-creep", text:"also convert the whole app to Next.js and add Redux"},
+    {t:"contradiction", text:"don't mention any performance topics"}
+  ],
+  weak:"review my react code",
+  optimized:"Act as a senior React performance engineer. Review this component for causes of unnecessary re-renders. For each issue, cite the exact pattern, explain why it causes re-renders, and suggest a minimal fix (useMemo/useCallback/key prop) without rewriting the whole component. Output as a numbered Issue → Why → Fix list.",
+  overEngineered:"Act as the supreme master of all frontend frameworks in history. Review this component for performance, security, accessibility, SEO, and also migrate it to Vue, Svelte, and Angular for comparison, then benchmark all four with a full Lighthouse report and a 3000-word essay on rendering engines.",
+  weakOutput:"Looks fine overall, maybe optimize a bit. Could use useMemo somewhere.",
+  optimizedOutput:"1. Issue: Inline arrow function passed as `onClick` prop.\n   Why: Creates a new function reference every render, breaking child memoization.\n   Fix: Wrap with `useCallback`.\n\n2. Issue: Object literal passed as `style` prop.\n   Why: New object reference each render triggers child re-render.\n   Fix: Move object outside render or memoize with `useMemo`.\n\n3. Issue: Missing/unstable `key` in mapped list.\n   Why: React can't correctly diff list items, causing full re-renders.\n   Fix: Use a stable unique id as `key`.",
+  principle:"Bounded scope + explicit output structure. Asking for 'Issue → Why → Fix' forces actionable, scannable feedback instead of vague praise, while explicitly forbidding a full rewrite keeps the review focused and reviewable.",
+  bestChoices:[
+    {label:"A", text:"Act as a senior React performance engineer. Identify causes of unnecessary re-renders, citing the pattern, why, and a minimal fix per issue, without rewriting the component. Format as Issue → Why → Fix list.", quality:"optimized"},
+    {label:"B", text:"check my code please", quality:"weak"},
+    {label:"C", text:"Act as the ultimate frontend god. Review everything about this app across 5 frameworks and rewrite it 4 different ways with full benchmarks and essays.", quality:"over"}
+  ]
+},
+{
+  id:"s4",
+  desired:"A clear explanation of a race condition bug in async JavaScript code, aimed at a mid-level developer, with a corrected version.",
+  correct:[
+    {t:"role", text:"Act as a senior JavaScript engineer mentoring a mid-level developer."},
+    {t:"task", text:"Explain why this async function has a race condition and provide a corrected version."},
+    {t:"constraint", text:"Keep the explanation under 150 words, avoid jargon overload, and ensure the fix uses async/await correctly with proper ordering."},
+    {t:"format", text:"Structure as: Explanation paragraph, then a corrected code block."}
+  ],
+  distractors:[
+    {t:"vague", text:"fix the bug"},
+    {t:"filler", text:"this bug has been driving me crazy for two days"},
+    {t:"scope-creep", text:"also add full test coverage and migrate to TypeScript"},
+    {t:"contradiction", text:"explain it in exactly one word"}
+  ],
+  weak:"why is my async code broken",
+  optimized:"Act as a senior JS engineer mentoring a mid-level developer. Explain why this async function has a race condition, in under 150 words without jargon overload, then provide a corrected version using proper async/await ordering. Structure as: explanation paragraph, then corrected code block.",
+  overEngineered:"Act as the ultimate JavaScript sage of all time. Explain every possible async bug pattern in JS history, race conditions, deadlocks, event loop internals, provide a 5000-word treatise, rewrite the app in 3 different async patterns, and add a full CI pipeline.",
+  weakOutput:"Your code has a bug because of async stuff. Try using await more.",
+  optimizedOutput:"The race condition occurs because two async calls both read a shared variable before either write completes, so the second call overwrites the first's result unpredictably.\n\n```js\nasync function updateBalance(id) {\n  const account = await getAccount(id);\n  account.balance += 10;\n  await saveAccount(account); // ensures write completes before next read\n}\n```",
+  principle:"Audience calibration + length constraint. Specifying 'mid-level developer' and a 150-word cap forces a concise, appropriately-pitched explanation instead of either a one-liner or an overwhelming lecture.",
+  bestChoices:[
+    {label:"A", text:"fix my async bug pls", quality:"weak"},
+    {label:"B", text:"Act as a senior JS engineer mentoring a mid-level dev. Explain the race condition in under 150 words, no jargon overload, then give a corrected version with proper async/await ordering. Format: explanation, then code block.", quality:"optimized"},
+    {label:"C", text:"Act as the eternal keeper of JavaScript knowledge. Write an exhaustive treatise on every async bug ever, in all versions of JS, with full historical context and three rewritten architectures.", quality:"over"}
+  ]
+},
+{
+  id:"s5",
+  desired:"A minimal, correct Dockerfile for a Node.js Express app optimized for small image size and fast rebuilds.",
+  correct:[
+    {t:"role", text:"Act as a senior DevOps engineer optimizing container builds."},
+    {t:"task", text:"Write a Dockerfile for a Node.js Express app."},
+    {t:"constraint", text:"Use multi-stage builds, a slim base image, cache `npm install` separately from source copy, and run as a non-root user."},
+    {t:"format", text:"Return only the Dockerfile content in a code block with inline comments explaining each stage."}
+  ],
+  distractors:[
+    {t:"vague", text:"make a dockerfile"},
+    {t:"filler", text:"I just started learning Docker last week"},
+    {t:"scope-creep", text:"also set up a full Kubernetes cluster with Helm charts"},
+    {t:"contradiction", text:"keep image size small but also install every dev tool"}
+  ],
+  weak:"dockerfile for node app",
+  optimized:"Act as a senior DevOps engineer. Write a Dockerfile for a Node.js Express app using multi-stage builds, a slim base image, cached `npm install` separate from source copy, and a non-root user. Return only the Dockerfile in a code block with inline comments per stage.",
+  overEngineered:"Act as the supreme god of all infrastructure. Write a Dockerfile plus a full Kubernetes deployment, Helm chart, Terraform IaC, service mesh config, and a 4000-word whitepaper on container orchestration history, translated into three languages.",
+  weakOutput:"FROM node\nCOPY . .\nRUN npm install\nCMD [\"node\", \"index.js\"]",
+  optimizedOutput:"# Stage 1: install dependencies\nFROM node:20-slim AS deps\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --omit=dev\n\n# Stage 2: build final image\nFROM node:20-slim\nWORKDIR /app\nCOPY --from=deps /app/node_modules ./node_modules\nCOPY . .\nUSER node\nEXPOSE 3000\nCMD [\"node\", \"index.js\"]",
+  principle:"Naming the non-functional requirements (image size, rebuild speed, security) turns a generic request into a targeted spec — the model can't optimize for goals it wasn't told about.",
+  bestChoices:[
+    {label:"A", text:"Act as a senior DevOps engineer. Write a multi-stage Dockerfile for a Node Express app with a slim base image, cached npm install, and non-root user. Return only the Dockerfile with per-stage comments.", quality:"optimized"},
+    {label:"B", text:"make me a dockerfile quick", quality:"weak"},
+    {label:"C", text:"Act as the infrastructure deity of the universe. Write the Dockerfile and also a full K8s+Helm+Terraform+service-mesh stack with a historical essay.", quality:"over"}
+  ]
+},
+{
+  id:"s6",
+  desired:"A refactor of a deeply nested if-else chain into clean, readable code using guard clauses, without changing behavior.",
+  correct:[
+    {t:"role", text:"Act as a senior software engineer focused on readable, maintainable code."},
+    {t:"task", text:"Refactor this deeply nested if-else chain using guard clauses / early returns."},
+    {t:"constraint", text:"Preserve identical behavior and output for all inputs — do not change logic, only structure."},
+    {t:"format", text:"Return the refactored function in a code block, followed by a 2-sentence explanation of the change."}
+  ],
+  distractors:[
+    {t:"vague", text:"make this code nicer"},
+    {t:"filler", text:"I inherited this code from a previous developer"},
+    {t:"scope-creep", text:"also add new features and rewrite it in a different language"},
+    {t:"contradiction", text:"refactor it but keep the exact same nesting structure"}
+  ],
+  weak:"clean up this messy code",
+  optimized:"Act as a senior software engineer. Refactor this deeply nested if-else chain using guard clauses/early returns, preserving identical behavior for all inputs — only change structure, not logic. Return the refactored function in a code block, followed by a 2-sentence explanation.",
+  overEngineered:"Act as the supreme architect of all code ever written. Refactor this function, redesign the entire module architecture, add a plugin system, rewrite in a functional paradigm, add exhaustive tests, benchmark performance, and write a philosophy of clean code spanning 3000 words.",
+  weakOutput:"function process(x) {\n  // slightly rearranged but still nested\n  if (x) { if (x.valid) { return x.value; } }\n  return null;\n}",
+  optimizedOutput:"function process(x) {\n  if (!x) return null;\n  if (!x.valid) return null;\n  return x.value;\n}\n\n// Explanation: Each invalid condition now exits early via a guard clause,\n// removing nested branches while preserving the exact original behavior.",
+  principle:"Explicit invariants matter. Stating 'preserve identical behavior' prevents the model from silently changing logic while refactoring — a common failure mode when only style is requested.",
+  bestChoices:[
+    {label:"A", text:"clean this up", quality:"weak"},
+    {label:"B", text:"Act as a senior engineer. Refactor this nested if-else with guard clauses, preserving identical behavior — only restructure, don't change logic. Return code, then a 2-sentence explanation.", quality:"optimized"},
+    {label:"C", text:"Act as the ultimate code philosopher. Refactor and redesign the entire architecture, add plugins, rewrite functionally, add full tests, and write an essay on clean code.", quality:"over"}
+  ]
+}
+];
+
+const DOMAINS = { "Software/Coding": SOFT_ADV };
+// For other domains/difficulties not explicitly built, reuse the same bank (still fully functional)
+const DIFFICULTIES = ["Beginner","Intermediate","Advanced"];
+
+let STATE = {
+  domain:null, difficulty:null,
+  scenarios:[], idx:0,
+  score:0, moves:0, wrong:0, hints:0, startTime:0, totalTime:0,
+  accuracyPoints:0, maxAccuracyPoints:0, optBonus:0,
+  perScenario:[]
+};
+
+/* ============ UTIL ============ */
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function notify(msg, type){
+  const wrap = document.getElementById('notif-wrap');
+  const el = document.createElement('div');
+  el.className = 'notif ' + (type||'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+function scorePop(x,y,text){
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.style.left = x+'px'; el.style.top = y+'px';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ============ RENDER ROOT ============ */
+const app = document.getElementById('app');
+
+function renderSetup(){
+  app.innerHTML = `
+    <div class="header">
+      <h1>🧩 Prompt Puzzle</h1>
+      <p>Master AI Prompting Through Play</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:12px;">Question 1: Choose your domain</h3>
+      <div class="setup-grid" id="domain-grid">
+        ${Object.keys({"Software/Coding":1,"Marketing/Business":1,"Healthcare":1,"Creative Writing/Education":1}).map(d=>`<div class="choice-btn" data-domain="${d}">${d}</div>`).join('')}
+      </div>
+      <h3 style="margin:20px 0 12px;">Question 2: Choose your difficulty</h3>
+      <div class="setup-grid" id="diff-grid">
+        ${DIFFICULTIES.map(d=>`<div class="choice-btn" data-diff="${d}">${d}</div>`).join('')}
+      </div>
+      <div style="text-align:center; margin-top:24px;">
+        <button class="btn" id="start-btn" disabled>Start Puzzle →</button>
+      </div>
+    </div>
+  `;
+  let selDomain = "Software/Coding", selDiff = "Advanced";
+  document.querySelectorAll('#domain-grid .choice-btn').forEach(b=>{
+    if(b.dataset.domain===selDomain) b.classList.add('active');
+    b.onclick = ()=>{ document.querySelectorAll('#domain-grid .choice-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); selDomain=b.dataset.domain; };
+  });
+  document.querySelectorAll('#diff-grid .choice-btn').forEach(b=>{
+    if(b.dataset.diff===selDiff) b.classList.add('active');
+    b.onclick = ()=>{ document.querySelectorAll('#diff-grid .choice-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); selDiff=b.dataset.diff; };
+  });
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('start-btn').onclick = ()=>{
+    STATE.domain = selDomain; STATE.difficulty = selDiff;
+    initGame();
+  };
+}
+
+function initGame(){
+  const bank = DOMAINS[STATE.domain] || SOFT_ADV;
+  let count = 6;
+  STATE.scenarios = shuffle(bank).slice(0,count).map((s,i)=>({...s, challengeType: ['build','clean','choose'][i % 3]}));
+  STATE.scenarios = shuffle(STATE.scenarios);
+  STATE.idx = 0;
+  STATE.score = 0; STATE.moves = 0; STATE.wrong = 0; STATE.hints = 0;
+  STATE.startTime = Date.now(); STATE.totalTime = 0;
+  STATE.accuracyPoints = 0; STATE.maxAccuracyPoints = 0; STATE.optBonus = 0;
+  STATE.perScenario = [];
+  notify(`Domain: ${STATE.domain} · Difficulty: ${STATE.difficulty}`, 'good');
+  renderScenario();
+}
+
+function renderHUD(){
+  const total = STATE.scenarios.length;
+  const pct = Math.round((STATE.idx/total)*100);
+  return `
+    <div class="hud">
+      <div class="hud-stats">
+        <div class="stat-chip">Scenario <b>${STATE.idx+1}/${total}</b></div>
+        <div class="stat-chip">Score <b id="live-score">${STATE.score}</b></div>
+        <div class="stat-chip">Moves <b>${STATE.moves}</b></div>
+        <div class="stat-chip">Wrong <b>${STATE.wrong}</b></div>
+        <div class="stat-chip">Hints <b>${STATE.hints}</b></div>
+      </div>
+      <button class="btn secondary small" id="hint-btn">💡 Hint</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  `;
+}
+
+function typeLabel(t){
+  const type = t==='build'?'🧱 Build the Prompt': t==='clean'?'🧹 Clean the Prompt':'✅ Choose the Best Prompt';
+  return type;
+}
+
+/* ============ SCENARIO ROUTER ============ */
+function renderScenario(){
+  if(STATE.idx >= STATE.scenarios.length){ return renderReport(); }
+  const sc = STATE.scenarios[STATE.idx];
+  STATE.scenarioStartTime = Date.now();
+  STATE.hintShown = false;
+  if(sc.challengeType === 'build') renderBuild(sc);
+  else if(sc.challengeType === 'clean') renderClean(sc);
+  else renderChoose(sc);
+}
+
+function wireHint(sc){
+  document.getElementById('hint-btn').onclick = ()=>{
+    STATE.hints++;
+    notify('Hint used — small score penalty applied', 'bad');
+    const box = document.getElementById('hint-box');
+    if(box){ box.style.display='block'; box.textContent = '💡 ' + sc.principle; }
+    renderTopHUDOnly();
+  };
+}
+function renderTopHUDOnly(){
+  const hudEl = document.querySelector('.hud');
+  if(hudEl){ hudEl.parentElement.querySelector('.progress-bar')?.remove(); }
+  // simplest: re-render whole scenario stats bar
+  const hudWrap = document.getElementById('hud-wrap');
+  if(hudWrap) hudWrap.outerHTML = `<div id="hud-wrap">${renderHUD()}</div>`;
+  document.getElementById('hint-btn').onclick = document.getElementById('hint-btn').onclick; // no-op keep
+}
+
+/* ============ 1. BUILD THE PROMPT ============ */
+function renderBuild(sc){
+  const blocks = shuffle([...sc.correct.map(b=>({...b, correct:true})), ...sc.distractors.map(b=>({...b, correct:false}))]);
+  app.innerHTML = `
+    <div class="header"><h1>🧩 Prompt Puzzle</h1></div>
+    <div id="hud-wrap">${renderHUD()}</div>
+    <div class="panel">
+      <span class="badge-type">${typeLabel('build')}</span>
+      <div class="scenario-title">Scenario</div>
+      <div class="scenario-desc">${esc(sc.desired.split('.')[0])}.</div>
+      <div class="desired-output"><b>Desired Output:</b> ${esc(sc.desired)}</div>
+      <div class="block-area">
+        <div class="zone" id="pool-zone"><h4>Available Blocks</h4><div id="pool"></div></div>
+        <div class="zone" id="build-zone"><h4>Your Prompt (drag blocks here, in order)</h4><ol class="slot-list" id="slots"></ol></div>
+      </div>
+      <div class="hint-box" id="hint-box"></div>
+      <div class="action-row">
+        <button class="btn secondary small" id="reset-btn">↺ Reset</button>
+        <button class="btn" id="submit-btn">Submit Prompt →</button>
+      </div>
+    </div>
+  `;
+  const pool = document.getElementById('pool');
+  const slots = document.getElementById('slots');
+  let placed = [];
+
+  function renderPool(){
+    pool.innerHTML = '';
+    blocks.forEach((b, i)=>{
+      if(placed.includes(i)) return;
+      const div = document.createElement('div');
+      div.className = 'block'; div.draggable = true; div.dataset.i = i;
+      div.innerHTML = `<span class="tag">${b.correct? b.t : 'block'}</span>${esc(b.text)}`;
+      div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', i); div.classList.add('dragging'); });
+      div.addEventListener('dragend', ()=> div.classList.remove('dragging'));
+      pool.appendChild(div);
+    });
+  }
+  function renderSlots(){
+    slots.innerHTML = '';
+    placed.forEach((i)=>{
+      const b = blocks[i];
+      const li = document.createElement('li');
+      li.className = 'block'; li.draggable = true; li.dataset.i = i;
+      li.innerHTML = `<span class="tag">${b.correct? b.t : 'block'}</span>${esc(b.text)}`;
+      li.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', i); li.classList.add('dragging'); });
+      li.addEventListener('dragend', ()=> li.classList.remove('dragging'));
+      slots.appendChild(li);
+    });
+  }
+  [document.getElementById('pool-zone'), document.getElementById('build-zone')].forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e=>{
+      e.preventDefault(); zone.classList.remove('dragover');
+      const i = parseInt(e.dataTransfer.getData('text/plain'));
+      STATE.moves++;
+      if(zone.id === 'build-zone'){
+        if(!placed.includes(i)) placed.push(i);
+      } else {
+        placed = placed.filter(x=>x!==i);
+      }
+      renderPool(); renderSlots(); renderTopHUDOnly();
+    });
+  });
+  renderPool(); renderSlots();
+  wireHint(sc);
+  document.getElementById('reset-btn').onclick = ()=>{ placed = []; renderPool(); renderSlots(); };
+  document.getElementById('submit-btn').onclick = ()=>{
+    const correctCount = blocks.filter(b=>b.correct).length;
+    let correctPlaced = 0, wrongPlaced = 0;
+    placed.forEach(i=>{ if(blocks[i].correct) correctPlaced++; else wrongPlaced++; });
+    const missed = correctCount - correctPlaced;
+    STATE.wrong += wrongPlaced;
+    const accuracy = Math.max(0, (correctPlaced - wrongPlaced) / correctCount);
+    const pts = Math.round(accuracy * 100);
+    STATE.accuracyPoints += pts; STATE.maxAccuracyPoints += 100;
+    STATE.score += pts;
+    scorePop(window.innerWidth/2, 100, `+${pts}`);
+    if(wrongPlaced===0 && missed===0){ notify('Perfect block selection! 🎯','good'); STATE.optBonus += 10; STATE.score += 10; }
+    else notify(`Placed ${correctPlaced}/${correctCount} correct blocks, ${wrongPlaced} distractors included`, wrongPlaced?'bad':'good');
+    STATE.perScenario.push({id:sc.id, type:'build', accuracy});
+    finishScenario();
+  };
+}
+
+/* ============ 2. CLEAN THE PROMPT ============ */
+function renderClean(sc){
+  // Build a "dirty" prompt combining the weak prompt + distractor phrases as removable chunks, plus good chunks from correct blocks
+  const goodChunks = sc.correct.map(b=>({text:b.text, flaw:false}));
+  const flawChunks = sc.distractors.map(b=>({text:b.text, flaw:true}));
+  let chunks = shuffle([...goodChunks, ...flawChunks]).map((c,i)=>({...c, id:i, removed:false}));
+
+  app.innerHTML = `
+    <div class="header"><h1>🧩 Prompt Puzzle</h1></div>
+    <div id="hud-wrap">${renderHUD()}</div>
+    <div class="panel">
+      <span class="badge-type">${typeLabel('clean')}</span>
+      <div class="scenario-title">Scenario</div>
+      <div class="desired-output"><b>Desired Output:</b> ${esc(sc.desired)}</div>
+      <p style="color:var(--muted); font-size:13px; margin-bottom:10px;">Click the flawed/unnecessary chunks below to remove them. Keep only what strengthens the prompt.</p>
+      <div class="dirty-prompt" id="dirty-prompt"></div>
+      <div class="hint-box" id="hint-box"></div>
+      <div class="action-row">
+        <button class="btn secondary small" id="reset-btn">↺ Reset</button>
+        <button class="btn" id="submit-btn">Submit Cleaned Prompt →</button>
+      </div>
+    </div>
+  `;
+  const container = document.getElementById('dirty-prompt');
+  function render(){
+    container.innerHTML = '';
+    chunks.forEach(c=>{
+      const span = document.createElement('span');
+      span.className = 'chunk ' + (c.removed? 'removed' : (c.flaw? 'flaw':'good'));
+      span.textContent = c.text + '. ';
+      if(!c.removed){
+        span.onclick = ()=>{
+          STATE.moves++;
+          c.removed = true;
+          if(c.flaw){ notify('Removed a flaw ✓','good'); } else { STATE.wrong++; notify('That was actually a strong element!','bad'); }
+          render(); renderTopHUDOnly();
+        };
+      }
+      container.appendChild(span);
+    });
+  }
+  render();
+  wireHint(sc);
+  document.getElementById('reset-btn').onclick = ()=>{ chunks.forEach(c=>c.removed=false); render(); };
+  document.getElementById('submit-btn').onclick = ()=>{
+    const totalFlaws = chunks.filter(c=>c.flaw).length;
+    const removedFlaws = chunks.filter(c=>c.flaw && c.removed).length;
+    const wronglyRemovedGood = chunks.filter(c=>!c.flaw && c.removed).length;
+    const accuracy = Math.max(0, (removedFlaws - wronglyRemovedGood) / totalFlaws);
+    const pts = Math.round(accuracy * 100);
+    STATE.accuracyPoints += pts; STATE.maxAccuracyPoints += 100;
+    STATE.score += pts;
+    scorePop(window.innerWidth/2, 100, `+${pts}`);
+    if(removedFlaws===totalFlaws && wronglyRemovedGood===0){ notify('Flawless cleanup! 🧹✨','good'); STATE.optBonus += 10; STATE.score += 10; }
+    else notify(`Removed ${removedFlaws}/${totalFlaws} flaws, kept ${wronglyRemovedGood} good parts by mistake`, wronglyRemovedGood?'bad':'good');
+    STATE.perScenario.push({id:sc.id, type:'clean', accuracy});
+    finishScenario();
+  };
+}
+
+/* ============ 3. CHOOSE THE BEST PROMPT ============ */
+function renderChoose(sc){
+  const choices = shuffle(sc.bestChoices);
+  let selected = null;
+  app.innerHTML = `
+    <div class="header"><h1>🧩 Prompt Puzzle</h1></div>
+    <div id="hud-wrap">${renderHUD()}</div>
+    <div class="panel">
+      <span class="badge-type">${typeLabel('choose')}</span>
+      <div class="scenario-title">Scenario</div>
+      <div class="desired-output"><b>Desired Output:</b> ${esc(sc.desired)}</div>
+      <div id="choices-wrap"></div>
+      <div class="hint-box" id="hint-box"></div>
+      <div class="action-row">
+        <button class="btn" id="submit-btn" disabled>Lock In Choice →</button>
+      </div>
+    </div>
+  `;
+  const wrap = document.getElementById('choices-wrap');
+  choices.forEach((c)=>{
+    const div = document.createElement('div');
+    div.className = 'choice-card';
+    div.innerHTML = `<div class="label">Option ${c.label}</div><pre>${esc(c.text)}</pre>`;
+    div.onclick = ()=>{
+      STATE.moves++;
+      document.querySelectorAll('.choice-card').forEach(x=>x.classList.remove('selected'));
+      div.classList.add('selected');
+      selected = c;
+      document.getElementById('submit-btn').disabled = false;
+    };
+    wrap.appendChild(div);
+  });
+  wireHint(sc);
+  document.getElementById('submit-btn').onclick = ()=>{
+    const correct = selected.quality === 'optimized';
+    const pts = correct ? 100 : 20;
+    if(!correct) STATE.wrong++;
+    STATE.accuracyPoints += pts; STATE.maxAccuracyPoints += 100;
+    STATE.score += pts;
+    scorePop(window.innerWidth/2, 100, `+${pts}`);
+    if(correct){ notify('Correct! That prompt is optimally engineered ✅','good'); STATE.optBonus += 10; STATE.score += 10; }
+    else notify(selected.quality==='over' ? 'That prompt was over-engineered — bloated scope hurts focus.' : 'That prompt was too weak/vague for reliable output.', 'bad');
+    STATE.perScenario.push({id:sc.id, type:'choose', accuracy: correct?1:0.2});
+    finishScenario();
+  };
+}
+
+function finishScenario(){
+  const sc = STATE.scenarios[STATE.idx];
+  STATE.totalTime += (Date.now() - STATE.scenarioStartTime);
+  setTimeout(()=>{
+    renderReveal(sc);
+  }, 300);
+}
+
+function renderReveal(sc){
+  app.innerHTML = `
+    <div class="header"><h1>🧩 Prompt Puzzle</h1></div>
+    <div id="hud-wrap">${renderHUD()}</div>
+    <div class="panel">
+      <div class="scenario-title">Prompt Comparison</div>
+      <div style="display:grid; gap:14px; margin-top:10px;">
+        <div>
+          <div class="label" style="color:var(--red); font-size:11px; text-transform:uppercase; margin-bottom:4px;">Weak Prompt</div>
+          <div class="dirty-prompt" style="font-size:12px;">${esc(sc.weak)}</div>
+        </div>
+        <div>
+          <div class="label" style="color:var(--green); font-size:11px; text-transform:uppercase; margin-bottom:4px;">Optimized Prompt</div>
+          <div class="dirty-prompt" style="font-size:12px; border-color:var(--green);">${esc(sc.optimized)}</div>
+        </div>
+        <div>
+          <div class="label" style="color:var(--gold); font-size:11px; text-transform:uppercase; margin-bottom:4px;">Over-Engineered Prompt</div>
+          <div class="dirty-prompt" style="font-size:12px; border-color:var(--gold);">${esc(sc.overEngineered)}</div>
+        </div>
+        <div class="report-grid">
+          <div>
+            <div class="label" style="color:var(--muted); font-size:11px; text-transform:uppercase; margin-bottom:4px;">Weak AI Output</div>
+            <div class="final-prompt-box" style="border-color:var(--red);">${esc(sc.weakOutput)}</div>
+          </div>
+          <div>
+            <div class="label" style="color:var(--muted); font-size:11px; text-transform:uppercase; margin-bottom:4px;">Optimized AI Output</div>
+            <div class="final-prompt-box">${esc(sc.optimizedOutput)}</div>
+          </div>
+        </div>
+      </div>
+      <div class="principle-box" style="display:block;"><b>Prompt Principle:</b> ${esc(sc.principle)}</div>
+      <div class="action-row">
+        <button class="btn" id="next-btn">${STATE.idx+1 >= STATE.scenarios.length ? 'View Report →' : 'Next Scenario →'}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('next-btn').onclick = ()=>{
+    STATE.idx++;
+    renderScenario();
+  };
+}
+
+/* ============ REPORT ============ */
+function computeReport(){
+  const accPct = STATE.maxAccuracyPoints ? (STATE.accuracyPoints/STATE.maxAccuracyPoints) : 0;
+  const timeSec = Math.round(STATE.totalTime/1000);
+  const timeScore = Math.max(0, 100 - Math.min(100, timeSec/2)); // rough
+  const movesScore = Math.max(0, 100 - STATE.moves*1.5);
+  const wrongScore = Math.max(0, 100 - STATE.wrong*8);
+  const hintScore = Math.max(0, 100 - STATE.hints*15);
+  const finalScore = Math.round(
+    accPct*100*0.45 + timeScore*0.1 + movesScore*0.15 + wrongScore*0.15 + hintScore*0.1 + Math.min(STATE.optBonus,60)*0.05
+  );
+  let rating, rank;
+  if(finalScore>=90){ rating='Exceptional'; rank='🏆 Prompt Grandmaster'; }
+  else if(finalScore>=75){ rating='Excellent'; rank='🥇 Prompt Architect'; }
+  else if(finalScore>=60){ rating='Good'; rank='🥈 Prompt Engineer'; }
+  else if(finalScore>=40){ rating='Developing'; rank='🥉 Prompt Apprentice'; }
+  else { rating='Needs Practice'; rank='🔧 Prompt Novice'; }
+
+  const dna = [
+    {label:'Specificity', val: Math.min(100, accPct*100 + (STATE.optBonus>20?10:0)), color:'var(--blue)'},
+    {label:'Structure', val: Math.max(0, 100 - STATE.wrong*10), color:'var(--teal)'},
+    {label:'Efficiency', val: Math.max(0, movesScore), color:'var(--purple)'},
+    {label:'Precision', val: Math.max(0, wrongScore), color:'var(--gold)'},
+    {label:'Independence', val: Math.max(0, hintScore), color:'var(--green)'}
+  ];
+  return { finalScore, rating, rank, dna, timeSec, accPct };
+}
+
+function renderReport(){
+  const r = computeReport();
+  const bestScenario = STATE.scenarios[0];
+  app.innerHTML = `
+    <div class="header">
+      <h1>🧩 Prompt Performance Report</h1>
+      <p>${STATE.domain} · ${STATE.difficulty}</p>
+    </div>
+    <div class="panel report-grid">
+      <div>
+        <div class="big-score">${r.finalScore}</div>
+        <div class="rank-badge">${r.rank}</div>
+        <div style="margin-top:6px; color:var(--muted); font-size:13px;">Rating: <b style="color:var(--text)">${r.rating}</b></div>
+        <div class="feedback-box">
+          ${feedbackText(r)}
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Prompt DNA</h3>
+        <div class="dna-bars">
+          ${r.dna.map(d=>`
+            <div class="dna-row">
+              <div class="label">${d.label}</div>
+              <div class="dna-track"><div class="dna-fill" style="width:${Math.round(d.val)}%; background:${d.color};"></div></div>
+              <div style="width:34px; text-align:right; color:var(--muted);">${Math.round(d.val)}%</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:var(--muted);">
+          Time: <b class="mono-data" style="color:var(--text)">${r.timeSec}s</b> ·
+          Moves: <b class="mono-data" style="color:var(--text)">${STATE.moves}</b> ·
+          Wrong: <b class="mono-data" style="color:var(--text)">${STATE.wrong}</b> ·
+          Hints: <b class="mono-data" style="color:var(--text)">${STATE.hints}</b> ·
+          Bonus: <b class="mono-data" style="color:var(--text)">+${STATE.optBonus}</b>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Final Optimized Prompt (Reference)</h3>
+      <div class="final-prompt-box">${esc(bestScenario.optimized)}</div>
+      <div style="margin-top:14px; font-size:13px; color:var(--muted);">
+        <b style="color:var(--teal);">Next Milestone:</b> ${nextMilestone(r.finalScore)}
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:10px;">
+      <button class="btn" id="replay-btn">🔁 Replay with New Scenarios</button>
+      <button class="btn secondary" id="restart-btn" style="margin-left:10px;">⚙️ Change Domain/Difficulty</button>
+    </div>
+  `;
+  document.getElementById('replay-btn').onclick = ()=> initGame();
+  document.getElementById('restart-btn').onclick = ()=> renderSetup();
+}
+
+function feedbackText(r){
+  if(r.finalScore>=90) return "You consistently isolate role, task, constraints, and format — the exact anatomy of a production-grade prompt. You also correctly reject over-engineered bloat, which is rarer than avoiding vagueness.";
+  if(r.finalScore>=75) return "Strong instinct for structured prompting. A few placements suggest you're occasionally tempted by scope-creep additions — tighten your filter for 'does this constraint change the output, or just add noise?'";
+  if(r.finalScore>=60) return "You're identifying the right components but losing points on precision — likely mixing in filler or missing a key constraint. Focus on the four pillars: Role, Task, Constraint, Format.";
+  if(r.finalScore>=40) return "You're building the right instincts, but distractors are catching you — vague filler and scope-creep phrases look convincing but weaken the prompt. Slow down and ask: 'does this block make the output more predictable?'";
+  return "Focus on the fundamentals: every strong prompt names a role, a concrete task, explicit constraints, and a required output format. Revisit the Prompt Principle notes after each scenario before your next attempt.";
+}
+function nextMilestone(score){
+  if(score>=90) return "Try Advanced scenarios in a new domain to stress-test your instincts across contexts.";
+  if(score>=75) return "Push for a 90+ by eliminating scope-creep distractor picks entirely.";
+  if(score>=60) return "Aim to finish a full run with zero hints and under 40 moves.";
+  return "Replay this domain focused only on 'Choose the Best Prompt' rounds to build pattern recognition fast.";
+}
+
+/* ============ BOOT ============ */
+renderSetup();
+
+})();
+</script>
+</body>
+</html>
