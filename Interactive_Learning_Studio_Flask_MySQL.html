@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Learning Studio — Flask & MySQL REST APIs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#05070d;
+  --navy-900:#0a0f1c;
+  --navy-800:#0f1626;
+  --navy-700:#161f36;
+  --navy-600:#1e2a47;
+  --border:#243252;
+  --blue:#1a56ff;
+  --blue-glow:rgba(26,86,255,.35);
+  --teal:#00c2a8;
+  --teal-glow:rgba(0,194,168,.3);
+  --text-hi:#eef2ff;
+  --text-mid:#a9b4d0;
+  --text-low:#6b7699;
+  --amber:#ffb454;
+  --red:#ff5c72;
+  --green:#3ddc97;
+  --radius:14px;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:
+    radial-gradient(circle at 15% 0%, rgba(26,86,255,.10), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(0,194,168,.08), transparent 45%),
+    var(--navy-950);
+  color:var(--text-hi);
+  font-family:var(--font-body);
+  line-height:1.6;
+  min-height:100vh;
+  padding-bottom:80px;
+}
+::selection{background:var(--blue-glow);color:#fff;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--navy-900);}
+::-webkit-scrollbar-thumb{background:var(--navy-600);border-radius:8px;}
+a{color:var(--teal);}
+h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-.01em;}
+.mono{font-family:var(--font-mono);}
+.container{max-width:980px;margin:0 auto;padding:0 24px;}
+
+/* Top progress bar */
+#topbar{position:fixed;top:0;left:0;right:0;height:4px;background:var(--navy-800);z-index:999;}
+#topbar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .4s ease;}
+
+/* Nav */
+nav{position:sticky;top:4px;z-index:900;backdrop-filter:blur(10px);background:rgba(10,15,28,.85);border-bottom:1px solid var(--border);}
+.navwrap{max-width:980px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:15px;}
+.brand .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--blue),var(--teal));display:inline-block;}
+.navactions{display:flex;gap:10px;align-items:center;}
+.btn{
+  font-family:var(--font-body);font-weight:600;font-size:13px;cursor:pointer;
+  border-radius:10px;padding:9px 16px;border:1px solid var(--border);
+  background:var(--navy-800);color:var(--text-hi);transition:.2s;
+}
+.btn:hover{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow);}
+.btn.primary{background:linear-gradient(135deg,var(--blue),#3f6dff);border:none;}
+.btn.primary:hover{box-shadow:0 0 20px var(--blue-glow);}
+.btn.ghost{background:transparent;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.pill{font-family:var(--font-mono);font-size:11px;color:var(--text-mid);border:1px solid var(--border);padding:5px 10px;border-radius:999px;}
+
+/* module nav dots */
+.modnav{display:flex;gap:6px;}
+.moddot{width:26px;height:6px;border-radius:4px;background:var(--navy-600);cursor:pointer;transition:.2s;}
+.moddot.active{background:linear-gradient(90deg,var(--blue),var(--teal));}
+.moddot.done{background:var(--green);}
+
+section{padding:60px 0;border-bottom:1px solid var(--border);}
+section:last-child{border-bottom:none;}
+
+/* HERO */
+.hero{padding:70px 0 50px;text-align:left;}
+.eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:inline-flex;align-items:center;gap:8px;}
+.eyebrow::before{content:'';width:7px;height:7px;background:var(--teal);border-radius:50%;box-shadow:0 0 8px var(--teal);}
+.hero h1{font-size:clamp(32px,5vw,52px);line-height:1.08;font-weight:700;margin-bottom:18px;}
+.hero h1 span{background:linear-gradient(90deg,var(--blue),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p.lead{font-size:17px;color:var(--text-mid);max-width:640px;margin-bottom:30px;}
+
+.metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:30px 0;}
+.metacard{background:var(--navy-800);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.metacard .k{font-family:var(--font-mono);font-size:11px;color:var(--text-low);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.metacard .v{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-hi);}
+
+.reward-card{margin-top:26px;background:linear-gradient(135deg,rgba(26,86,255,.12),rgba(0,194,168,.08));border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;display:flex;gap:16px;align-items:flex-start;}
+.reward-card .icon{font-size:26px;}
+.reward-card h4{font-size:14px;margin-bottom:4px;}
+.reward-card p{font-size:13px;color:var(--text-mid);}
+
+.consolewrap{margin-top:36px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.console-head{background:var(--navy-800);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.console-head .dots{display:flex;gap:6px;}
+.console-head .dots span{width:10px;height:10px;border-radius:50%;}
+.console-head .dots span:nth-child(1){background:#ff5f57;}
+.console-head .dots span:nth-child(2){background:#febc2e;}
+.console-head .dots span:nth-child(3){background:#28c840;}
+.console-head .title{font-family:var(--font-mono);font-size:12px;color:var(--text-low);margin-left:6px;}
+.console-body{background:var(--navy-900);padding:18px 20px;font-family:var(--font-mono);font-size:13px;}
+.console-body .l{margin-bottom:4px;white-space:pre-wrap;}
+.console-body .req{color:var(--amber);}
+.console-body .method{color:var(--teal);font-weight:700;}
+.console-body .status2{color:var(--green);}
+.console-body .comment{color:var(--text-low);}
+.console-body .key{color:#7fb1ff;}
+.console-body .str{color:#ffcf86;}
+.console-body .num{color:#8be9fd;}
+
+/* Module header */
+.modhead{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.modnum{font-family:var(--font-mono);font-size:13px;color:var(--navy-950);background:linear-gradient(135deg,var(--blue),var(--teal));width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.modhead h2{font-size:28px;}
+.modsub{color:var(--text-mid);font-size:14px;margin-bottom:10px;}
+.difficulty{display:inline-flex;gap:3px;margin-left:auto;}
+.difficulty span{width:7px;height:16px;border-radius:2px;background:var(--navy-600);}
+.difficulty span.on{background:var(--teal);}
+
+h3.subhead{font-size:19px;margin:34px 0 12px;color:var(--text-hi);display:flex;align-items:center;gap:8px;}
+h3.subhead::before{content:'';width:4px;height:18px;background:var(--blue);border-radius:2px;}
+p{color:var(--text-mid);font-size:15px;margin-bottom:14px;}
+.card{background:var(--navy-800);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin:16px 0;}
+.card h4{font-size:15px;color:var(--text-hi);margin-bottom:8px;}
+
+/* code block */
+pre.code{background:var(--navy-900);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:12.5px;line-height:1.7;margin:14px 0;position:relative;}
+pre.code .c1{color:var(--text-low);}
+pre.code .kw{color:#c792ea;}
+pre.code .fn{color:#82aaff;}
+pre.code .st{color:#c3e88d;}
+pre.code .num{color:#f78c6c;}
+pre.code .dec{color:var(--teal);}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:720px){.grid2{grid-template-columns:1fr;}}
+
+.analogy{border-left:3px solid var(--amber);background:rgba(255,180,84,.06);border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0;}
+.analogy .tag{font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+
+.misconception{border-left:3px solid var(--red);background:rgba(255,92,114,.06);border-radius:0 10px 10px 0;padding:14px 18px;margin:10px 0;}
+.misconception .tag{font-family:var(--font-mono);font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+
+.takeaways{background:var(--navy-800);border:1px solid var(--teal);border-image:none;border-radius:var(--radius);padding:20px 22px;margin:20px 0;}
+.takeaways h4{color:var(--teal);margin-bottom:10px;}
+.takeaways ul{padding-left:18px;}
+.takeaways li{color:var(--text-mid);font-size:14px;margin-bottom:6px;}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;}
+th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;}
+th{color:var(--text-hi);font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.03em;background:var(--navy-800);}
+td{color:var(--text-mid);}
+td.mono,th.mono{font-family:var(--font-mono);}
+
+/* interactive exercise box */
+.exercise{border:1px dashed var(--blue);border-radius:var(--radius);padding:20px 22px;margin:20px 0;background:rgba(26,86,255,.05);}
+.exercise .tag{font-family:var(--font-mono);font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.exercise input, .exercise select, .exercise textarea{
+  width:100%;background:var(--navy-900);border:1px solid var(--border);color:var(--text-hi);
+  border-radius:8px;padding:10px 12px;font-family:var(--font-mono);font-size:13px;margin-top:6px;
+}
+.exercise textarea{min-height:90px;resize:vertical;}
+.feedback{margin-top:10px;font-size:13.5px;padding:10px 14px;border-radius:8px;display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:rgba(61,220,151,.1);color:var(--green);border:1px solid var(--green);}
+.feedback.bad{background:rgba(255,92,114,.1);color:var(--red);border:1px solid var(--red);}
+
+/* method builder exercise */
+.methodpicker{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.methodchip{font-family:var(--font-mono);font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--navy-900);cursor:pointer;color:var(--text-mid);}
+.methodchip.get{color:#3ddc97;}
+.methodchip.post{color:#ffb454;}
+.methodchip.put{color:#7fb1ff;}
+.methodchip.delete{color:#ff5c72;}
+.methodchip.selected{box-shadow:0 0 0 2px currentColor;background:var(--navy-800);color:var(--text-hi)!important;}
+
+/* status code matcher */
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.matchitem{background:var(--navy-900);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font-mono);font-size:12.5px;cursor:pointer;text-align:center;}
+.matchitem.sel{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow);}
+.matchitem.correct{border-color:var(--green);color:var(--green);}
+.matchitem.wrong{border-color:var(--red);color:var(--red);}
+
+/* SVG diagram wrap */
+.diagram{background:var(--navy-800);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:18px 0;overflow-x:auto;}
+.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto;}
+.diagram .cap{text-align:center;font-size:12px;color:var(--text-low);font-family:var(--font-mono);margin-top:10px;}
+
+/* Quiz */
+.quiz{margin-top:40px;background:var(--navy-800);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.quiz-head h3{font-size:20px;}
+.qcount{font-family:var(--font-mono);font-size:12px;color:var(--text-low);}
+.qitem{margin:22px 0;padding-top:18px;border-top:1px solid var(--border);}
+.qitem:first-of-type{border-top:none;}
+.qtext{font-weight:600;color:var(--text-hi);margin-bottom:12px;font-size:14.5px;}
+.qopts{display:flex;flex-direction:column;gap:8px;}
+.qopt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:13.5px;color:var(--text-mid);background:var(--navy-900);transition:.15s;}
+.qopt:hover{border-color:var(--blue);}
+.qopt.chosen{border-color:var(--blue);background:rgba(26,86,255,.1);}
+.qopt.right{border-color:var(--green);background:rgba(61,220,151,.1);color:var(--text-hi);}
+.qopt.wrong{border-color:var(--red);background:rgba(255,92,114,.1);color:var(--text-hi);}
+.qexplain{display:none;margin-top:10px;font-size:13px;color:var(--text-mid);background:var(--navy-950);padding:10px 12px;border-radius:8px;border-left:3px solid var(--teal);}
+.qexplain.show{display:block;}
+.quizscore{display:none;text-align:center;margin-top:24px;padding:24px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(26,86,255,.12),rgba(0,194,168,.1));}
+.quizscore.show{display:block;}
+.quizscore .big{font-family:var(--font-display);font-size:38px;font-weight:700;}
+.lockmsg{text-align:center;padding:40px 20px;color:var(--text-low);font-family:var(--font-mono);font-size:13px;}
+.lockmsg .icon{font-size:28px;margin-bottom:10px;}
+
+/* module locked overlay */
+.module-body.locked{filter:blur(4px);pointer-events:none;user-select:none;max-height:220px;overflow:hidden;mask-image:linear-gradient(black 40%, transparent);}
+.module-wrap{position:relative;}
+.unlock-cta{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:30px 0;background:linear-gradient(transparent,var(--navy-950) 60%);}
+
+/* Final challenge */
+.challenge-box{background:var(--navy-800);border:1px solid var(--blue);border-radius:var(--radius);padding:26px;}
+.checklist{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.checkitem{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--text-mid);cursor:pointer;}
+.checkitem input{margin-top:3px;accent-color:var(--teal);}
+.checkitem.done label{color:var(--green);text-decoration:line-through;}
+
+/* cheat sheet */
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.cheat-card{background:var(--navy-800);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.cheat-card h4{font-family:var(--font-mono);font-size:13px;color:var(--teal);margin-bottom:10px;}
+.cheat-card table{margin:0;font-size:12px;}
+.cheat-card td,.cheat-card th{padding:6px 8px;}
+
+/* resources */
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.res-card{background:var(--navy-800);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.res-card h4{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.res-card ul{padding-left:18px;}
+.res-card li{font-size:13.5px;color:var(--text-mid);margin-bottom:8px;}
+.kw-chip{display:inline-block;font-family:var(--font-mono);font-size:12px;background:var(--navy-900);border:1px solid var(--border);padding:5px 10px;border-radius:999px;margin:3px 4px 0 0;color:var(--text-mid);}
+.prompt-card{background:var(--navy-900);border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-mid);}
+
+footer{text-align:center;padding:40px 0 10px;color:var(--text-low);font-size:12.5px;font-family:var(--font-mono);}
+
+/* floating progress widget */
+#floatprog{position:fixed;right:22px;bottom:22px;background:var(--navy-800);border:1px solid var(--border);border-radius:14px;padding:14px 16px;width:180px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:800;}
+#floatprog .lbl{font-family:var(--font-mono);font-size:11px;color:var(--text-low);margin-bottom:8px;display:flex;justify-content:space-between;}
+#floatprog .bar{height:6px;background:var(--navy-950);border-radius:4px;overflow:hidden;}
+#floatprog .bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));width:0%;transition:width .5s;}
+@media(max-width:700px){#floatprog{display:none;}}
+
+@media print{
+  nav,#floatprog,#topbar,.unlock-cta,.exercise,.btn{display:none!important;}
+  body{background:#fff;color:#000;}
+  .module-body.locked{filter:none;max-height:none;mask-image:none;pointer-events:auto;}
+  section{border-bottom:1px solid #ccc;}
+}
+
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--navy-800);border:1px solid var(--teal);color:var(--text-hi);padding:12px 20px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:1000;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.confetti{position:fixed;width:8px;height:8px;top:-10px;z-index:1100;pointer-events:none;border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div id="topbar"><div id="topbar-fill"></div></div>
+
+<nav>
+  <div class="navwrap">
+    <div class="brand"><span class="dot"></span> Interactive Learning Studio</div>
+    <div class="modnav" id="modnav"></div>
+    <div class="navactions">
+      <span class="pill mono" id="scorepill">Score: 0/16</span>
+      <button class="btn ghost" onclick="window.print()">🖨 Print notes</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">Backend Engineering · Flask & MySQL</div>
+  <h1>Building REST APIs with <span>Flask & MySQL</span></h1>
+  <p class="lead">A complete, hands-on tutorial that takes you from your first Flask route to a production-minded, database-backed REST API — the exact skill gap between "I built a Flask app" and "I can ship an API a frontend team can consume."</p>
+
+  <div class="metagrid">
+    <div class="metacard"><div class="k">Format</div><div class="v">4 Modules</div></div>
+    <div class="metacard"><div class="k">Est. Time</div><div class="v">~2.5 hrs</div></div>
+    <div class="metacard"><div class="k">Prerequisites</div><div class="v">Python + basic SQL</div></div>
+    <div class="metacard"><div class="k">Outcome</div><div class="v">Ship a real CRUD API</div></div>
+  </div>
+
+  <h3 class="subhead" style="margin-top:6px">Learning objectives</h3>
+  <p>By the end of this tutorial you will be able to:</p>
+  <ul style="padding-left:20px;color:var(--text-mid);font-size:14.5px;margin-bottom:6px;">
+    <li style="margin-bottom:6px;">Explain what makes an API "RESTful" and map CRUD operations to HTTP methods and status codes correctly.</li>
+    <li style="margin-bottom:6px;">Build Flask routes that accept JSON, validate input, and return proper responses and error codes.</li>
+    <li style="margin-bottom:6px;">Connect Flask to MySQL safely using parameterized queries, and structure a small data-access layer.</li>
+    <li style="margin-bottom:6px;">Apply REST design principles — resource naming, versioning, pagination, and basic auth — to make an API production-credible.</li>
+  </ul>
+
+  <div class="reward-card">
+    <div class="icon">🏆</div>
+    <div>
+      <h4>Reward system</h4>
+      <p>Each module ends with a 4-question quiz. Score 75%+ to unlock the next module. Clear all four and the Final Challenge to earn the <strong>"API Architect"</strong> completion badge, tracked live in the widget bottom-right.</p>
+    </div>
+  </div>
+
+  <div class="consolewrap">
+    <div class="console-head"><div class="dots"><span></span><span></span><span></span></div><div class="title">terminal — flask run</div></div>
+    <div class="console-body">
+<div class="l req">$ curl -X <span class="method">POST</span> http://localhost:5000/api/v1/accounts \</div>
+<div class="l req">    -H "Content-Type: application/json" \</div>
+<div class="l req">    -d '{"<span class="key">holder_name</span>": "<span class="str">Nikhil Kumar</span>", "<span class="key">balance</span>": <span class="num">5000</span>}'</div>
+<div class="l comment">&nbsp;</div>
+<div class="l status2">HTTP/1.1 201 Created</div>
+<div class="l">{"<span class="key">id</span>": <span class="num">104</span>, "<span class="key">holder_name</span>": "<span class="str">Nikhil Kumar</span>", "<span class="key">balance</span>": <span class="num">5000</span>, "<span class="key">created_at</span>": "<span class="str">2026-07-11T10:02:00Z</span>"}</div>
+<div class="l comment"># ← by Module 4 this exact request will hit your own Flask + MySQL API</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODULE 1 ================= -->
+<section id="mod1">
+  <div class="modhead">
+    <div class="modnum">1</div>
+    <div>
+      <h2>Foundations — REST, HTTP & Your First Flask Route</h2>
+      <div class="modsub">What REST actually means, and getting Flask to talk HTTP</div>
+    </div>
+    <div class="difficulty"><span class="on"></span><span></span><span></span><span></span></div>
+  </div>
+
+  <p>Every web API — Twitter's, Razorpay's, the one you'll build for your Hogwarts Bank project — is just a program that speaks a very specific dialect: HTTP requests in, structured data out. REST is the etiquette for that conversation.</p>
+
+  <h3 class="subhead">What "RESTful" really means</h3>
+  <p>REST (Representational State Transfer) is a set of conventions, not a library. A RESTful API treats everything as a <strong>resource</strong> — a user, an account, a transaction — addressed by a URL, and manipulated using standard HTTP methods instead of custom verbs in the URL.</p>
+
+  <div class="analogy">
+    <div class="tag">Analogy</div>
+    Think of a REST API like a bank counter. You don't shout "PLEASE_GIVE_BALANCE" at the teller. You point at a <em>form</em> (the resource — your account) and choose an <em>action</em> from a fixed set: deposit, withdraw, check balance, close account. The teller (server) responds with a receipt (JSON) and a stamped status ("approved", "insufficient funds"). The action vocabulary is small and reused for every account — that's what makes it predictable.
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#00c2a8"/></marker>
+      </defs>
+      <rect x="30" y="70" width="150" height="80" rx="12" fill="#161f36" stroke="#243252"/>
+      <text x="105" y="105" fill="#eef2ff" font-family="Space Grotesk" font-size="14" text-anchor="middle" font-weight="700">Client</text>
+      <text x="105" y="124" fill="#a9b4d0" font-family="JetBrains Mono" font-size="10" text-anchor="middle">browser / app</text>
+
+      <rect x="590" y="70" width="150" height="80" rx="12" fill="#161f36" stroke="#243252"/>
+      <text x="665" y="105" fill="#eef2ff" font-family="Space Grotesk" font-size="14" text-anchor="middle" font-weight="700">Flask API</text>
+      <text x="665" y="124" fill="#a9b4d0" font-family="JetBrains Mono" font-size="10" text-anchor="middle">+ MySQL</text>
+
+      <line x1="180" y1="95" x2="588" y2="95" stroke="#00c2a8" stroke-width="2" marker-end="url(#arrow1)"/>
+      <text x="380" y="85" fill="#ffb454" font-family="JetBrains Mono" font-size="11" text-anchor="middle">GET /api/v1/accounts/104</text>
+
+      <line x1="588" y1="140" x2="180" y2="140" stroke="#1a56ff" stroke-width="2" marker-end="url(#arrow1)"/>
+      <text x="380" y="160" fill="#7fb1ff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">200 OK  { "id":104, "balance":5000 }</text>
+
+      <text x="380" y="30" fill="#6b7699" font-family="JetBrains Mono" font-size="11" text-anchor="middle">Request → Resource URL + Method   |   Response → Status + JSON body</text>
+    </svg>
+    <div class="cap">Fig 1.1 — A REST request/response pair</div>
+  </div>
+
+  <h3 class="subhead">HTTP methods = CRUD verbs</h3>
+  <table>
+    <tr><th>HTTP Method</th><th class="mono">CRUD</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td class="mono" style="color:#3ddc97">GET</td><td>Read</td><td>Fetch a resource, no side effects</td><td class="mono">GET /accounts/104</td></tr>
+    <tr><td class="mono" style="color:#ffb454">POST</td><td>Create</td><td>Create a new resource</td><td class="mono">POST /accounts</td></tr>
+    <tr><td class="mono" style="color:#7fb1ff">PUT</td><td>Update</td><td>Replace a resource fully</td><td class="mono">PUT /accounts/104</td></tr>
+    <tr><td class="mono" style="color:#c792ea">PATCH</td><td>Update</td><td>Update part of a resource</td><td class="mono">PATCH /accounts/104</td></tr>
+    <tr><td class="mono" style="color:#ff5c72">DELETE</td><td>Delete</td><td>Remove a resource</td><td class="mono">DELETE /accounts/104</td></tr>
+  </table>
+
+  <h3 class="subhead">Your first Flask route</h3>
+  <p>Flask maps a URL + method pair to a Python function. That's the entire mental model to start.</p>
+  <pre class="code"><span class="kw">from</span> flask <span class="kw">import</span> Flask, jsonify
+
+app = Flask(__name__)
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/ping"</span>, methods=[<span class="st">"GET"</span>])
+<span class="kw">def</span> <span class="fn">ping</span>():
+    <span class="kw">return</span> jsonify({<span class="st">"status"</span>: <span class="st">"ok"</span>, <span class="st">"message"</span>: <span class="st">"pong"</span>}), <span class="num">200</span>
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    app.run(debug=<span class="kw">True</span>)</pre>
+
+  <p>Notice three things: the <span class="mono">@app.route</span> decorator binds a URL to a function, <span class="mono">jsonify()</span> converts a Python dict into a proper JSON response with the right content-type header, and we return a tuple of <span class="mono">(body, status_code)</span>.</p>
+
+  <h3 class="subhead">Status codes — the API's tone of voice</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:#3ddc97">2xx — Success</h4>
+      <p style="margin-bottom:0">200 OK · 201 Created · 204 No Content</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#ffb454">4xx — Client error</h4>
+      <p style="margin-bottom:0">400 Bad Request · 401 Unauthorized · 404 Not Found · 409 Conflict</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#ff5c72">5xx — Server error</h4>
+      <p style="margin-bottom:0">500 Internal Server Error · 503 Service Unavailable</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#7fb1ff">3xx — Redirection</h4>
+      <p style="margin-bottom:0">301 Moved Permanently · 304 Not Modified</p>
+    </div>
+  </div>
+
+  <div class="misconception">
+    <div class="tag">Common misconception</div>
+    "If my Flask code runs without crashing, I should return 200." No — the status code describes the <em>outcome</em>, not whether Python threw an exception. A validation failure that you catch gracefully should still return 400, not 200 with an error message buried in the body.
+  </div>
+
+  <h3 class="subhead">Exercise: match the status code</h3>
+  <div class="exercise" id="ex1">
+    <div class="tag">Interactive · click the correct code for each scenario</div>
+    <p style="margin:6px 0 4px;font-size:13.5px;">Scenario: <strong>Client requests /accounts/999, which doesn't exist.</strong></p>
+    <div class="methodpicker" data-answer="404">
+      <div class="methodchip" data-val="200">200</div>
+      <div class="methodchip" data-val="400">400</div>
+      <div class="methodchip" data-val="404">404</div>
+      <div class="methodchip" data-val="500">500</div>
+    </div>
+    <p style="margin:16px 0 4px;font-size:13.5px;">Scenario: <strong>Client POSTs an account with balance as a string "abc" instead of a number.</strong></p>
+    <div class="methodpicker" data-answer="400">
+      <div class="methodchip" data-val="200">200</div>
+      <div class="methodchip" data-val="400">400</div>
+      <div class="methodchip" data-val="404">404</div>
+      <div class="methodchip" data-val="500">500</div>
+    </div>
+    <p style="margin:16px 0 4px;font-size:13.5px;">Scenario: <strong>New account created successfully.</strong></p>
+    <div class="methodpicker" data-answer="201">
+      <div class="methodchip" data-val="200">200</div>
+      <div class="methodchip" data-val="201">201</div>
+      <div class="methodchip" data-val="204">204</div>
+      <div class="methodchip" data-val="404">404</div>
+    </div>
+    <div class="feedback" id="ex1fb"></div>
+  </div>
+
+  <div class="takeaways">
+    <h4>Key takeaways</h4>
+    <ul>
+      <li>REST maps operations onto standard HTTP methods against resource URLs — no custom action verbs in the path.</li>
+      <li>Flask binds (URL, method) pairs to Python functions via <span class="mono">@app.route</span>.</li>
+      <li>Status codes communicate outcome; pick the code that matches what actually happened, not just "did it crash."</li>
+      <li><span class="mono">jsonify()</span> is the standard way to return JSON with correct headers in Flask.</li>
+    </ul>
+  </div>
+
+  <div class="module-wrap">
+  <div class="quiz" id="quiz1">
+    <div class="quiz-head"><h3>Module 1 Quiz</h3><span class="qcount" id="qcount1">0/4 answered</span></div>
+    <div id="qlist1"></div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn primary" id="submit1" disabled onclick="submitQuiz(1)">Submit answers</button></div>
+    <div class="quizscore" id="score1">
+      <div class="big" id="scoretext1">0/4</div>
+      <p id="scoremsg1" style="margin-top:6px;color:var(--text-mid)"></p>
+      <button class="btn primary" style="margin-top:14px" onclick="unlockModule(2)">Unlock Module 2 →</button>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ================= MODULE 2 ================= -->
+<section id="mod2" class="module-wrap">
+<div class="module-body locked" id="body2">
+  <div class="modhead">
+    <div class="modnum">2</div>
+    <div>
+      <h2>Building a CRUD API in Flask</h2>
+      <div class="modsub">Routes, request parsing, validation, and JSON responses that don't fall over</div>
+    </div>
+    <div class="difficulty"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+  </div>
+
+  <p>A real API rarely has one route — it has a family of routes around one resource. Let's build the full CRUD set for an <span class="mono">accounts</span> resource, in memory first, so the HTTP layer is crystal clear before we bring in a database in Module 3.</p>
+
+  <h3 class="subhead">The five routes of a resource</h3>
+  <pre class="code"><span class="c1"># in-memory store for now — Module 3 swaps this for MySQL</span>
+accounts = {}
+next_id = 1
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts"</span>, methods=[<span class="st">"GET"</span>])
+<span class="kw">def</span> <span class="fn">list_accounts</span>():
+    <span class="kw">return</span> jsonify(list(accounts.values())), <span class="num">200</span>
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts/&lt;int:acc_id&gt;"</span>, methods=[<span class="st">"GET"</span>])
+<span class="kw">def</span> <span class="fn">get_account</span>(acc_id):
+    account = accounts.get(acc_id)
+    <span class="kw">if</span> <span class="kw">not</span> account:
+        <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"Account not found"</span>}), <span class="num">404</span>
+    <span class="kw">return</span> jsonify(account), <span class="num">200</span>
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts"</span>, methods=[<span class="st">"POST"</span>])
+<span class="kw">def</span> <span class="fn">create_account</span>():
+    <span class="kw">global</span> next_id
+    data = request.get_json(silent=<span class="kw">True</span>) <span class="kw">or</span> {}
+    <span class="kw">if</span> <span class="kw">not</span> data.get(<span class="st">"holder_name"</span>):
+        <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"holder_name is required"</span>}), <span class="num">400</span>
+    account = {<span class="st">"id"</span>: next_id, <span class="st">"holder_name"</span>: data[<span class="st">"holder_name"</span>],
+               <span class="st">"balance"</span>: data.get(<span class="st">"balance"</span>, <span class="num">0</span>)}
+    accounts[next_id] = account
+    next_id += <span class="num">1</span>
+    <span class="kw">return</span> jsonify(account), <span class="num">201</span>
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts/&lt;int:acc_id&gt;"</span>, methods=[<span class="st">"PUT"</span>])
+<span class="kw">def</span> <span class="fn">update_account</span>(acc_id):
+    <span class="kw">if</span> acc_id <span class="kw">not</span> <span class="kw">in</span> accounts:
+        <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"Account not found"</span>}), <span class="num">404</span>
+    data = request.get_json(silent=<span class="kw">True</span>) <span class="kw">or</span> {}
+    accounts[acc_id].update(data)
+    <span class="kw">return</span> jsonify(accounts[acc_id]), <span class="num">200</span>
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts/&lt;int:acc_id&gt;"</span>, methods=[<span class="st">"DELETE"</span>])
+<span class="kw">def</span> <span class="fn">delete_account</span>(acc_id):
+    <span class="kw">if</span> accounts.pop(acc_id, <span class="kw">None</span>) <span class="kw">is</span> <span class="kw">None</span>:
+        <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"Account not found"</span>}), <span class="num">404</span>
+    <span class="kw">return</span> <span class="st">""</span>, <span class="num">204</span></pre>
+
+  <div class="analogy">
+    <div class="tag">Analogy</div>
+    Route parameters like <span class="mono">&lt;int:acc_id&gt;</span> are like a locker number on a locker room wall. The URL pattern <span class="mono">/accounts/&lt;int:acc_id&gt;</span> is the wall of lockers; the actual number the client sends picks one specific locker. Flask parses that segment straight into a Python <span class="mono">int</span> argument for you.
+  </div>
+
+  <h3 class="subhead">Validating input, the honest way</h3>
+  <p>Never trust <span class="mono">request.get_json()</span> blindly. A client can send malformed JSON, missing fields, or wrong types. Always guard with <span class="mono">silent=True</span> plus explicit checks, and fail with 400 and a clear message — this is exactly the "honest framing over fabrication" habit that also makes for a better resume bullet: you can truthfully say you built input validation, not just happy-path routes.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="80" width="130" height="50" rx="8" fill="#161f36" stroke="#243252"/>
+      <text x="85" y="110" fill="#eef2ff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">POST body</text>
+      <path d="M150,105 L210,105" stroke="#6b7699" stroke-width="2" marker-end="url(#arrow1)"/>
+      <rect x="215" y="80" width="150" height="50" rx="8" fill="#161f36" stroke="#1a56ff"/>
+      <text x="290" y="103" fill="#7fb1ff" font-family="JetBrains Mono" font-size="10.5" text-anchor="middle">holder_name</text>
+      <text x="290" y="118" fill="#7fb1ff" font-family="JetBrains Mono" font-size="10.5" text-anchor="middle">present?</text>
+      <path d="M365,95 L430,60" stroke="#ff5c72" stroke-width="2" marker-end="url(#arrow1)"/>
+      <text x="440" y="55" fill="#ff5c72" font-family="JetBrains Mono" font-size="11">no → 400</text>
+      <path d="M365,115 L430,150" stroke="#3ddc97" stroke-width="2" marker-end="url(#arrow1)"/>
+      <text x="440" y="165" fill="#3ddc97" font-family="JetBrains Mono" font-size="11">yes → create → 201</text>
+    </svg>
+    <div class="cap">Fig 2.1 — Validation gate before creating a resource</div>
+  </div>
+
+  <h3 class="subhead">Compare: naive vs. defensive route</h3>
+  <table>
+    <tr><th>Naive</th><th>Defensive</th></tr>
+    <tr><td class="mono">data = request.json</td><td class="mono">data = request.get_json(silent=True) or {}</td></tr>
+    <tr><td>Crashes with 500 on bad JSON</td><td>Falls back to empty dict, handled cleanly</td></tr>
+    <tr><td>Assumes fields exist</td><td>Checks with <span class="mono">.get()</span> and explicit 400s</td></tr>
+  </table>
+
+  <h3 class="subhead">Exercise: pick the right method + route</h3>
+  <div class="exercise" id="ex2">
+    <div class="tag">Interactive · build the request</div>
+    <p style="font-size:13.5px;margin-bottom:6px;">Task: <strong>"Fully replace account 12's data with a new record."</strong> Choose the method:</p>
+    <div class="methodpicker" data-answer="PUT">
+      <div class="methodchip get" data-val="GET">GET</div>
+      <div class="methodchip post" data-val="POST">POST</div>
+      <div class="methodchip put" data-val="PUT">PUT</div>
+      <div class="methodchip delete" data-val="DELETE">DELETE</div>
+    </div>
+    <div class="feedback" id="ex2fb"></div>
+  </div>
+
+  <div class="misconception">
+    <div class="tag">Common misconception</div>
+    "PUT and PATCH are basically the same, just use whichever." PUT implies a full replacement of the resource; PATCH implies a partial update. Using PUT for a partial update can silently wipe fields the client didn't send, if your handler naively replaces instead of merging.
+  </div>
+
+  <div class="takeaways">
+    <h4>Key takeaways</h4>
+    <ul>
+      <li>One resource → a consistent family of routes (list, get-one, create, update, delete).</li>
+      <li>Route converters like <span class="mono">&lt;int:acc_id&gt;</span> type-check and inject URL segments as function arguments.</li>
+      <li>Validate every incoming payload defensively; return 400 with a specific error message on failure.</li>
+      <li>PUT replaces, PATCH merges, DELETE returns 204 with an empty body on success.</li>
+    </ul>
+  </div>
+
+  <div class="quiz" id="quiz2">
+    <div class="quiz-head"><h3>Module 2 Quiz</h3><span class="qcount" id="qcount2">0/4 answered</span></div>
+    <div id="qlist2"></div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn primary" id="submit2" disabled onclick="submitQuiz(2)">Submit answers</button></div>
+    <div class="quizscore" id="score2">
+      <div class="big" id="scoretext2">0/4</div>
+      <p id="scoremsg2" style="margin-top:6px;color:var(--text-mid)"></p>
+      <button class="btn primary" style="margin-top:14px" onclick="unlockModule(3)">Unlock Module 3 →</button>
+    </div>
+  </div>
+</div>
+<div class="unlock-cta" id="cta2"><p class="lockmsg mono"><span class="icon">🔒</span><br>Complete Module 1's quiz (75%+) to unlock this module.</p></div>
+</section>
+
+<!-- ================= MODULE 3 ================= -->
+<section id="mod3" class="module-wrap">
+<div class="module-body locked" id="body3">
+  <div class="modhead">
+    <div class="modnum">3</div>
+    <div>
+      <h2>Connecting Flask to MySQL</h2>
+      <div class="modsub">From an in-memory dict to a real, persistent, injection-safe data layer</div>
+    </div>
+    <div class="difficulty"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div>
+  </div>
+
+  <p>Everything in Module 2 vanishes when the server restarts because <span class="mono">accounts = {}</span> lives in RAM. A real system — like your Hogwarts Bank Management System — needs a database that survives restarts and enforces structure. This is where MySQL comes in.</p>
+
+  <h3 class="subhead">Setting up the connection</h3>
+  <pre class="code"><span class="kw">import</span> mysql.connector
+<span class="kw">from</span> mysql.connector <span class="kw">import</span> Error
+
+<span class="kw">def</span> <span class="fn">get_connection</span>():
+    <span class="kw">return</span> mysql.connector.connect(
+        host=<span class="st">"localhost"</span>,
+        user=<span class="st">"api_user"</span>,
+        password=<span class="st">"••••••••"</span>,   <span class="c1"># load from env var, never hardcode</span>
+        database=<span class="st">"bank_api"</span>
+    )</pre>
+
+  <div class="misconception">
+    <div class="tag">Common misconception</div>
+    "It's fine to build SQL by joining strings, I'll just be careful." This is exactly how SQL injection happens. <span class="mono">f"SELECT * FROM accounts WHERE id={acc_id}"</span> lets a malicious <span class="mono">acc_id</span> like <span class="mono">1 OR 1=1</span> return every row in the table. Always use parameterized queries — the driver escapes values for you.
+  </div>
+
+  <h3 class="subhead">Naive string-building vs. parameterized queries</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:#ff5c72">❌ Vulnerable</h4>
+      <pre class="code" style="margin:0"><span class="fn">query</span> = <span class="st">f"SELECT * FROM accounts WHERE id={acc_id}"</span>
+cursor.execute(query)</pre>
+    </div>
+    <div class="card">
+      <h4 style="color:#3ddc97">✅ Safe</h4>
+      <pre class="code" style="margin:0"><span class="fn">query</span> = <span class="st">"SELECT * FROM accounts WHERE id = %s"</span>
+cursor.execute(query, (acc_id,))</pre>
+    </div>
+  </div>
+
+  <h3 class="subhead">Wiring a real route to MySQL</h3>
+  <pre class="code"><span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts/&lt;int:acc_id&gt;"</span>, methods=[<span class="st">"GET"</span>])
+<span class="kw">def</span> <span class="fn">get_account</span>(acc_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=<span class="kw">True</span>)
+    cursor.execute(<span class="st">"SELECT * FROM accounts WHERE id = %s"</span>, (acc_id,))
+    account = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    <span class="kw">if</span> <span class="kw">not</span> account:
+        <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"Account not found"</span>}), <span class="num">404</span>
+    <span class="kw">return</span> jsonify(account), <span class="num">200</span></pre>
+
+  <p><span class="mono">cursor(dictionary=True)</span> is the detail that saves you a manual zip-with-column-names step — rows come back as dicts, ready for <span class="mono">jsonify()</span>.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 780 210" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="80" width="140" height="55" rx="10" fill="#161f36" stroke="#243252"/>
+      <text x="90" y="112" fill="#eef2ff" font-family="Space Grotesk" font-size="13" text-anchor="middle" font-weight="700">Flask route</text>
+      <path d="M160,105 L260,105" stroke="#00c2a8" stroke-width="2" marker-end="url(#arrow1)"/>
+      <text x="210" y="95" fill="#a9b4d0" font-family="JetBrains Mono" font-size="9.5" text-anchor="middle">%s params</text>
+      <rect x="265" y="80" width="150" height="55" rx="10" fill="#161f36" stroke="#1a56ff"/>
+      <text x="340" y="105" fill="#7fb1ff" font-family="Space Grotesk" font-size="13" text-anchor="middle" font-weight="700">mysql-connector</text>
+      <text x="340" y="122" fill="#6b7699" font-family="JetBrains Mono" font-size="9">escapes values</text>
+      <path d="M415,105 L520,105" stroke="#00c2a8" stroke-width="2" marker-end="url(#arrow1)"/>
+      <rect x="525" y="80" width="130" height="55" rx="10" fill="#161f36" stroke="#00c2a8"/>
+      <text x="590" y="112" fill="#eef2ff" font-family="Space Grotesk" font-size="13" text-anchor="middle" font-weight="700">MySQL</text>
+      <text x="90" y="160" fill="#6b7699" font-family="JetBrains Mono" font-size="10" text-anchor="middle">route logic</text>
+      <text x="340" y="160" fill="#6b7699" font-family="JetBrains Mono" font-size="10" text-anchor="middle">safe query layer</text>
+      <text x="590" y="160" fill="#6b7699" font-family="JetBrains Mono" font-size="10" text-anchor="middle">persistent storage</text>
+    </svg>
+    <div class="cap">Fig 3.1 — Request flow from route → driver → database</div>
+  </div>
+
+  <h3 class="subhead">Exercise: spot the injection risk</h3>
+  <div class="exercise" id="ex3">
+    <div class="tag">Interactive · click the vulnerable line</div>
+    <div class="methodpicker" data-answer="b">
+      <div class="methodchip" data-val="a" style="max-width:100%">A: cursor.execute("SELECT * FROM accounts WHERE id = %s", (acc_id,))</div>
+    </div>
+    <div class="methodpicker" data-answer="b" style="margin-top:8px">
+      <div class="methodchip" data-val="b" style="max-width:100%">B: cursor.execute(f"SELECT * FROM accounts WHERE id = {acc_id}")</div>
+    </div>
+    <div class="feedback" id="ex3fb"></div>
+  </div>
+
+  <div class="takeaways">
+    <h4>Key takeaways</h4>
+    <ul>
+      <li>Use <span class="mono">mysql-connector-python</span> (or SQLAlchemy) to bridge Flask routes to MySQL tables.</li>
+      <li>Always use parameterized queries (<span class="mono">%s</span> placeholders) — never f-strings — to prevent SQL injection.</li>
+      <li><span class="mono">cursor(dictionary=True)</span> returns rows as dicts, pairing cleanly with <span class="mono">jsonify()</span>.</li>
+      <li>Open a connection per request (or use a pool) and always close cursor + connection.</li>
+    </ul>
+  </div>
+
+  <div class="quiz" id="quiz3">
+    <div class="quiz-head"><h3>Module 3 Quiz</h3><span class="qcount" id="qcount3">0/4 answered</span></div>
+    <div id="qlist3"></div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn primary" id="submit3" disabled onclick="submitQuiz(3)">Submit answers</button></div>
+    <div class="quizscore" id="score3">
+      <div class="big" id="scoretext3">0/4</div>
+      <p id="scoremsg3" style="margin-top:6px;color:var(--text-mid)"></p>
+      <button class="btn primary" style="margin-top:14px" onclick="unlockModule(4)">Unlock Module 4 →</button>
+    </div>
+  </div>
+</div>
+<div class="unlock-cta" id="cta3"><p class="lockmsg mono"><span class="icon">🔒</span><br>Complete Module 2's quiz (75%+) to unlock this module.</p></div>
+</section>
+
+<!-- ================= MODULE 4 ================= -->
+<section id="mod4" class="module-wrap">
+<div class="module-body locked" id="body4">
+  <div class="modhead">
+    <div class="modnum">4</div>
+    <div>
+      <h2>REST Design Principles & Production Readiness</h2>
+      <div class="modsub">Naming, versioning, pagination, auth — the difference between "it works" and "it's shippable"</div>
+    </div>
+    <div class="difficulty"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div>
+  </div>
+
+  <p>A working CRUD API and a <em>good</em> API are different things. This module covers the conventions that make an API predictable to someone who has never seen your code — the kind of detail interviewers probe for when they ask "tell me about an API you built."</p>
+
+  <h3 class="subhead">Resource naming conventions</h3>
+  <table>
+    <tr><th>Good</th><th>Why</th></tr>
+    <tr><td class="mono" style="color:#3ddc97">/api/v1/accounts</td><td>Plural noun, no verb, versioned</td></tr>
+    <tr><td class="mono" style="color:#3ddc97">/api/v1/accounts/104/transactions</td><td>Nested resource shows ownership</td></tr>
+    <tr><td class="mono" style="color:#ff5c72">/api/getAccount?id=104</td><td>Verb in path, breaks REST convention</td></tr>
+    <tr><td class="mono" style="color:#ff5c72">/api/v1/Account</td><td>Inconsistent casing/pluralization</td></tr>
+  </table>
+
+  <h3 class="subhead">Versioning</h3>
+  <p>Put a version in the URL (<span class="mono">/api/v1/...</span>) from day one. It costs nothing now and saves you from breaking every existing client when you inevitably need to change the response shape later.</p>
+
+  <h3 class="subhead">Pagination for list endpoints</h3>
+  <pre class="code"><span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts"</span>, methods=[<span class="st">"GET"</span>])
+<span class="kw">def</span> <span class="fn">list_accounts</span>():
+    page = request.args.get(<span class="st">"page"</span>, <span class="num">1</span>, type=<span class="kw">int</span>)
+    limit = request.args.get(<span class="st">"limit"</span>, <span class="num">20</span>, type=<span class="kw">int</span>)
+    offset = (page - <span class="num">1</span>) * limit
+    cursor.execute(<span class="st">"SELECT * FROM accounts LIMIT %s OFFSET %s"</span>, (limit, offset))
+    rows = cursor.fetchall()
+    <span class="kw">return</span> jsonify({<span class="st">"page"</span>: page, <span class="st">"limit"</span>: limit, <span class="st">"data"</span>: rows}), <span class="num">200</span></pre>
+
+  <div class="analogy">
+    <div class="tag">Analogy</div>
+    Pagination is a phone book, not a single scroll. Nobody hands over all 10,000 accounts in one response — you hand over "page 1 of 500," with a clear way to ask for the next page. It protects both your server's memory and the client's rendering time.
+  </div>
+
+  <h3 class="subhead">Basic authentication with an API key</h3>
+  <pre class="code"><span class="kw">from</span> functools <span class="kw">import</span> wraps
+
+<span class="kw">def</span> <span class="fn">require_api_key</span>(f):
+    <span class="dec">@wraps</span>(f)
+    <span class="kw">def</span> <span class="fn">decorated</span>(*args, **kwargs):
+        key = request.headers.get(<span class="st">"X-API-Key"</span>)
+        <span class="kw">if</span> key != <span class="fn">os</span>.environ.get(<span class="st">"API_KEY"</span>):
+            <span class="kw">return</span> jsonify({<span class="st">"error"</span>: <span class="st">"Unauthorized"</span>}), <span class="num">401</span>
+        <span class="kw">return</span> f(*args, **kwargs)
+    <span class="kw">return</span> decorated
+
+<span class="dec">@app.route</span>(<span class="st">"/api/v1/accounts"</span>, methods=[<span class="st">"POST"</span>])
+<span class="dec">@require_api_key</span>
+<span class="kw">def</span> <span class="fn">create_account</span>():
+    ...</pre>
+
+  <p>For anything beyond a class project, JWT-based auth (issuing a signed token on login) is the industry default — the pattern above shows the gate mechanism a JWT check would slot into.</p>
+
+  <div class="misconception">
+    <div class="tag">Common misconception</div>
+    "My API works when I test it in Postman, so it's production-ready." Postman tests the happy path you thought of. Production readiness means: consistent error shapes, no secrets in code, pagination on lists, rate-limit awareness, and versioning — none of which show up until someone else, or scale, stresses the system.
+  </div>
+
+  <h3 class="subhead">Design principle comparison</h3>
+  <table>
+    <tr><th>Principle</th><th>Weak version</th><th>Strong version</th></tr>
+    <tr><td>Errors</td><td>Plain string message</td><td class="mono">{"error": "...", "code": "ACCOUNT_NOT_FOUND"}</td></tr>
+    <tr><td>Filtering</td><td>Return everything, filter client-side</td><td class="mono">?status=active&min_balance=1000</td></tr>
+    <tr><td>Consistency</td><td>Mixed casing, ad-hoc shapes</td><td>snake_case fields, uniform envelope</td></tr>
+  </table>
+
+  <h3 class="subhead">Exercise: name the endpoint</h3>
+  <div class="exercise" id="ex4">
+    <div class="tag">Interactive · type the correctly-designed endpoint</div>
+    <p style="font-size:13.5px;">Task: <strong>Version-1 endpoint to fetch all transactions belonging to account 104.</strong></p>
+    <input type="text" id="ex4input" placeholder="/api/v1/...">
+    <button class="btn primary" style="margin-top:10px" onclick="checkEx4()">Check answer</button>
+    <div class="feedback" id="ex4fb"></div>
+  </div>
+
+  <div class="takeaways">
+    <h4>Key takeaways</h4>
+    <ul>
+      <li>Use plural nouns, no verbs, and consistent nesting for resource URLs.</li>
+      <li>Version your API from the first commit: <span class="mono">/api/v1/...</span></li>
+      <li>Paginate every list endpoint with <span class="mono">page</span>/<span class="mono">limit</span> query params.</li>
+      <li>Gate write operations behind an auth check; never hardcode secrets.</li>
+      <li>Consistent, structured error responses are as much a design decision as your success responses.</li>
+    </ul>
+  </div>
+
+  <div class="quiz" id="quiz4">
+    <div class="quiz-head"><h3>Module 4 Quiz</h3><span class="qcount" id="qcount4">0/4 answered</span></div>
+    <div id="qlist4"></div>
+    <div style="text-align:center;margin-top:10px;"><button class="btn primary" id="submit4" disabled onclick="submitQuiz(4)">Submit answers</button></div>
+    <div class="quizscore" id="score4">
+      <div class="big" id="scoretext4">0/4</div>
+      <p id="scoremsg4" style="margin-top:6px;color:var(--text-mid)"></p>
+      <button class="btn primary" style="margin-top:14px" onclick="unlockChallenge()">Unlock Final Challenge →</button>
+    </div>
+  </div>
+</div>
+<div class="unlock-cta" id="cta4"><p class="lockmsg mono"><span class="icon">🔒</span><br>Complete Module 3's quiz (75%+) to unlock this module.</p></div>
+</section>
+
+<!-- FINAL CHALLENGE -->
+<section id="challenge" class="module-wrap">
+<div class="module-body locked" id="bodychallenge">
+  <h2>🏁 Final Practical Challenge</h2>
+  <p>Build a complete <strong>Transactions API</strong> for the Hogwarts Bank Management System style project. Tick each requirement off as you implement it — this maps directly onto a portfolio-ready addition to your existing project.</p>
+  <div class="challenge-box">
+    <h4 style="margin-bottom:4px;">Build: <span class="mono">/api/v1/accounts/&lt;id&gt;/transactions</span></h4>
+    <div class="checklist" id="checklist"></div>
+    <p style="font-size:13px;color:var(--text-low);margin-top:10px;">Progress saves in this session only — take a screenshot or export your notes below when done.</p>
+  </div>
+</div>
+<div class="unlock-cta" id="ctachallenge"><p class="lockmsg mono"><span class="icon">🔒</span><br>Complete Module 4's quiz (75%+) to unlock the Final Challenge.</p></div>
+</section>
+
+<!-- CHEAT SHEET -->
+<section id="cheatsheet">
+  <h2 style="margin-bottom:6px;">📋 Cheat Sheet</h2>
+  <p>Quick reference — printable via the button in the top nav.</p>
+  <div class="cheat-grid">
+    <div class="cheat-card">
+      <h4>HTTP → CRUD</h4>
+      <table>
+        <tr><td>GET</td><td>Read</td></tr>
+        <tr><td>POST</td><td>Create</td></tr>
+        <tr><td>PUT</td><td>Replace</td></tr>
+        <tr><td>PATCH</td><td>Partial update</td></tr>
+        <tr><td>DELETE</td><td>Remove</td></tr>
+      </table>
+    </div>
+    <div class="cheat-card">
+      <h4>Status codes</h4>
+      <table>
+        <tr><td>200 / 201 / 204</td><td>Success family</td></tr>
+        <tr><td>400 / 401 / 404 / 409</td><td>Client error family</td></tr>
+        <tr><td>500 / 503</td><td>Server error family</td></tr>
+      </table>
+    </div>
+    <div class="cheat-card">
+      <h4>Flask snippets</h4>
+      <table>
+        <tr><td class="mono">request.get_json(silent=True)</td></tr>
+        <tr><td class="mono">jsonify(data), status</td></tr>
+        <tr><td class="mono">request.args.get("page", 1, type=int)</td></tr>
+      </table>
+    </div>
+    <div class="cheat-card">
+      <h4>MySQL safety</h4>
+      <table>
+        <tr><td class="mono">cursor.execute(q, (val,))</td></tr>
+        <tr><td class="mono">cursor(dictionary=True)</td></tr>
+        <tr><td>Never f-string into SQL</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3 class="subhead">Summary notes</h3>
+  <div class="card">
+    <p style="margin-bottom:0;">REST turns state changes into predictable HTTP verbs against resource URLs. Flask gives you the routing and JSON layer; MySQL gives you persistence, provided every query is parameterized. Production-credible APIs add versioning, pagination, structured errors, and an auth gate on top of working CRUD — that layer is usually what separates a class project from a resume-worthy one.</p>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources">
+  <h2 style="margin-bottom:16px;">🔭 Continue Learning</h2>
+  <div class="res-grid">
+    <div class="res-card">
+      <h4>📚 Books</h4>
+      <ul>
+        <li>"RESTful Web APIs" — Leonard Richardson & Mike Amundsen</li>
+        <li>"Flask Web Development" — Miguel Grinberg</li>
+        <li>"Designing Web APIs" — Brenda Jin, Saurabh Sahni, Amir Shevat</li>
+      </ul>
+    </div>
+    <div class="res-card">
+      <h4>📖 Documentation</h4>
+      <ul>
+        <li>Flask official docs — flask.palletsprojects.com</li>
+        <li>mysql-connector-python docs — dev.mysql.com</li>
+        <li>MDN: HTTP methods & status codes</li>
+      </ul>
+    </div>
+    <div class="res-card">
+      <h4>🧪 Research & specs</h4>
+      <ul>
+        <li>Roy Fielding's dissertation, Ch. 5 — the original REST definition</li>
+        <li>RFC 7231 — HTTP/1.1 Semantics and Content</li>
+        <li>OpenAPI Specification — for documenting your API formally</li>
+      </ul>
+    </div>
+    <div class="res-card">
+      <h4>👥 Communities</h4>
+      <ul>
+        <li>r/flask, r/webdev on Reddit</li>
+        <li>Flask Discord server</li>
+        <li>Stack Overflow — [flask] + [rest] tags</li>
+      </ul>
+    </div>
+    <div class="res-card">
+      <h4>🛠 Practice platforms</h4>
+      <ul>
+        <li>Postman — build & test your API's requests</li>
+        <li>Replit / local Flask + MySQL via XAMPP</li>
+        <li>Build onto your existing Hogwarts Bank project</li>
+      </ul>
+    </div>
+    <div class="res-card">
+      <h4>🔎 Search keywords</h4>
+      <div class="kw-chip">flask rest api tutorial</div>
+      <div class="kw-chip">flask mysql connector crud</div>
+      <div class="kw-chip">sql injection parameterized query python</div>
+      <div class="kw-chip">rest api versioning best practices</div>
+      <div class="kw-chip">flask jwt authentication</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">💡 Prompts to go deeper with Claude</h3>
+  <div class="prompt-card">"Review this Flask route for security and REST-convention issues: [paste code]"</div>
+  <div class="prompt-card">"Help me design a database schema for a banking API with accounts, transactions, and users."</div>
+  <div class="prompt-card">"Explain JWT authentication and walk me through adding it to my Flask API step by step."</div>
+  <div class="prompt-card">"Turn this Flask API into an OpenAPI/Swagger spec I can document and share."</div>
+</section>
+
+</div><!-- /container -->
+
+<footer>Interactive Learning Studio · Flask & MySQL REST APIs · Built for hands-on mastery</footer>
+
+<div id="floatprog">
+  <div class="lbl"><span>Progress</span><span id="floatpct">0%</span></div>
+  <div class="bar"><div class="bar-fill" id="floatbar"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- Quiz data ---------------- */
+const quizzes = {
+1:[
+ {q:"Which HTTP method should you use to create a new resource?",opts:["GET","POST","PUT","DELETE"],right:1,exp:"POST creates a new resource under a collection URL, like POST /accounts."},
+ {q:"A client requests a resource that doesn't exist. What status code fits best?",opts:["200","400","404","500"],right:2,exp:"404 Not Found means the server understood the request but the resource doesn't exist."},
+ {q:"What does jsonify() do in Flask?",opts:["Converts JSON to a Python dict","Converts a Python object to a JSON response with correct headers","Validates JSON schema","Connects to a JSON database"],right:1,exp:"jsonify() serializes Python data structures into a proper HTTP JSON response, setting Content-Type automatically."},
+ {q:"In REST, a resource is best identified by:",opts:["A verb in the URL like /getAccount","A URL representing a noun, like /accounts/104","A random session token","The HTTP method alone"],right:1,exp:"REST resources are nouns addressed by URL; the HTTP method supplies the action, not the URL."}
+],
+2:[
+ {q:"What does the route pattern /accounts/<int:acc_id> do?",opts:["Matches any string as acc_id","Extracts and type-checks an integer segment from the URL","Requires a query parameter","Blocks all GET requests"],right:1,exp:"Flask's converter syntax both extracts and validates the URL segment as the given type before calling your function."},
+ {q:"Why use request.get_json(silent=True) instead of request.json?",opts:["It's faster","It avoids a crash on malformed JSON, returning None instead","It auto-validates all fields","There's no difference"],right:1,exp:"silent=True prevents Flask from raising a 400 automatically, letting you handle bad input explicitly."},
+ {q:"What should a successful DELETE typically return?",opts:["200 with the deleted object","201 with a new id","204 with an empty body","404"],right:2,exp:"204 No Content signals success with nothing further to return — standard for deletes."},
+ {q:"PUT vs PATCH — what's the key difference?",opts:["No difference, interchangeable","PUT replaces the whole resource, PATCH updates part of it","PATCH is only for images","PUT is read-only"],right:1,exp:"PUT implies a full replacement; PATCH implies a partial, merge-style update."}
+],
+3:[
+ {q:"Why are parameterized queries (%s placeholders) safer than f-strings in SQL?",opts:["They run faster","The driver escapes values, preventing SQL injection","They support more data types","They're required by MySQL syntax"],right:1,exp:"Parameterized queries let the driver safely escape values instead of splicing raw strings into SQL."},
+ {q:"What does cursor(dictionary=True) give you?",opts:["Faster queries","Rows returned as Python dicts with column names as keys","Automatic pagination","A read-only cursor"],right:1,exp:"dictionary=True makes fetched rows dict-shaped, ideal for passing straight into jsonify()."},
+ {q:"An attacker sends id=1 OR 1=1 as a URL param. Which query is vulnerable?",opts:["cursor.execute('...WHERE id=%s',(id,))","cursor.execute(f'...WHERE id={id}')","Both are equally vulnerable","Neither is vulnerable"],right:1,exp:"The f-string version splices the raw value into SQL text, letting the injected condition execute."},
+ {q:"After a MySQL query in a Flask route, you should:",opts:["Leave the connection open for reuse automatically","Close the cursor and connection explicitly (or use a pool)","Restart the Flask server","Never close it, MySQL handles it"],right:1,exp:"Explicitly closing cursor and connection (or managing a connection pool) avoids leaking DB connections."}
+],
+4:[
+ {q:"Which URL follows good REST naming conventions?",opts:["/api/getAccount?id=104","/api/v1/accounts/104","/Account/104/get","/api/v1/Account_Get"],right:1,exp:"Plural noun, versioned, no verb in the path — /api/v1/accounts/104 is the conventional form."},
+ {q:"Why version an API from day one (e.g. /api/v1/)?",opts:["It's required by HTTP","It lets you change response shapes later without breaking existing clients","It makes queries faster","It's only needed for public APIs"],right:1,exp:"Versioning isolates breaking changes to a new version path, so v1 clients keep working."},
+ {q:"What's the purpose of pagination on list endpoints?",opts:["To make the API look more complex","To limit response size and protect server/client performance","To hide data from unauthorized users","It's purely cosmetic"],right:1,exp:"Pagination caps how much data is returned per request, protecting memory and load time on both ends."},
+ {q:"What's a weakness of returning plain string error messages instead of structured errors?",opts:["They take more bandwidth","Clients can't reliably parse or branch on them programmatically","They're not readable by humans","There is no real weakness"],right:1,exp:"A structured error like {'error':'...','code':'ACCOUNT_NOT_FOUND'} lets client code branch on `code` reliably, unlike free-text strings."}
+]
+};
+
+let state = {unlocked:1, scores:{1:null,2:null,3:null,4:null}, challengeUnlocked:false};
+
+function buildQuiz(modNum){
+  const list = document.getElementById('qlist'+modNum);
+  quizzes[modNum].forEach((item,qi)=>{
+    const div = document.createElement('div');
+    div.className='qitem';
+    div.innerHTML = `<div class="qtext">Q${qi+1}. ${item.q}</div>
+      <div class="qopts" data-q="${qi}">
+        ${item.opts.map((o,oi)=>`<div class="qopt" data-o="${oi}">${String.fromCharCode(65+oi)}. ${o}</div>`).join('')}
+      </div>
+      <div class="qexplain" id="exp-${modNum}-${qi}"></div>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('.qopt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const parent = opt.parentElement;
+      if(parent.dataset.locked==='1') return;
+      parent.querySelectorAll('.qopt').forEach(o=>o.classList.remove('chosen'));
+      opt.classList.add('chosen');
+      parent.dataset.chosen = opt.dataset.o;
+      updateCount(modNum);
+    });
+  });
+}
+[1,2,3,4].forEach(buildQuiz);
+
+function updateCount(modNum){
+  const groups = document.querySelectorAll(`#qlist${modNum} .qopts`);
+  let answered=0;
+  groups.forEach(g=>{ if(g.dataset.chosen!==undefined) answered++; });
+  document.getElementById('qcount'+modNum).textContent = answered+'/4 answered';
+  document.getElementById('submit'+modNum).disabled = answered<4;
+}
+
+function submitQuiz(modNum){
+  const groups = document.querySelectorAll(`#qlist${modNum} .qopts`);
+  let correct=0;
+  groups.forEach((g,qi)=>{
+    g.dataset.locked='1';
+    const chosen = parseInt(g.dataset.chosen);
+    const right = quizzes[modNum][qi].right;
+    g.querySelectorAll('.qopt').forEach(o=>{
+      const oi = parseInt(o.dataset.o);
+      if(oi===right) o.classList.add('right');
+      else if(oi===chosen) o.classList.add('wrong');
+    });
+    const exp = document.getElementById(`exp-${modNum}-${qi}`);
+    exp.textContent = "✓ "+quizzes[modNum][qi].exp;
+    exp.classList.add('show');
+    if(chosen===right) correct++;
+  });
+  document.getElementById('submit'+modNum).style.display='none';
+  const scoreBox = document.getElementById('score'+modNum);
+  scoreBox.classList.add('show');
+  document.getElementById('scoretext'+modNum).textContent = correct+'/4';
+  const pct = correct/4*100;
+  const msg = pct>=75 ? "Great work — you've unlocked the next module." : "Below 75% — review the module notes above, then feel free to retry your understanding before continuing.";
+  document.getElementById('scoremsg'+modNum).textContent = msg;
+  scoreBox.querySelector('button').style.display = pct>=75 ? 'inline-block':'none';
+  state.scores[modNum]=correct;
+  updateGlobalScore();
+  updateFloatProgress();
+  if(pct<75){
+    showToast("Score below 75% — you can re-read the module and try again anytime.");
+  }
+}
+
+function unlockModule(modNum){
+  document.getElementById('body'+modNum).classList.remove('locked');
+  document.getElementById('cta'+modNum).style.display='none';
+  state.unlocked = modNum;
+  updateNav();
+  updateFloatProgress();
+  showToast("Module "+modNum+" unlocked! 🎉");
+  spawnConfetti();
+  document.getElementById('mod'+modNum).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function unlockChallenge(){
+  document.getElementById('bodychallenge').classList.remove('locked');
+  document.getElementById('ctachallenge').style.display='none';
+  state.challengeUnlocked=true;
+  updateFloatProgress();
+  showToast("Final Challenge unlocked! 🏁");
+  spawnConfetti();
+  document.getElementById('challenge').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updateGlobalScore(){
+  let total=0, max=0;
+  Object.values(state.scores).forEach(s=>{ if(s!==null){ total+=s; } max+=4; });
+  document.getElementById('scorepill').textContent = `Score: ${total}/16`;
+}
+
+function updateNav(){
+  const nav = document.getElementById('modnav');
+  nav.innerHTML='';
+  [1,2,3,4].forEach(m=>{
+    const d = document.createElement('div');
+    d.className='moddot'+(m===state.unlocked?' active':(state.scores[m]!==null?' done':''));
+    d.title='Module '+m;
+    d.onclick=()=>{ if(m<=state.unlocked || state.scores[m]!==null) document.getElementById('mod'+m).scrollIntoView({behavior:'smooth'}); };
+    nav.appendChild(d);
+  });
+}
+updateNav();
+
+function updateFloatProgress(){
+  let completed=0;
+  Object.values(state.scores).forEach(s=>{ if(s!==null && s/4>=0.75) completed++; });
+  if(state.challengeUnlocked) completed+=0.5;
+  const pct = Math.min(100, Math.round(completed/4.5*100));
+  document.getElementById('floatbar').style.width=pct+'%';
+  document.getElementById('floatpct').textContent=pct+'%';
+  document.getElementById('topbar-fill').style.width=pct+'%';
+}
+updateFloatProgress();
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+function spawnConfetti(){
+  const colors=['#1a56ff','#00c2a8','#ffb454','#3ddc97'];
+  for(let i=0;i<26;i++){
+    const c = document.createElement('div');
+    c.className='confetti';
+    c.style.left = Math.random()*100+'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    const duration = 1800+Math.random()*1200;
+    c.animate([
+      {transform:`translateY(0) rotate(0deg)`, opacity:1},
+      {transform:`translateY(100vh) rotate(${360+Math.random()*360}deg)`, opacity:0}
+    ], {duration, easing:'ease-in'});
+    setTimeout(()=>c.remove(), duration);
+  }
+}
+
+/* ---------------- Exercise 1: status code chips (multi-group) ---------------- */
+document.querySelectorAll('#ex1 .methodpicker').forEach(group=>{
+  group.querySelectorAll('.methodchip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      group.querySelectorAll('.methodchip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      checkEx1();
+    });
+  });
+});
+function checkEx1(){
+  const groups = document.querySelectorAll('#ex1 .methodpicker');
+  let allAnswered=true, allCorrect=true;
+  groups.forEach(g=>{
+    const sel = g.querySelector('.selected');
+    if(!sel){ allAnswered=false; return; }
+    if(sel.dataset.val !== g.dataset.answer) allCorrect=false;
+  });
+  const fb = document.getElementById('ex1fb');
+  if(!allAnswered) return;
+  fb.classList.add('show');
+  if(allCorrect){ fb.className='feedback show ok'; fb.textContent="✓ All correct — you're reading outcomes correctly, not just \"did it error.\""; }
+  else { fb.className='feedback show bad'; fb.textContent='Not quite — re-check: missing resource, invalid input type, and successful creation each map to a different status family.'; }
+}
+
+/* Exercise 2 */
+document.querySelectorAll('#ex2 .methodpicker .methodchip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const group = chip.parentElement;
+    group.querySelectorAll('.methodchip').forEach(c=>c.classList.remove('selected'));
+    chip.classList.add('selected');
+    const fb = document.getElementById('ex2fb');
+    fb.classList.add('show');
+    if(chip.dataset.val===group.dataset.answer){ fb.className='feedback show ok'; fb.textContent='✓ Correct — PUT replaces the full resource.'; }
+    else { fb.className='feedback show bad'; fb.textContent='Not quite — "fully replace" is the defining signal for PUT, not PATCH or POST.'; }
+  });
+});
+
+/* Exercise 3 */
+document.querySelectorAll('#ex3 .methodpicker').forEach(group=>{
+  group.querySelectorAll('.methodchip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#ex3 .methodchip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const fb = document.getElementById('ex3fb');
+      fb.classList.add('show');
+      if(chip.dataset.val==='b'){ fb.className='feedback show ok'; fb.textContent='✓ Correct — line B splices acc_id directly into the SQL string via an f-string, which is injectable.'; }
+      else { fb.className='feedback show bad'; fb.textContent='Line A is the safe one — it uses a %s placeholder. Look again at line B.'; }
+    });
+  });
+});
+
+/* Exercise 4 */
+function checkEx4(){
+  const val = document.getElementById('ex4input').value.trim().toLowerCase();
+  const fb = document.getElementById('ex4fb');
+  fb.classList.add('show');
+  const ok = val.includes('v1') && val.includes('accounts') && val.includes('104') && val.includes('transactions');
+  if(ok){ fb.className='feedback show ok'; fb.textContent='✓ Correct shape — /api/v1/accounts/104/transactions nests transactions under their owning account.'; }
+  else { fb.className='feedback show bad'; fb.textContent='Aim for: /api/v1/accounts/104/transactions — versioned, plural nouns, nested by ownership.'; }
+}
+
+/* ---------------- Final challenge checklist ---------------- */
+const challengeItems = [
+ "GET /api/v1/accounts/<id>/transactions returns a paginated list",
+ "POST /api/v1/accounts/<id>/transactions creates a transaction with validation (amount required, type in [deposit, withdrawal])",
+ "GET /api/v1/accounts/<id>/transactions/<tx_id> returns 404 for missing transactions",
+ "All SQL queries use %s parameterized placeholders",
+ "Write endpoints are gated behind an X-API-Key check",
+ "Every response uses jsonify() with a correct, deliberate status code"
+];
+const cl = document.getElementById('checklist');
+challengeItems.forEach((txt,i)=>{
+  const id = 'chk'+i;
+  const div = document.createElement('div');
+  div.className='checkitem';
+  div.innerHTML = `<input type="checkbox" id="${id}"><label for="${id}">${txt}</label>`;
+  div.querySelector('input').addEventListener('change', e=>{
+    div.classList.toggle('done', e.target.checked);
+    const allDone = [...cl.querySelectorAll('input')].every(i=>i.checked);
+    if(allDone){ showToast("Final Challenge complete — API Architect badge earned! 🏆"); spawnConfetti(); }
+  });
+  cl.appendChild(div);
+});
+</script>
+</body>
+</html>
