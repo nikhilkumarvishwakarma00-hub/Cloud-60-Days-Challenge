@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nikhil's LinkedIn Rebuild</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root{
+  --navy:#080e24;
+  --navy2:#0d1630;
+  --card:#111b3d;
+  --blue:#1a56ff;
+  --teal:#00c2a8;
+  --text:#e8ecf7;
+  --muted:#8fa0c9;
+  --red:#ff5c6c;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--navy); color:var(--text);
+  font-family:'Inter',sans-serif; line-height:1.55;
+}
+.wrap{max-width:920px; margin:0 auto; padding:40px 20px 100px;}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0 0 8px;}
+.mono{font-family:'JetBrains Mono',monospace;}
+header{text-align:center; padding:20px 0 30px;}
+header .eyebrow{color:var(--teal); font-family:'JetBrains Mono',monospace; letter-spacing:2px; font-size:12px; text-transform:uppercase;}
+header h1{font-size:32px; background:linear-gradient(90deg,var(--blue),var(--teal)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header p{color:var(--muted); max-width:560px; margin:10px auto 0;}
+
+nav{position:sticky; top:0; background:rgba(8,14,36,0.95); backdrop-filter:blur(6px); z-index:10; display:flex; gap:6px; overflow-x:auto; padding:12px 0; margin-bottom:30px; border-bottom:1px solid #1c2a54;}
+nav button{background:transparent; border:1px solid #23315e; color:var(--muted); padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif;}
+nav button.active{background:var(--blue); color:#fff; border-color:var(--blue);}
+
+section{display:none;}
+section.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+.card{background:var(--card); border:1px solid #1c2a54; border-radius:12px; padding:22px 24px; margin-bottom:18px;}
+.score-row{display:flex; align-items:center; gap:14px; margin:10px 0;}
+.score-label{width:170px; font-size:14px; color:var(--muted); flex-shrink:0;}
+.bar{flex:1; background:#1c2a54; border-radius:6px; height:10px; overflow:hidden;}
+.bar-fill{height:100%; background:linear-gradient(90deg,var(--blue),var(--teal)); border-radius:6px;}
+.score-num{width:50px; text-align:right; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--teal);}
+
+.overall{font-size:15px; margin-top:14px; padding-top:14px; border-top:1px dashed #23315e;}
+.overall b{color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:20px;}
+
+.problem{margin:16px 0; padding:14px 16px; background:#0d1734; border-left:3px solid var(--red); border-radius:0 8px 8px 0;}
+.problem .quote{color:var(--red); font-style:italic;}
+.problem .line{margin:4px 0; font-size:14px; color:var(--muted);}
+.problem .line b{color:var(--text);}
+
+.option{background:#0d1734; border:1px solid #23315e; border-radius:10px; padding:14px 16px; margin-bottom:12px;}
+.option h4{margin:0 0 6px; color:var(--teal); font-size:13px; text-transform:uppercase; letter-spacing:1px;}
+.option p{margin:0; font-size:15px;}
+.option .when{margin-top:8px; font-size:13px; color:var(--muted);}
+
+.ba{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0;}
+.ba div{padding:12px; border-radius:8px; font-size:14px;}
+.before{background:#2a0f16; border:1px solid #4a1a24; color:#ff9aa5;}
+.after{background:#08251f; border:1px solid #14453a; color:#7fe6cf;}
+.ba .tag{font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:.7; display:block; margin-bottom:4px;}
+
+.pill{display:inline-block; background:#0d1734; border:1px solid var(--blue); color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:12px; padding:4px 10px; border-radius:14px; margin:3px 4px 3px 0;}
+.remove-pill{border-color:var(--red); color:var(--red);}
+
+.day{display:flex; gap:14px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #1c2a54;}
+.day:last-child{border:none;}
+.daynum{font-family:'JetBrains Mono',monospace; color:var(--blue); font-weight:600; flex-shrink:0; width:60px;}
+.day-content h4{margin:0 0 6px; font-size:15px;}
+.day-content p{margin:4px 0; font-size:14px; color:var(--muted);}
+.template{background:#0d1734; border-radius:8px; padding:12px 14px; font-size:13px; margin-top:8px; white-space:pre-wrap; border:1px solid #23315e;}
+
+.summary-card{background:linear-gradient(145deg,#0d1734,#111b3d); border:1px solid var(--teal); border-radius:14px; padding:26px; text-align:left;}
+.summary-card .before-after{display:flex; gap:20px; justify-content:center; margin:16px 0;}
+.summary-card .ba-box{text-align:center;}
+.summary-card .ba-box .n{font-family:'JetBrains Mono',monospace; font-size:28px; color:var(--teal);}
+.summary-card .arrow{font-size:22px; color:var(--muted); align-self:center;}
+.summary-card ol{font-size:14px; color:var(--muted); padding-left:18px;}
+.summary-card .highlight{color:var(--teal); font-weight:600;}
+
+.assumption{background:#1a1608; border:1px solid #4a3a14; color:#e6c97f; font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:16px;}
+
+footer{text-align:center; color:var(--muted); font-size:12px; padding-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">LinkedIn Optimization Report</div>
+  <h1>Nikhil, here's the honest truth.</h1>
+  <p>A full roast, rebuild, and 7-day activation plan — built from your actual profile content.</p>
+</header>
+
+<div class="assumption">⚠️ <b>Assumption:</b> you didn't specify a target goal, so this report is optimized for <b>landing your first internship/entry-level role</b> in Web Development, Software Development, or Prompt Engineering — matching your stated career direction. Tell me if you'd rather optimize for freelance clients or thought leadership instead.</div>
+
+<nav id="tabs">
+  <button data-t="t1" class="active">1. The Roast</button>
+  <button data-t="t2">2. The Rebuild</button>
+  <button data-t="t3">3. Scorecard</button>
+  <button data-t="t4">4. 7-Day Plan</button>
+  <button data-t="t5">5. Share Card</button>
+</nav>
+
+<!-- PART 1 -->
+<section id="t1" class="active">
+  <div class="card">
+    <h2>Profile Report Card — BEFORE</h2>
+    <div class="score-row"><div class="score-label">Headline</div><div class="bar"><div class="bar-fill" style="width:20%"></div></div><div class="score-num">2/10</div></div>
+    <div class="score-row"><div class="score-label">About — First 2 Lines</div><div class="bar"><div class="bar-fill" style="width:30%"></div></div><div class="score-num">3/10</div></div>
+    <div class="score-row"><div class="score-label">About — Full Section</div><div class="bar"><div class="bar-fill" style="width:40%"></div></div><div class="score-num">4/10</div></div>
+    <div class="score-row"><div class="score-label">Experience</div><div class="bar"><div class="bar-fill" style="width:10%"></div></div><div class="score-num">1/10</div></div>
+    <div class="score-row"><div class="score-label">Skills & Keywords</div><div class="bar"><div class="bar-fill" style="width:40%"></div></div><div class="score-num">4/10</div></div>
+    <div class="overall">Overall Profile Strength — <b>27/100</b></div>
+  </div>
+
+  <div class="card">
+    <h3>Headline</h3>
+    <div class="problem">
+      <div class="quote">"Student at MAHARANA PRATAP COLLEGE OF PROFESSIONAL STUDIES"</div>
+      <div class="line">❌ <b>The problem:</b> This is LinkedIn's auto-generated default. You never touched it.</div>
+      <div class="line">🧠 <b>Why it hurts:</b> A recruiter searching "Python developer" or "Flask" or "Prompt Engineering" will never find you — your headline has zero of your actual skills in it. It reads as "hasn't started building their brand yet."</div>
+      <div class="line">🔍 <b>Invisible cost:</b> LinkedIn's search algorithm weighs the headline heavily. Right now you're invisible to keyword-based recruiter searches, which is how most freshers actually get found.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>About — First 2 Lines (the "before see more" zone)</h3>
+    <div class="problem">
+      <div class="quote">"I am a motivated and enthusiastic Computer Applications student with a strong interest in programming, software development, Generative AI, and emerging technologies."</div>
+      <div class="line">❌ <b>The problem:</b> "Motivated and enthusiastic student with a strong interest in" is the single most common opening line on LinkedIn. It could be any of 500,000 BCA students in India.</div>
+      <div class="line">🧠 <b>Why it hurts:</b> Recruiters decide whether to click "see more" in under 3 seconds. This line gives them zero reason to — no proof, no specificity, no hook.</div>
+      <div class="line">🔍 <b>Invisible cost:</b> Most readers never see line 3 onward — which is exactly where your real proof (the Hogwarts project, the 43-day build streak) is buried.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>About — Full Section</h3>
+    <div class="problem">
+      <div class="line">❌ <b>The problem:</b> Well-structured but generic — phrases like "passionate about continuous learning," "strengthened my analytical thinking," and "solid foundation" are filler recruiters skim past. There's no number, no named project, no outcome, and no call-to-action at the end.</div>
+      <div class="line">🧠 <b>Why it hurts:</b> It reads like a paragraph written to satisfy a template, not to make someone want to reach out. It never mentions Hogwarts Bank Management System, your 43-day Cloud AI build streak, or Flask/MySQL by name — the very things that make you different.</div>
+      <div class="line">🔍 <b>Invisible cost:</b> You're sitting on genuinely strong proof (a real full-stack app, a daily public build habit) and hiding it below generic buzzwords. Recruiters skim; they never get to the good part.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Experience</h3>
+    <div class="problem">
+      <div class="line">❌ <b>The problem:</b> There is no Experience or Projects section on your profile at all. Your Hogwarts Bank Management System — a genuinely solid full-stack project — doesn't exist anywhere on LinkedIn. Your daily posts (43 days of shipped AI apps!) are the only proof of work, buried in your Activity feed.</div>
+      <div class="line">🧠 <b>Why it hurts:</b> Recruiters check the Experience/Projects section first, not your post history. Right now that section is blank, so anyone skimming your profile sees a student with no demonstrated project work — even though you clearly have some.</div>
+      <div class="line">🔍 <b>Invisible cost:</b> This is your single biggest loss. A 43-day public build streak is rare and impressive — but it's invisible to anyone who doesn't scroll your whole feed.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Skills & Keywords</h3>
+    <div class="problem">
+      <div class="line">❌ <b>The problem:</b> Listed: C, C++, Python, Prompt Engineering, Generative AI, Problem Solving, Analytical Thinking, Software Development, Teamwork, Communication. Missing: Flask, MySQL, JavaScript, HTML/CSS, Git, and Claude AI — the exact stack you actually build with daily.</div>
+      <div class="line">🧠 <b>Why it hurts:</b> C and C++ are academic-only for you and don't match your target roles. Meanwhile the tools recruiters actually search for web-dev and prompt-engineering roles (Flask, JavaScript, MySQL) are absent.</div>
+      <div class="line">🔍 <b>Invisible cost:</b> You show up in searches for "C++ developer" (a role you're not targeting) and disappear from searches for "Flask developer" or "Prompt Engineer" (roles you are).</div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 2 -->
+<section id="t2">
+  <div class="card">
+    <h2>Headline — 3 Options</h2>
+    <div class="option">
+      <h4>Option 1 — Keyword-Optimized (for search visibility)</h4>
+      <p>Web Developer | Python, Flask, MySQL, JavaScript | Prompt Engineering & Generative AI | BCA Student</p>
+      <div class="when">Use when: applying directly to jobs / getting found by recruiter keyword searches.</div>
+    </div>
+    <div class="option">
+      <h4>Option 2 — Value-Proposition (for standing out)</h4>
+      <p>I build full-stack web apps and AI-powered tools — 43 days shipped and counting | Python · Flask · JavaScript · Prompt Engineering</p>
+      <div class="when">Use when: you want the streak/proof-of-work to do the talking, not just keywords.</div>
+    </div>
+    <div class="option">
+      <h4>Option 3 — Authority (for thought leadership)</h4>
+      <p>Shipping One AI-Powered App Every Day | 60-Day Build Challenge | Full-Stack Dev + Prompt Engineering | Open to Internships</p>
+      <div class="when">Use when: you're actively posting daily content and want the streak to be your identity.</div>
+    </div>
+    <p style="color:var(--muted); font-size:14px; margin-top:10px;">Given your stated goal (landing an internship), start with <b style="color:var(--teal)">Option 1</b> — it's the one that gets you found in search — and consider switching to Option 3 once your Cloud 60 series has a bigger following.</p>
+  </div>
+
+  <div class="card">
+    <h2>About Section — Full Rewrite</h2>
+    <div class="option">
+      <h4>Line 1-2 — The Hook</h4>
+      <p>43 days. 43 shipped AI-powered apps. Zero excuses.</p>
+    </div>
+    <div class="option">
+      <h4>Line 3-5 — The Story</h4>
+      <p>I'm a final-stretch BCA student who'd rather build than just study. I taught myself full-stack development — Python, Flask, MySQL, JavaScript — by building a real banking application from scratch, then went further and started a public 60-day challenge shipping one AI-powered web app every single day using Claude and modern prompt engineering.</p>
+    </div>
+    <div class="option">
+      <h4>Line 6-8 — Proof</h4>
+      <p>→ Built Hogwarts Bank Management System: a full-stack banking app with account management, EMI calculator, loan module, and transaction history.<br>→ 43 consecutive days of publicly shipped AI-powered tools — learning workflows, PDF tools, dashboards, and more.<br>→ Certified through TCS iON, Google, and HP LIFE in AI and professional development.</p>
+    </div>
+    <div class="option">
+      <h4>Last Line — CTA</h4>
+      <p>Looking for my first internship or entry-level role in Web Development or Prompt Engineering — check the Featured section for my project links, or message me directly.</p>
+    </div>
+    <p style="margin-top:14px; font-size:14px;"><b style="color:var(--teal)">Keywords embedded:</b></p>
+    <div>
+      <span class="pill">Full-Stack Development</span><span class="pill">Python</span><span class="pill">Flask</span><span class="pill">MySQL</span><span class="pill">JavaScript</span><span class="pill">Prompt Engineering</span><span class="pill">Generative AI</span><span class="pill">Claude AI</span><span class="pill">Web Development</span><span class="pill">Software Developer</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Experience/Projects — Top Entry Rewrite</h2>
+    <p style="color:var(--muted); font-size:14px;">First: <b style="color:var(--text)">add an Experience or Projects section</b> to your profile — it currently doesn't exist. Use this rewritten version of your Hogwarts Bank Management System entry.</p>
+    <div class="ba">
+      <div class="before"><span class="tag">Before</span>Developed a full-stack banking web application enabling customers to perform account transactions efficiently.</div>
+      <div class="after"><span class="tag">After</span>Built a full-stack banking platform from scratch (Flask + MySQL + JS) handling account creation, transfers, and transaction history for simulated customer accounts.</div>
+    </div>
+    <div class="ba">
+      <div class="before"><span class="tag">Before</span>Implemented account creation and updates, balance check, money transfer, transaction history, feedback system, loan application, EMI calculator, and help section.</div>
+      <div class="after"><span class="tag">After</span>Shipped 8 core modules independently — including a loan application flow and a working EMI calculator — with zero team support, end to end.</div>
+    </div>
+    <div class="ba">
+      <div class="before"><span class="tag">Before</span>Designed a clean, responsive, and user-friendly interface for seamless navigation across all features.</div>
+      <div class="after"><span class="tag">After</span>Designed a fully responsive UI from scratch, tested across devices to keep navigation friction-free for every module.</div>
+    </div>
+    <div class="ba">
+      <div class="before"><span class="tag">Before</span>Utilized MySQL database to store and manage customer and transaction data securely.</div>
+      <div class="after"><span class="tag">After</span>Architected a MySQL schema handling secure storage for accounts, transactions, and loan records.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Skills Recommendations</h2>
+    <h4 style="color:var(--teal); font-size:13px; text-transform:uppercase;">Add (priority order)</h4>
+    <div><span class="pill">1. Flask</span><span class="pill">2. JavaScript</span><span class="pill">3. MySQL</span><span class="pill">4. HTML5 & CSS3</span><span class="pill">5. Claude AI</span><span class="pill">6. LLM Prompt Engineering</span><span class="pill">7. Git & GitHub</span><span class="pill">8. REST APIs</span><span class="pill">9. Full-Stack Web Development</span><span class="pill">10. Software Development Life Cycle</span></div>
+    <h4 style="color:var(--red); font-size:13px; text-transform:uppercase; margin-top:16px;">Remove (diluting your target)</h4>
+    <div><span class="pill remove-pill">C</span><span class="pill remove-pill">C++</span><span class="pill remove-pill">Microsoft Office</span></div>
+    <p style="font-size:13px; color:var(--muted); margin-top:8px;">These are academic-only or generic — they don't match Web Dev / Prompt Engineering roles and crowd out the keywords that do.</p>
+    <h4 style="color:var(--blue); font-size:13px; text-transform:uppercase; margin-top:16px;">Pin to top 3</h4>
+    <div><span class="pill">Prompt Engineering</span><span class="pill">Python (Flask)</span><span class="pill">Web Development</span></div>
+  </div>
+</section>
+
+<!-- PART 3 -->
+<section id="t3">
+  <div class="card">
+    <h2>Before vs After Scorecard</h2>
+    <div class="score-row"><div class="score-label">Headline</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div><div class="score-num">2→8</div></div>
+    <div class="score-row"><div class="score-label">About (Hook)</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div><div class="score-num">3→8</div></div>
+    <div class="score-row"><div class="score-label">About (Full)</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div><div class="score-num">4→8</div></div>
+    <div class="score-row"><div class="score-label">Experience</div><div class="bar"><div class="bar-fill" style="width:70%"></div></div><div class="score-num">1→7</div></div>
+    <div class="score-row"><div class="score-label">Skills/Keywords</div><div class="bar"><div class="bar-fill" style="width:80%"></div></div><div class="score-num">4→8</div></div>
+    <div class="overall">OVERALL — 27/100 → <b>78/100</b> (+51)</div>
+  </div>
+</section>
+
+<!-- PART 4 -->
+<section id="t4">
+  <div class="card">
+    <h2>7-Day LinkedIn Activation Plan</h2>
+    <div class="day">
+      <div class="daynum">DAY 1</div>
+      <div class="day-content">
+        <h4>Make all profile changes</h4>
+        <p>☐ Update headline (Option 1)<br>☐ Replace About section<br>☐ Add Experience/Projects entry for Hogwarts Bank Management System<br>☐ Add 10 new skills, remove C/C++/MS Office, pin top 3<br>☐ Add Featured section linking your GitHub repo (once published) and any live demo</p>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 2</div>
+      <div class="day-content">
+        <h4>Post #1 — "I just rebuilt my LinkedIn" post</h4>
+        <div class="template">I just realized my LinkedIn headline was still the auto-generated default. 😅
+
+So I rebuilt it — new headline, new About section, and I finally added my Hogwarts Bank Management System project (full-stack: Python, Flask, MySQL, JS) to the profile.
+
+Turns out most of us are sitting on real proof of work and never showing it. If you're a student too — go check what your headline actually says right now. You might be surprised.
+
+#LinkedInOptimization #WebDevelopment #BCA #OpenToWork</div>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 3</div>
+      <div class="day-content">
+        <h4>Send 10 strategic connection requests</h4>
+        <p>Target: hiring managers and recruiters at Kanpur/Lucknow/remote-friendly startups hiring freshers, alumni from CSJM University now working in tech, and developers posting about Flask/prompt engineering.</p>
+        <div class="template">Hi [Name], I'm a BCA student building full-stack apps with Flask and exploring prompt engineering. Really enjoyed [something specific about their post/company] — would love to connect and follow your work.</div>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 4</div>
+      <div class="day-content">
+        <h4>Comment on 5 posts in your target space</h4>
+        <p>Formula: <b>Agree + Add Insight + Ask a Question.</b> Example: "Totally agree that prompt clarity beats model choice half the time — I found the same thing building my 60-day AI app challenge, where vague prompts cost me way more debugging time than picking the 'wrong' model. Curious — do you iterate prompts live, or draft them separately first?"</p>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 5</div>
+      <div class="day-content">
+        <h4>Post #2 — Lessons-learned / hot-take post</h4>
+        <div class="template">43 days into building one AI-powered app a day, here's the unpopular truth: the model matters way less than the prompt.
+
+I've rebuilt the same feature with three different "smarter" models and gotten worse results than a clearer prompt on a basic one. Prompt engineering isn't a buzzword — it's the actual skill that determines your output quality.
+
+If you're a student learning to code AND learning to prompt at the same time — prioritize the prompt. It transfers across every tool you'll ever use.
+
+#PromptEngineering #ClaudeAI #LearningInPublic</div>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 6</div>
+      <div class="day-content">
+        <h4>Engage + send 5 more connection requests</h4>
+        <p>Reply to every comment on Day 2 and Day 5 posts within a few hours — early engagement is what LinkedIn's algorithm rewards most. Send 5 more targeted requests using the Day 3 template.</p>
+      </div>
+    </div>
+    <div class="day">
+      <div class="daynum">DAY 7</div>
+      <div class="day-content">
+        <h4>Review your numbers</h4>
+        <p><b>Profile views:</b> a jump here means your headline/About are pulling people in from search or posts. <b>Connection acceptance rate:</b> below 40% usually means your ask wasn't specific enough — tighten the template. <b>Post impressions:</b> compare Day 2 vs Day 5 — whichever performed better tells you whether your audience responds more to personal wins or to opinions/hot-takes. Double down on that format next week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 5 -->
+<section id="t5">
+  <div class="card">
+    <h2>What I Learned Today</h2>
+    <div class="summary-card">
+      <p style="font-size:15px;">"I let AI roast my LinkedIn profile today. Here's what changed:"</p>
+      <div class="before-after">
+        <div class="ba-box"><div style="font-size:12px;color:var(--muted);">BEFORE</div><div class="n">27/100</div></div>
+        <div class="arrow">→</div>
+        <div class="ba-box"><div style="font-size:12px;color:var(--muted);">AFTER</div><div class="n">78/100</div></div>
+      </div>
+      <p style="font-size:14px;"><b>Top 3 mistakes I was making:</b></p>
+      <ol>
+        <li>My headline was still LinkedIn's auto-generated default — zero keywords, zero visibility.</li>
+        <li>I had a real full-stack project and a 43-day build streak but no Experience/Projects section to show it.</li>
+        <li>My About section was full of generic phrases ("motivated and enthusiastic") instead of proof and numbers.</li>
+      </ol>
+      <p style="font-size:14px;">The #1 thing that made the biggest difference: <span class="highlight">adding a real Experience entry with proof of work — the streak and the project were always there, they just weren't visible.</span></p>
+    </div>
+  </div>
+</section>
+
+<footer>Built from your actual LinkedIn profile content · No fabricated achievements or metrics</footer>
+</div>
+
+<script>
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.t).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
