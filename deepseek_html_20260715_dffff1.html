@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Report · Nikhil Kumar Vishwakarma</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-main: #0f0f14;
+      --bg-card: #1a1a24;
+      --bg-card-alt: #1e1e2e;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-blue: #60a5fa;
+      --accent-gold: #fbbf24;
+      --accent-purple: #a78bfa;
+      --border-subtle: rgba(255,255,255,0.06);
+    }
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      padding: 24px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      scroll-behavior: smooth;
+    }
+    .container {
+      max-width: 720px;
+      width: 100%;
+    }
+    /* HEADER */
+    .header {
+      padding: 32px 0 16px;
+      border-bottom: 2px solid transparent;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-gold));
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      border-bottom: 2px solid var(--border-subtle);
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .header .sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .header .date {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      margin-bottom: 28px;
+      transition: transform 0.2s ease;
+      border-left: 4px solid transparent;
+    }
+    .card:hover { transform: translateY(-2px); }
+    .card-alt { background: var(--bg-card-alt); }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title .badge {
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 12px;
+      border-radius: 30px;
+      color: var(--text-secondary);
+    }
+    /* left borders */
+    .card-border-blue { border-left-color: var(--accent-blue); }
+    .card-border-green { border-left-color: var(--accent-green); }
+    .card-border-purple { border-left-color: var(--accent-purple); }
+    .card-border-red { border-left-color: var(--accent-red); }
+    .card-border-gold { border-left-color: var(--accent-gold); }
+
+    .text-secondary { color: var(--text-secondary); }
+    .text-gold { color: var(--accent-gold); }
+    .fw-600 { font-weight: 600; }
+    .mt-8 { margin-top: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .gap-8 { gap: 8px; }
+    .gap-16 { gap: 16px; }
+    .items-center { align-items: center; }
+
+    /* Section 2: option cards */
+    .option-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .option-card {
+      background: var(--bg-card-alt);
+      border-radius: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .option-card h4 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .option-card .tag {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .option-card ul {
+      list-style: none;
+      margin-top: 6px;
+    }
+    .option-card li {
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2px 0;
+      color: var(--text-primary);
+    }
+    .option-card li strong { color: var(--text-secondary); font-weight: 500; }
+    .hidden-upside { color: var(--accent-gold); }
+    .weakness { color: var(--accent-red); }
+
+    /* Assumption */
+    .assump-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .assump-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      padding: 12px 16px;
+      border-left: 3px solid var(--accent-purple);
+    }
+    .assump-item .label {
+      font-weight: 600;
+      color: var(--accent-purple);
+      font-size: 14px;
+    }
+    .bias-tag {
+      display: inline-block;
+      background: rgba(167,139,250,0.15);
+      color: var(--accent-purple);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 2px 12px;
+      border-radius: 30px;
+      margin-right: 6px;
+    }
+
+    /* Matrix */
+    .matrix-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .matrix-label {
+      width: 40%;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .matrix-bar-wrap {
+      flex: 1;
+      height: 28px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .matrix-bar {
+      height: 100%;
+      border-radius: 8px;
+      width: 0%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      animation: growBar 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes growBar {
+      0% { width: 0%; opacity: 0; }
+      100% { width: var(--w); opacity: 1; }
+    }
+    .bar-a { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
+    .bar-b { background: linear-gradient(90deg, #34d399, #10b981); }
+    .bar-c { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
+
+    .total-row {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 17px;
+    }
+    .total-row .highlight { color: var(--accent-gold); }
+
+    /* Premortem */
+    .premortem-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .premortem-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .premortem-item h5 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-red);
+      margin-bottom: 4px;
+    }
+    .premortem-item ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .premortem-item li {
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2px 0;
+    }
+    .premortem-item .warn {
+      color: var(--accent-gold);
+      font-weight: 500;
+    }
+
+    /* 7-day */
+    .day-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .day-row {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .day-row .day {
+      font-weight: 700;
+      color: var(--accent-green);
+      width: 70px;
+      flex-shrink: 0;
+    }
+    .day-row .desc { font-size: 14px; }
+
+    /* Verdict */
+    .verdict-box {
+      text-align: center;
+      padding: 8px 0 4px;
+    }
+    .verdict-box .winner-name {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      letter-spacing: -0.5px;
+    }
+    .verdict-box .winner-sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .verdict-box .hard-truth {
+      font-style: italic;
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .glow-gold {
+      box-shadow: 0 0 20px rgba(251,191,36,0.12);
+    }
+
+    /* Shareable cards */
+    .share-grid {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .share-card {
+      flex: 1;
+      min-width: 160px;
+      background: var(--bg-card-alt);
+      border-radius: 12px;
+      padding: 18px 16px 14px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .share-card .title-sm {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .share-card .content {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 6px 0 4px;
+    }
+    .share-card .sub-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .watermark {
+      font-size: 11px;
+      color: var(--text-secondary);
+      opacity: 0.5;
+      margin-top: 12px;
+      text-align: right;
+    }
+    .footer {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 600px) {
+      .card { padding: 18px 16px; }
+      .header h1 { font-size: 24px; }
+      .matrix-label { width: 100%; }
+      .matrix-row { flex-wrap: wrap; gap: 4px; }
+      .matrix-bar-wrap { width: 100%; }
+      .share-grid { flex-direction: column; }
+      .verdict-box .winner-name { font-size: 26px; }
+      .day-row { flex-wrap: wrap; }
+      .day-row .day { width: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>⚡ DECISION REPORT</h1>
+    <div class="sub">Nikhil Kumar Vishwakarma · Python Full Stack vs. AI/ML</div>
+    <div class="date">15 July 2026 · ABTalks 60-Day Challenge</div>
+  </div>
+
+  <!-- SECTION 1 — THE REAL DECISION -->
+  <div class="card card-border-blue">
+    <div class="section-title" style="color:var(--accent-blue);">The Real Decision <span class="badge">trade-off</span></div>
+    <div style="font-size:15px; line-height:1.7;">
+      <strong>Focus entirely on Python Full Stack</strong> for placement-readiness <span style="color:var(--text-secondary);">vs.</span> 
+      <strong>split time with AI/ML</strong> to keep learning advanced skills.<br>
+      <span style="color:var(--text-secondary);">The real trade-off:</span> short-term placement confidence <em>vs.</em> long-term passion &amp; differentiation.<br>
+      <span style="color:var(--text-secondary);">Why it's emotionally hard:</span> fear of closing a door on AI/ML vs. fear of not being job-ready.
+    </div>
+  </div>
+
+  <!-- SECTION 2 — CASE FOR EACH OPTION -->
+  <div class="card card-border-green">
+    <div class="section-title" style="color:var(--accent-green);">Case for Each Option</div>
+    <div class="option-grid">
+      <!-- Option A: Full Stack -->
+      <div class="option-card">
+        <h4>🔵 Python Full Stack (Focus)</h4>
+        <div class="tag">Strongest case:</div>
+        <ul><li>Direct alignment with placement requirements — faster job-ready.</li></ul>
+        <div class="tag hidden-upside">Hidden upside:</div>
+        <ul><li>Mastery in one domain builds deeper confidence &amp; interview command.</li></ul>
+        <div class="tag weakness">Biggest weakness:</div>
+        <ul><li>No AI/ML portfolio growth during that window.</li></ul>
+        <div class="tag" style="color:var(--accent-blue);">Best if you value:</div>
+        <ul><li>Certainty, quick ROI, and a clear short-term goal.</li></ul>
+      </div>
+      <!-- Option B: Split with AI/ML -->
+      <div class="option-card">
+        <h4>🟢 Full Stack + AI/ML (Split)</h4>
+        <div class="tag">Strongest case:</div>
+        <ul><li>Differentiated profile — shows depth and curiosity.</li></ul>
+        <div class="tag hidden-upside">Hidden upside:</div>
+        <ul><li>AI/ML projects can become talking points that set you apart.</li></ul>
+        <div class="tag weakness">Biggest weakness:</div>
+        <ul><li>Risk of shallow learning in both areas; slower placement prep.</li></ul>
+        <div class="tag" style="color:var(--accent-blue);">Best if you value:</div>
+        <ul><li>Future optionality, intellectual excitement, and long-term growth.</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 — ASSUMPTION BUSTER -->
+  <div class="card card-border-purple">
+    <div class="section-title" style="color:var(--accent-purple);">Assumption Buster</div>
+    <div class="assump-grid">
+      <div class="assump-item"><span class="label">🧠 Assumption 1</span> — “AI/ML is a separate path I have to choose now.” <span style="color:var(--text-secondary);">Actually, foundational Python + DSA is used in both.</span></div>
+      <div class="assump-item"><span class="label">🧠 Assumption 2</span> — “Placement companies only care about Full Stack.” <span style="color:var(--text-secondary);">Many value problem-solving and adaptability more.</span></div>
+      <div class="assump-item"><span class="label">🧠 Assumption 3</span> — “I’ll lose AI/ML skills if I pause.” <span style="color:var(--text-secondary);">Skills transfer — you can pick it back up faster later.</span></div>
+      <div style="margin-top:6px;">
+        <span class="bias-tag">Sunk cost</span> <span class="bias-tag">Loss aversion</span>
+        <div style="margin-top:8px; color:var(--accent-red); font-weight:500;">⚠️ Ignoring: Placement prep is a <em>spike</em> — you can specialize after you get the job.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 — DECISION MATRIX -->
+  <div class="card card-border-blue">
+    <div class="section-title" style="color:var(--accent-blue);">Decision Matrix <span class="badge">/70</span></div>
+    <div id="matrixContainer">
+      <!-- rows injected by JS -->
+    </div>
+    <div style="margin-top:20px; font-size:13px; color:var(--text-secondary);">*10 = high upside / low stress / easy to undo / low regret</div>
+  </div>
+
+  <!-- SECTION 5 — PREMORTEM -->
+  <div class="card card-border-red">
+    <div class="section-title" style="color:var(--accent-red);">Premortem <span class="badge">12-month failure</span></div>
+    <div class="premortem-grid">
+      <div class="premortem-item">
+        <h5>🔵 Full Stack Focus</h5>
+        <ul>
+          <li>❌ Placement doesn’t come through — market shifts.</li>
+          <li>❌ Regret not exploring AI/ML earlier.</li>
+          <li>❌ Skill set too narrow for emerging roles.</li>
+          <li><span class="warn">⚠️ Early warning:</span> Feeling bored or unchallenged in projects.</li>
+          <li><span class="warn">🔧 Prevention:</span> Dedicate 2 hours/week to a small AI/ML side project.</li>
+        </ul>
+      </div>
+      <div class="premortem-item">
+        <h5>🟢 Split Focus</h5>
+        <ul>
+          <li>❌ Neither skill deep enough to impress interviewers.</li>
+          <li>❌ Missed placement deadlines due to divided attention.</li>
+          <li>❌ Burnout from juggling two heavy tracks.</li>
+          <li><span class="warn">⚠️ Early warning:</span> Constantly switching context without progress.</li>
+          <li><span class="warn">🔧 Prevention:</span> Set strict weekly time blocks (e.g., 3 days Full Stack, 2 days AI/ML).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 — 7-DAY TEST PLAN -->
+  <div class="card card-border-green">
+    <div class="section-title" style="color:var(--accent-green);">7-Day Test Plan</div>
+    <div class="day-grid">
+      <div class="day-row"><span class="day">Day 1-2</span><span class="desc">Research job requirements of your target companies — note which skills appear most.</span></div>
+      <div class="day-row"><span class="day">Day 3-4</span><span class="desc">Small experiment: build a Full Stack mini-project in 2 days, then an AI/ML mini-project in 2 days — compare which energizes you more.</span></div>
+      <div class="day-row"><span class="day">Day 5-6</span><span class="desc">Talk to 2 alumni/mentors: one in Full Stack, one in AI/ML — ask about their first role and regrets.</span></div>
+      <div class="day-row"><span class="day">Day 7</span><span class="desc">Decision criteria: Which path makes you sleep better at night? Which gives you more confidence for interviews?</span></div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 — VERDICT -->
+  <div class="card card-border-gold card-alt glow-gold" style="padding:32px 28px;">
+    <div class="verdict-box">
+      <div style="font-size:14px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">The Verdict</div>
+      <div class="winner-name">Python Full Stack (Focus)</div>
+      <div class="winner-sub">It wins because it directly addresses your immediate placement goal — and you can add AI/ML projects later without losing momentum.</div>
+      <div style="margin-top:16px; font-size:15px; color:var(--text-secondary);">What could flip it: If placement timelines shift or you discover a burning passion during the 7-day test.</div>
+      <div class="hard-truth">Hard truth: You're not closing the AI door — you're just choosing to walk through the placement door first.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 — SHAREABLE CARDS -->
+  <div class="card card-border-gold">
+    <div class="section-title" style="color:var(--accent-gold);">Shareable Cards</div>
+    <div class="share-grid">
+      <div class="share-card">
+        <div class="title-sm">📊 Matrix</div>
+        <div class="content">Full Stack: 56/70</div>
+        <div class="content" style="color:var(--text-secondary);">AI/ML Split: 46/70</div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+      <div class="share-card">
+        <div class="title-sm">🏆 Verdict</div>
+        <div class="content" style="color:var(--accent-gold);">Full Stack Focus</div>
+        <div class="sub-text">Better placement odds + reversible later.</div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+      <div class="share-card">
+        <div class="title-sm">📌 LinkedIn</div>
+        <div class="content" style="font-size:14px;">“Clarity over confusion”</div>
+        <div class="sub-text">After 7-day test, chose Full Stack first. AI/ML is on the roadmap, not cancelled. #careerdecision #placement</div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Built with Claude AI · ABTalks 60-Day Challenge</div>
+</div>
+
+<script>
+  (function() {
+    // scores: Option A = Full Stack, Option B = Split
+    const dims = [
+      'Life/Career Upside',
+      'Financial Safety',
+      'Growth & Learning',
+      'Stress Level (10=low)',
+      'Reversibility (10=easy)',
+      'Long-term Alignment',
+      'Regret Risk (10=low)'
+    ];
+    const scoresA = [8, 9, 7, 8, 7, 8, 9];  // Full Stack
+    const scoresB = [9, 6, 9, 5, 9, 9, 5];  // Split
+    const totalA = scoresA.reduce((a,b) => a+b, 0);
+    const totalB = scoresB.reduce((a,b) => a+b, 0);
+
+    const container = document.getElementById('matrixContainer');
+    let html = '';
+    for (let i = 0; i < dims.length; i++) {
+      const label = dims[i];
+      const valA = scoresA[i];
+      const valB = scoresB[i];
+      const pctA = (valA / 10) * 100;
+      const pctB = (valB / 10) * 100;
+      html += `
+        <div class="matrix-row">
+          <div class="matrix-label">${label}</div>
+          <div class="matrix-bar-wrap"><div class="matrix-bar bar-a" style="--w:${pctA}%; animation-delay:${0.1*i}s;">${valA}</div></div>
+          <div class="matrix-bar-wrap"><div class="matrix-bar bar-b" style="--w:${pctB}%; animation-delay:${0.1*i+0.15}s;">${valB}</div></div>
+        </div>
+      `;
+    }
+    html += `
+      <div class="total-row">
+        <span>🔵 Full Stack Total</span>
+        <span class="highlight">${totalA}/70</span>
+        <span>🟢 Split Total</span>
+        <span class="highlight">${totalB}/70</span>
+      </div>
+      <div style="margin-top:12px; text-align:center; font-size:15px; font-weight:600; color:var(--accent-gold);">🏆 Winner: Python Full Stack (${totalA} vs ${totalB})</div>
+    `;
+    container.innerHTML = html;
+
+    // re-trigger animation after DOM injection
+    setTimeout(() => {
+      document.querySelectorAll('.matrix-bar').forEach(el => {
+        const w = el.style.getPropertyValue('--w');
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = `growBar 0.8s ease-out forwards`;
+      });
+    }, 100);
+  })();
+</script>
+</body>
+</html>
