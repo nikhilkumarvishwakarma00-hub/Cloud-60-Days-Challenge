@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Personal AI Playbook | workflow systems</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f9fafb;
+      --surface: #ffffff;
+      --text: #111827;
+      --text-secondary: #4b5563;
+      --border: #e5e7eb;
+      --primary: #7c3aed;
+      --primary-soft: #ede9fe;
+      --accent: #f59e0b;
+      --shadow: 0 4px 12px rgba(0,0,0,0.04);
+      --radius: 16px;
+      --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --transition: 0.2s ease;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --primary: #a78bfa;
+      --primary-soft: #2e1065;
+      --shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    body {
+      background: var(--bg);
+      font-family: var(--font-sans);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .app-container {
+      max-width: 1300px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* header & nav */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      border-radius: 40px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.9rem;
+    }
+
+    .nav-btn.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .theme-toggle {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--text);
+    }
+
+    /* explainer permanent banner */
+    .explainer-banner {
+      background: var(--primary-soft);
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .explainer-text strong {
+      color: var(--primary);
+    }
+
+    .dismiss-btn {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .help-trigger {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: var(--shadow);
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active-view {
+      display: block;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .prompt-preview {
+      background: #1e1e2f;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      padding: 1rem;
+      border-radius: 12px;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      font-size: 0.85rem;
+    }
+
+    .builder-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    select, input, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.6rem;
+      color: var(--text);
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .block-explanation {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+  </style>
+  <!-- Google Fonts for clean typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container" id="appContainer">
+  <header class="top-bar">
+    <span class="logo">⚡ AI Playbook</span>
+    <nav class="nav-links" id="mainNav">
+      <button class="nav-btn active" data-view="dashboard">📋 Dashboard</button>
+      <button class="nav-btn" data-view="promptBuilder">🧱 Prompt Builder</button>
+      <button class="nav-btn" data-view="loopBuilder">🔄 Loop Builder</button>
+      <button class="nav-btn" data-view="workflows">📁 Workflows</button>
+    </nav>
+    <div style="display: flex; gap:0.5rem;">
+      <button class="help-trigger" id="globalHelpTrigger">❓ What is this?</button>
+      <button id="themeToggle" class="theme-toggle">🌓 Dark</button>
+    </div>
+  </header>
+
+  <!-- Dismissible explainer (permanent unless dismissed) -->
+  <div id="explainerBanner" class="explainer-banner">
+    <div class="explainer-text">
+      <strong>🧠 Personal AI Playbook</strong> — Build reusable AI workflows, not one-off prompts. <strong>Dashboard</strong> shows your systems, <strong>Prompt Builder</strong> assembles prompts from blocks, <strong>Loop Builder</strong> creates autonomous improvement loops. Everything saves locally.
+    </div>
+    <button class="dismiss-btn" id="dismissExplainer">✕ Dismiss</button>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <section id="dashboardView" class="view active-view">
+    <h2 style="margin-bottom:0.2rem;">📊 Dashboard</h2>
+    <p style="color: var(--text-secondary); margin-bottom:1rem;">Your saved AI prompt workflows, at a glance.</p>
+    <div id="dashboardStats" class="cards-grid"></div>
+  </section>
+
+  <!-- PROMPT BUILDER VIEW -->
+  <section id="promptBuilderView" class="view">
+    <h2>🧱 Prompt Builder</h2>
+    <p style="color:var(--text-secondary);">Combine blocks to create precise prompts. Each block has a purpose.</p>
+    <div id="promptBuilderContainer" style="margin-top:1rem;"></div>
+  </section>
+
+  <!-- LOOP BUILDER VIEW -->
+  <section id="loopBuilderView" class="view">
+    <h2>🔄 Loop Builder</h2>
+    <p style="color:var(--text-secondary);">Turn any prompt into an autonomous improvement loop.</p>
+    <div id="loopBuilderContainer" style="margin-top:1rem;"></div>
+  </section>
+
+  <!-- WORKFLOWS VIEW (saved) -->
+  <section id="workflowsView" class="view">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>📁 My Workflows</h2>
+      <button id="exportBtn" style="background:var(--surface); border:1px solid var(--border); padding:0.5rem 1rem; border-radius:20px;">⬇️ Export</button>
+    </div>
+    <div id="savedWorkflowsList" class="cards-grid" style="margin-top:1rem;"></div>
+  </section>
+</div>
+
+<script>
+  (function() {
+    // --- State & Storage ---
+    const STORAGE_KEYS = {
+      WORKFLOWS: 'ai_playbook_workflows',
+      EXPLAINER_DISMISSED: 'ai_explainer_dismissed',
+      THEME: 'ai_theme'
+    };
+
+    // Default workflows sample (personalized later via interview)
+    let workflows = [];
+
+    // Current prompt builder blocks
+    let currentPromptBlocks = {
+      role: '',
+      objective: '',
+      context: '',
+      constraints: '',
+      reasoning: '',
+      format: '',
+      tone: '',
+      examples: '',
+      quality: ''
+    };
+
+    let currentLoopConfig = {
+      basePrompt: '',
+      goal: '',
+      evaluation: '',
+      improvement: '',
+      stopConditions: '',
+      safety: ''
+    };
+
+    // --- Helper functions ---
+    function saveWorkflows() {
+      localStorage.setItem(STORAGE_KEYS.WORKFLOWS, JSON.stringify(workflows));
+    }
+
+    function loadWorkflows() {
+      const stored = localStorage.getItem(STORAGE_KEYS.WORKFLOWS);
+      if (stored) {
+        workflows = JSON.parse(stored);
+      } else {
+        // Seed with personalized examples based on interview default
+        workflows = [
+          { id: '1', title: 'Daily standup summary', category: 'Communication', favorite: true, prompt: 'Role: project manager. Summarize today\'s tasks concisely.', type:'prompt' },
+          { id: '2', title: 'Code review assistant', category: 'Development', favorite: false, prompt: 'Review this code for security and performance.', type:'prompt' }
+        ];
+        saveWorkflows();
+      }
+    }
+
+    // UI updater
+    function renderAll() {
+      renderDashboard();
+      renderWorkflowsList();
+      renderPromptBuilder();
+      renderLoopBuilder();
+    }
+
+    // Dashboard
+    function renderDashboard() {
+      const container = document.getElementById('dashboardStats');
+      if (!container) return;
+      const favCount = workflows.filter(w=>w.favorite).length;
+      container.innerHTML = `
+        <div class="card"><span class="badge">📌 Favorites</span><h3>${favCount}</h3><p>starred workflows</p></div>
+        <div class="card"><span class="badge">🧩 Total</span><h3>${workflows.length}</h3><p>workflows saved</p></div>
+        <div class="card"><span class="badge">⚡ Quick tip</span><p>Use Prompt Builder to create reusable blocks.</p></div>
+      `;
+    }
+
+    // Workflows list
+    function renderWorkflowsList() {
+      const list = document.getElementById('savedWorkflowsList');
+      if (!list) return;
+      if (workflows.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-secondary);">No workflows yet. Create one in Prompt Builder or Loop Builder.</p>`;
+        return;
+      }
+      list.innerHTML = workflows.map(w => `
+        <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div><strong>${w.title}</strong> <span class="badge">${w.category || 'general'}</span></div>
+          <div class="prompt-preview" style="font-size:0.7rem;">${w.prompt.substring(0,100)}...</div>
+          <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+            <button data-duplicate="${w.id}" class="dup-btn">📋</button>
+            <button data-fav="${w.id}" class="fav-btn">${w.favorite?'⭐':'☆'}</button>
+            <button data-delete="${w.id}" class="del-btn">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+      attachWorkflowEvents();
+    }
+
+    function attachWorkflowEvents() {
+      document.querySelectorAll('.dup-btn').forEach(b => b.addEventListener('click', (e) => {
+        const id = e.target.dataset.duplicate;
+        const wf = workflows.find(w=>w.id===id);
+        if(wf) {
+          const newWf = {...wf, id: Date.now().toString(), title: wf.title + ' (copy)'};
+          workflows.push(newWf);
+          saveWorkflows(); renderAll();
+        }
+      }));
+      document.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', (e) => {
+        const id = e.target.dataset.fav;
+        const wf = workflows.find(w=>w.id===id);
+        if(wf) { wf.favorite = !wf.favorite; saveWorkflows(); renderAll(); }
+      }));
+      document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => {
+        const id = e.target.dataset.delete;
+        workflows = workflows.filter(w=>w.id!==id);
+        saveWorkflows(); renderAll();
+      }));
+    }
+
+    // Prompt Builder rendering
+    function renderPromptBuilder() {
+      const container = document.getElementById('promptBuilderContainer');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="builder-row">
+          <div style="flex:1;"><label>🎭 Role <span class="block-explanation">Who is the AI? (e.g., senior developer)</span></label>
+          <input id="roleInput" placeholder="expert product manager" value="${currentPromptBlocks.role}"></div>
+          <div style="flex:1;"><label>🎯 Objective <span class="block-explanation">What should it accomplish?</span></label>
+          <input id="objInput" placeholder="write launch email" value="${currentPromptBlocks.objective}"></div>
+        </div>
+        <div class="builder-row">
+          <div style="flex:1;"><label>📝 Context <span class="block-explanation">Background details</span></label>
+          <textarea id="ctxInput" rows="2">${currentPromptBlocks.context}</textarea></div>
+        </div>
+        <div class="builder-row">
+          <div><label>🔒 Constraints <span class="block-explanation">Limits, word count, avoid topics</span></label>
+          <input id="constInput" value="${currentPromptBlocks.constraints}"></div>
+          <div><label>🧠 Reasoning <span class="block-explanation">Chain-of-thought, step-by-step</span></label>
+          <select id="reasonSelect">${['','step-by-step','first principles','debate pros/cons'].map(o=>`<option ${currentPromptBlocks.reasoning===o?'selected':''}>${o}</option>`)}</select></div>
+        </div>
+        <div class="builder-row">
+          <div><label>📐 Output Format</label><input id="formatInput" value="${currentPromptBlocks.format}" placeholder="JSON, markdown table"></div>
+          <div><label>🗣️ Tone</label><select id="toneSelect">${['','professional','friendly','concise','technical'].map(t=>`<option ${currentPromptBlocks.tone===t?'selected':''}>${t}</option>`)}</select></div>
+        </div>
+        <div><label>📋 Examples <span class="block-explanation">Few-shot examples improve accuracy</span></label><textarea id="examplesInput" rows="2">${currentPromptBlocks.examples}</textarea></div>
+        <div><label>✅ Quality Checks</label><input id="qualityInput" value="${currentPromptBlocks.quality}" placeholder="verify no jargon"></div>
+        <div class="prompt-preview" id="livePromptPreview">${buildPromptFromBlocks()}</div>
+        <button id="savePromptWorkflow" style="background:var(--primary); color:white; border:none; padding:0.7rem 1.5rem; border-radius:30px;">💾 Save as Workflow</button>
+      `;
+      document.querySelectorAll('#promptBuilderContainer input, #promptBuilderContainer textarea, #promptBuilderContainer select').forEach(el => {
+        el.addEventListener('input', updatePromptBlocks);
+      });
+      document.getElementById('savePromptWorkflow').addEventListener('click', saveCurrentPrompt);
+    }
+
+    function updatePromptBlocks() {
+      currentPromptBlocks.role = document.getElementById('roleInput')?.value || '';
+      currentPromptBlocks.objective = document.getElementById('objInput')?.value || '';
+      currentPromptBlocks.context = document.getElementById('ctxInput')?.value || '';
+      currentPromptBlocks.constraints = document.getElementById('constInput')?.value || '';
+      currentPromptBlocks.reasoning = document.getElementById('reasonSelect')?.value || '';
+      currentPromptBlocks.format = document.getElementById('formatInput')?.value || '';
+      currentPromptBlocks.tone = document.getElementById('toneSelect')?.value || '';
+      currentPromptBlocks.examples = document.getElementById('examplesInput')?.value || '';
+      currentPromptBlocks.quality = document.getElementById('qualityInput')?.value || '';
+      document.getElementById('livePromptPreview').innerText = buildPromptFromBlocks();
+    }
+
+    function buildPromptFromBlocks() {
+      const b = currentPromptBlocks;
+      return `Role: ${b.role || '[role]'}\nObjective: ${b.objective || '[objective]'}\nContext: ${b.context || 'none'}\nConstraints: ${b.constraints || 'none'}\nReasoning: ${b.reasoning || 'default'}\nFormat: ${b.format || 'plain text'}\nTone: ${b.tone || 'neutral'}\nExamples: ${b.examples || 'none'}\nQuality: ${b.quality || 'standard'}`;
+    }
+
+    function saveCurrentPrompt() {
+      const title = prompt('Workflow title:');
+      if (!title) return;
+      workflows.push({
+        id: Date.now().toString(),
+        title,
+        category: 'custom',
+        favorite: false,
+        prompt: buildPromptFromBlocks(),
+        type: 'prompt'
+      });
+      saveWorkflows();
+      renderAll();
+      alert('Workflow saved!');
+    }
+
+    // Loop Builder
+    function renderLoopBuilder() {
+      const container = document.getElementById('loopBuilderContainer');
+      if (!container) return;
+      container.innerHTML = `
+        <div><label>📄 Base Prompt <span class="block-explanation">Starting instruction</span></label>
+        <textarea id="loopBasePrompt" rows="3">${currentLoopConfig.basePrompt}</textarea></div>
+        <div class="builder-row">
+          <div><label>🎯 Goal <span class="block-explanation">What defines success?</span></label><input id="loopGoal" value="${currentLoopConfig.goal}"></div>
+          <div><label>📊 Evaluation <span class="block-explanation">How to measure quality</span></label><input id="loopEval" value="${currentLoopConfig.evaluation}"></div>
+        </div>
+        <div><label>🔄 Improvement Strategy <span class="block-explanation">Refine based on feedback</span></label><input id="loopImprove" value="${currentLoopConfig.improvement}"></div>
+        <div><label>🛑 Stop Conditions</label><input id="loopStop" value="${currentLoopConfig.stopConditions}" placeholder="max 5 iterations or score>90"></div>
+        <div><label>⚠️ Safety Rules</label><input id="loopSafety" value="${currentLoopConfig.safety}"></div>
+        <div class="prompt-preview" id="loopPreview"></div>
+        <button id="saveLoopWorkflow" style="background:#7c3aed; color:white; border:none; padding:0.7rem 1.5rem; border-radius:30px;">💾 Save Loop</button>
+      `;
+      const updateLoopPreview = () => {
+        currentLoopConfig.basePrompt = document.getElementById('loopBasePrompt')?.value || '';
+        currentLoopConfig.goal = document.getElementById('loopGoal')?.value || '';
+        currentLoopConfig.evaluation = document.getElementById('loopEval')?.value || '';
+        currentLoopConfig.improvement = document.getElementById('loopImprove')?.value || '';
+        currentLoopConfig.stopConditions = document.getElementById('loopStop')?.value || '';
+        currentLoopConfig.safety = document.getElementById('loopSafety')?.value || '';
+        document.getElementById('loopPreview').innerText = `LOOP START:\n${currentLoopConfig.basePrompt}\nGoal: ${currentLoopConfig.goal}\nEvaluate: ${currentLoopConfig.evaluation}\nImprove: ${currentLoopConfig.improvement}\nStop: ${currentLoopConfig.stopConditions}\nSafety: ${currentLoopConfig.safety}`;
+      };
+      container.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updateLoopPreview));
+      updateLoopPreview();
+      document.getElementById('saveLoopWorkflow').addEventListener('click', ()=>{
+        const title = prompt('Loop workflow title:');
+        if(!title) return;
+        workflows.push({ id: Date.now().toString(), title, category:'loop', favorite:false, prompt: document.getElementById('loopPreview').innerText, type:'loop' });
+        saveWorkflows(); renderAll();
+      });
+    }
+
+    // Theme & explainer
+    function applyTheme(dark) {
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '☀️ Light' : '🌓 Dark';
+      localStorage.setItem(STORAGE_KEYS.THEME, dark ? 'dark' : 'light');
+    }
+
+    // Navigation
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+      document.getElementById(viewId).classList.add('active-view');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
+    }
+
+    // Interview simulation (one question at a time, MCQ style)
+    function startInterview() {
+      const questions = [
+        { q: 'Your primary role?', options: ['Developer', 'Product Manager', 'Designer', 'Researcher', 'Executive'] },
+        { q: 'Top AI use case?', options: ['Content creation', 'Code assistance', 'Data analysis', 'Brainstorming', 'Automation'] },
+        { q: 'Experience with AI?', options: ['Beginner', 'Intermediate', 'Advanced'] }
+      ];
+      let idx = 0;
+      function ask() {
+        if (idx >= questions.length) {
+          alert('Thanks! Your playbook is ready.');
+          return;
+        }
+        const q = questions[idx];
+        const answer = prompt(`${q.q}\n${q.options.map((o,i)=>`${i+1}. ${o}`).join('\n')}`);
+        idx++;
+        if (answer) {
+          // personalize based on answer (simple mapping)
+          if (idx===1) currentPromptBlocks.role = q.options[parseInt(answer)-1] || 'professional';
+        }
+        setTimeout(ask, 100);
+      }
+      ask();
+    }
+
+    // Event binding & init
+    window.addEventListener('load', () => {
+      loadWorkflows();
+      const dark = localStorage.getItem(STORAGE_KEYS.THEME) === 'dark';
+      applyTheme(dark);
+      
+      document.getElementById('themeToggle').addEventListener('click', ()=>{
+        applyTheme(!document.body.classList.contains('dark'));
+      });
+
+      document.getElementById('globalHelpTrigger').addEventListener('click', ()=>{
+        alert('Personal AI Playbook: Build modular AI workflows. Dashboard shows saved items. Prompt Builder combines blocks. Loop Builder creates self-improving prompts. All data in local storage.');
+      });
+
+      const explainerDismissed = localStorage.getItem(STORAGE_KEYS.EXPLAINER_DISMISSED);
+      if (explainerDismissed) {
+        document.getElementById('explainerBanner').style.display = 'none';
+      }
+      document.getElementById('dismissExplainer').addEventListener('click', ()=>{
+        document.getElementById('explainerBanner').style.display = 'none';
+        localStorage.setItem(STORAGE_KEYS.EXPLAINER_DISMISSED, 'true');
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const view = e.target.dataset.view;
+          switchView(view + 'View');
+        });
+      });
+
+      document.getElementById('exportBtn')?.addEventListener('click', ()=>{
+        const dataStr = JSON.stringify(workflows, null, 2);
+        const blob = new Blob([dataStr], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'ai_playbook_backup.json'; a.click();
+      });
+
+      renderAll();
+      // Start interview after a short delay
+      setTimeout(startInterview, 800);
+    });
+  })();
+</script>
+</body>
+</html>
